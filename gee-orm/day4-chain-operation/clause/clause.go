@@ -7,7 +7,7 @@ import (
 // Clause contains SQL conditions
 type Clause struct {
 	sql     map[Type]string
-	sqlVars map[Type][]interface{}
+	sqlVars map[Type][]any
 }
 
 // Type is the type of Clause
@@ -27,10 +27,10 @@ const (
 )
 
 // Set adds a sub clause of specific type
-func (c *Clause) Set(name Type, vars ...interface{}) {
+func (c *Clause) Set(name Type, vars ...any) {
 	if c.sql == nil {
 		c.sql = make(map[Type]string)
-		c.sqlVars = make(map[Type][]interface{})
+		c.sqlVars = make(map[Type][]any)
 	}
 	sql, vars := generators[name](vars...)
 	c.sql[name] = sql
@@ -38,9 +38,9 @@ func (c *Clause) Set(name Type, vars ...interface{}) {
 }
 
 // Build generate the final SQL and SQLVars
-func (c *Clause) Build(orders ...Type) (string, []interface{}) {
+func (c *Clause) Build(orders ...Type) (string, []any) {
 	var sqls []string
-	var vars []interface{}
+	var vars []any
 	for _, order := range orders {
 		if sql, ok := c.sql[order]; ok {
 			sqls = append(sqls, sql)

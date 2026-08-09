@@ -7,16 +7,16 @@ import (
 
 	"geeorm/dialect"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 var (
 	TestDB      *sql.DB
-	TestDial, _ = dialect.GetDialect("sqlite3")
+	TestDial, _ = dialect.GetDialect("sqlite")
 )
 
 func TestMain(m *testing.M) {
-	TestDB, _ = sql.Open("sqlite3", "../gee.db")
+	TestDB, _ = sql.Open("sqlite", "file:geeorm-session-tests?mode=memory&cache=shared")
 	code := m.Run()
 	_ = TestDB.Close()
 	os.Exit(code)

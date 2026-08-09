@@ -263,7 +263,7 @@ type debugService struct {
 func (server debugHTTP) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Build a sorted version of the data.
 	var services []debugService
-	server.serviceMap.Range(func(namei, svci interface{}) bool {
+	server.serviceMap.Range(func(namei, svci any) bool {
 		svc := svci.(*service)
 		services = append(services, debugService{
 			Name:   namei.(string),

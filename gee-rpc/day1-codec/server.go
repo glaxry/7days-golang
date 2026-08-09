@@ -5,6 +5,7 @@
 package geerpc
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"geerpc/codec"
@@ -38,12 +39,24 @@ func NewServer() *Server {
 // DefaultServer is the default instance of *Server.
 var DefaultServer = NewServer()
 
+type bufferedReadWriteCloser struct {
+	io.Reader
+	io.Writer
+	io.Closer
+}
+
 // ServeConn runs the server on a single connection.
 // ServeConn blocks, serving the connection until the client hangs up.
 func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 	defer func() { _ = conn.Close() }()
+	reader := bufio.NewReader(conn)
+	optionData, err := reader.ReadBytes('\n')
+	if err != nil {
+		log.Println("rpc server: options error: ", err)
+		return
+	}
 	var opt Option
-	if err := json.NewDecoder(conn).Decode(&opt); err != nil {
+	if err := json.Unmarshal(optionData, &opt); err != nil {
 		log.Println("rpc server: options error: ", err)
 		return
 	}
@@ -56,7 +69,7 @@ func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 		log.Printf("rpc server: invalid codec type %s", opt.CodecType)
 		return
 	}
-	server.serveCodec(f(conn))
+	server.serveCodec(f(&bufferedReadWriteCloser{Reader: reader, Writer: conn, Closer: conn}))
 }
 
 // invalidRequest is a placeholder for response argv when error occurs
@@ -107,14 +120,14 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 	req := &request{h: h}
 	// TODO: now we don't know the type of request argv
 	// day 1, just suppose it's string
-	req.argv = reflect.New(reflect.TypeOf(""))
+	req.argv = reflect.New(reflect.TypeFor[string]())
 	if err = cc.ReadBody(req.argv.Interface()); err != nil {
 		log.Println("rpc server: read argv err:", err)
 	}
 	return req, nil
 }
 
-func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body interface{}, sending *sync.Mutex) {
+func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body any, sending *sync.Mutex) {
 	sending.Lock()
 	defer sending.Unlock()
 	if err := cc.Write(h, body); err != nil {

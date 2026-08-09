@@ -62,12 +62,12 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"log"
 )
 
 func main() {
-	db, _ := sql.Open("sqlite3", "gee.db")
+	db, _ := sql.Open("sqlite", "gee.db")
 	defer func() { _ = db.Close() }()
 	_, _ = db.Exec("CREATE TABLE IF NOT EXISTS User(`Name` text);")
 
@@ -100,14 +100,14 @@ type Session struct {
 	refTable *schema.Schema
 	clause   clause.Clause
 	sql      strings.Builder
-	sqlVars  []interface{}
+	sqlVars  []any
 }
 
 // CommonDB is a minimal function set of db
 type CommonDB interface {
-	Query(query string, args ...interface{}) (*sql.Rows, error)
-	QueryRow(query string, args ...interface{}) *sql.Row
-	Exec(query string, args ...interface{}) (sql.Result, error)
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+	Exec(query string, args ...any) (sql.Result, error)
 }
 
 var _ CommonDB = (*sql.DB)(nil)
@@ -166,9 +166,9 @@ func (s *Session) Rollback() (err error) {
 [day6-transaction/geeorm.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day6-transaction)
 
 ```go
-type TxFunc func(*session.Session) (interface{}, error)
+type TxFunc func(*session.Session) (any, error)
 
-func (engine *Engine) Transaction(f TxFunc) (result interface{}, err error) {
+func (engine *Engine) Transaction(f TxFunc) (result any, err error) {
 	s := engine.NewSession()
 	if err := s.Begin(); err != nil {
 		return nil, err
@@ -199,7 +199,7 @@ func (engine *Engine) Transaction(f TxFunc) (result interface{}, err error) {
 ```go
 func OpenDB(t *testing.T) *Engine {
 	t.Helper()
-	engine, err := NewEngine("sqlite3", "gee.db")
+	engine, err := NewEngine("sqlite", "gee.db")
 	if err != nil {
 		t.Fatal("failed to connect", err)
 	}
@@ -229,7 +229,7 @@ func transactionRollback(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession()
 	_ = s.Model(&User{}).DropTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, err = s.Insert(&User{"Tom", 18})
 		return nil, errors.New("Error")
@@ -251,7 +251,7 @@ func transactionCommit(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession()
 	_ = s.Model(&User{}).DropTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, err = s.Insert(&User{"Tom", 18})
 		return

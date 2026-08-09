@@ -11,7 +11,7 @@ type sqlite3 struct{}
 var _ Dialect = (*sqlite3)(nil)
 
 func init() {
-	RegisterDialect("sqlite3", &sqlite3{})
+	RegisterDialect("sqlite", &sqlite3{})
 }
 
 // Get Data Type for sqlite3 Dialect
@@ -39,7 +39,7 @@ func (s *sqlite3) DataTypeOf(typ reflect.Value) string {
 }
 
 // TableExistSQL returns SQL that judge whether the table exists in database
-func (s *sqlite3) TableExistSQL(tableName string) (string, []interface{}) {
-	args := []interface{}{tableName}
+func (s *sqlite3) TableExistSQL(tableName string) (string, []any) {
+	args := []any{tableName}
 	return "SELECT name FROM sqlite_master WHERE type='table' and name = ?", args
 }

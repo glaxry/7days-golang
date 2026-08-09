@@ -77,8 +77,7 @@ switch req.ServiceMethod {
 func main() {
 	var wg sync.WaitGroup
 	typ := reflect.TypeOf(&wg)
-	for i := 0; i < typ.NumMethod(); i++ {
-		method := typ.Method(i)
+	for method := range typ.Methods() {
 		argv := make([]string, 0, method.Type.NumIn())
 		returns := make([]string, 0, method.Type.NumOut())
 		// j 从 1 开始，第 0 个入参是 wg 自己。
@@ -128,7 +127,7 @@ func (m *methodType) NumCalls() uint64 {
 func (m *methodType) newArgv() reflect.Value {
 	var argv reflect.Value
 	// arg may be a pointer type, or a value type
-	if m.ArgType.Kind() == reflect.Ptr {
+	if m.ArgType.Kind() == reflect.Pointer {
 		argv = reflect.New(m.ArgType.Elem())
 	} else {
 		argv = reflect.New(m.ArgType).Elem()
@@ -174,7 +173,7 @@ service 的定义也是非常简洁的，name 即映射的结构体的名称，�
 接下来，完成构造函数 `newService`，入参是任意需要映射为服务的结构体实例。
 
 ```go
-func newService(rcvr interface{}) *service {
+func newService(rcvr any) *service {
 	s := new(service)
 	s.rcvr = reflect.ValueOf(rcvr)
 	s.name = reflect.Indirect(s.rcvr).Type().Name()
@@ -188,13 +187,12 @@ func newService(rcvr interface{}) *service {
 
 func (s *service) registerMethods() {
 	s.method = make(map[string]*methodType)
-	for i := 0; i < s.typ.NumMethod(); i++ {
-		method := s.typ.Method(i)
+	for method := range s.typ.Methods() {
 		mType := method.Type
 		if mType.NumIn() != 3 || mType.NumOut() != 1 {
 			continue
 		}
-		if mType.Out(0) != reflect.TypeOf((*error)(nil)).Elem() {
+		if mType.Out(0) != reflect.TypeFor[error]() {
 			continue
 		}
 		argType, replyType := mType.In(1), mType.In(2)
@@ -258,7 +256,7 @@ func (f Foo) sum(args Args, reply *int) error {
 	return nil
 }
 
-func _assert(condition bool, msg string, v ...interface{}) {
+func _assert(condition bool, msg string, v ...any) {
 	if !condition {
 		panic(fmt.Sprintf("assertion failed: "+msg, v...))
 	}
@@ -306,7 +304,7 @@ type Server struct {
 }
 
 // Register publishes in the server the set of methods of the
-func (server *Server) Register(rcvr interface{}) error {
+func (server *Server) Register(rcvr any) error {
 	s := newService(rcvr)
 	if _, dup := server.serviceMap.LoadOrStore(s.name, s); dup {
 		return errors.New("rpc: service already defined: " + s.name)
@@ -315,7 +313,7 @@ func (server *Server) Register(rcvr interface{}) error {
 }
 
 // Register publishes the receiver's methods in the DefaultServer.
-func Register(rcvr interface{}) error { return DefaultServer.Register(rcvr) }
+func Register(rcvr any) error { return DefaultServer.Register(rcvr) }
 ```
 
 配套实现 `findService` 方法，即通过 `ServiceMethod` 从 serviceMap 中找到对应的 service
@@ -370,7 +368,7 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 
 	// make sure that argvi is a pointer, ReadBody need a pointer as parameter
 	argvi := req.argv.Interface()
-	if req.argv.Type().Kind() != reflect.Ptr {
+	if req.argv.Type().Kind() != reflect.Pointer {
 		argvi = req.argv.Addr().Interface()
 	}
 	if err = cc.ReadBody(argvi); err != nil {

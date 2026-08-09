@@ -67,7 +67,7 @@ func main() {
 封装前
 
 ```go
-obj = map[string]interface{}{
+obj = map[string]any{
     "name": "geektutu",
     "password": "1234",
 }
@@ -96,7 +96,7 @@ c.JSON(http.StatusOK, gee.H{
 [day2-context/gee/context.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day2-context)
 
 ```go
-type H map[string]interface{}
+type H map[string]any
 
 type Context struct {
 	// origin objects
@@ -135,13 +135,13 @@ func (c *Context) SetHeader(key string, value string) {
 	c.Writer.Header().Set(key, value)
 }
 
-func (c *Context) String(code int, format string, values ...interface{}) {
+func (c *Context) String(code int, format string, values ...any) {
 	c.SetHeader("Content-Type", "text/plain")
 	c.Status(code)
-	c.Writer.Write([]byte(fmt.Sprintf(format, values...)))
+	c.Writer.Write(fmt.Appendf(nil, format, values...))
 }
 
-func (c *Context) JSON(code int, obj interface{}) {
+func (c *Context) JSON(code int, obj any) {
 	c.SetHeader("Content-Type", "application/json")
 	c.Status(code)
 	encoder := json.NewEncoder(c.Writer)
@@ -162,7 +162,7 @@ func (c *Context) HTML(code int, html string) {
 }
 ```
 
-- 代码最开头，给`map[string]interface{}`起了一个别名`gee.H`，构建JSON数据时，显得更简洁。
+- 代码最开头，给`map[string]any`起了一个别名`gee.H`，构建JSON数据时，显得更简洁。
 - `Context`目前只包含了`http.ResponseWriter`和`*http.Request`，另外提供了对 Method 和 Path 这两个常用属性的直接访问。
 - 提供了访问Query和PostForm参数的方法。
 - 提供了快速构造String/Data/JSON/HTML响应的方法。

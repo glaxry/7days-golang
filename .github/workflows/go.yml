@@ -1,0 +1,41 @@
+name: Go
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.x'
+          cache: false
+      - name: Test all modules and WebAssembly demos
+        if: runner.os != 'Windows'
+        run: bash scripts/test-all.sh
+      - name: Test all modules and WebAssembly demos (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/test-all.ps1
+      - name: Race-test final tutorial stages
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          for module in \
+            gee-cache/day7-proto-buf/geecache \
+            gee-orm/day7-migrate \
+            gee-rpc/day7-registry \
+            gee-web/day7-panic-recover/gee
+          do
+            (cd "$module" && go test -race -timeout 3m ./...)
+          done

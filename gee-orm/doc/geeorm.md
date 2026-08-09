@@ -82,8 +82,7 @@ orm.CreateTable(&Account{})
 typ := reflect.Indirect(reflect.ValueOf(&Account{})).Type()
 fmt.Println(typ.Name()) // Account
 
-for i := 0; i < typ.NumField(); i++ {
-    field := typ.Field(i)
+for field := range typ.Fields() {
     fmt.Println(field.Name) // Username Password
 }
 ```
@@ -91,7 +90,7 @@ for i := 0; i < typ.NumField(); i++ {
 - `reflect.ValueOf()` 获取指针对应的反射值。
 - `reflect.Indirect()` 获取指针指向的对象的反射值。
 - `(reflect.Type).Name()` 返回类名(字符串)。
-- `(reflect.Type).Field(i)` 获取第 i 个成员变量。
+- `(reflect.Type).Fields()` 是 Go 1.26 的字段迭代器，可依次获取所有成员变量。
 
 除了对象和表结构/记录的映射以外，设计 ORM 框架还需要关注什么问题呢？
 
@@ -109,7 +108,7 @@ for i := 0; i < typ.NumField(); i++ {
 
 因此，设计实现一个 ORM 框架，就需要给功能特性排优先级了。
 
-Go 语言中使用比较广泛 ORM 框架是 [gorm](https://github.com/jinzhu/gorm) 和 [xorm](https://github.com/go-xorm/xorm)。除了基础的功能，比如表的操作，记录的增删查改，gorm 还实现了关联关系(一对一、一对多等)，回调插件等；xorm 实现了读写分离(支持配置多个数据库)，数据同步，导入导出等。
+Go 生态中常用的 ORM 包括 [GORM](https://github.com/go-gorm/gorm) 和 [XORM](https://gitea.com/xorm/xorm)。它们已经发展出关联关系、钩子、迁移、读写分离等完整能力；GeeORM 只选择其中最适合教学的核心机制逐步实现，不追求 API 或功能完全兼容。
 
 gorm 正在彻底重构 v1 版本，短期内看不到发布 v2 的可能。相比于 gorm-v1，xorm 在设计上更清晰。GeeORM 的设计主要参考了 xorm，一些细节上的实现参考了 gorm。GeeORM 的目的主要是了解 ORM 框架设计的原理，具体实现上鲁棒性做得不够，一些复杂的特性，例如 gorm 的关联关系，xorm 的读写分离没有实现。目前支持的特性有：
 

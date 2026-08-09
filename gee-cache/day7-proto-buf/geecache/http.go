@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"geecache/consistenthash"
 	pb "geecache/geecachepb"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -38,7 +38,7 @@ func NewHTTPPool(self string) *HTTPPool {
 }
 
 // Log info with server name
-func (p *HTTPPool) Log(format string, v ...interface{}) {
+func (p *HTTPPool) Log(format string, v ...any) {
 	log.Printf("[Server %s] %s", p.self, fmt.Sprintf(format, v...))
 }
 
@@ -127,7 +127,7 @@ func (h *httpGetter) Get(in *pb.Request, out *pb.Response) error {
 		return fmt.Errorf("server returned: %v", res.Status)
 	}
 
-	bytes, err := ioutil.ReadAll(res.Body)
+	bytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("reading response body: %v", err)
 	}

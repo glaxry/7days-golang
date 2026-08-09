@@ -18,11 +18,11 @@ import (
 // Call represents an active RPC.
 type Call struct {
 	Seq           uint64
-	ServiceMethod string      // format "<service>.<method>"
-	Args          interface{} // arguments to the function
-	Reply         interface{} // reply from the function
-	Error         error       // if error occurs, it will be set
-	Done          chan *Call  // Strobes when call is complete.
+	ServiceMethod string     // format "<service>.<method>"
+	Args          any        // arguments to the function
+	Reply         any        // reply from the function
+	Error         error      // if error occurs, it will be set
+	Done          chan *Call // Strobes when call is complete.
 }
 
 func (call *Call) done() {
@@ -143,7 +143,7 @@ func (client *Client) receive() {
 			// and call was already removed.
 			err = client.cc.ReadBody(nil)
 		case h.Error != "":
-			call.Error = fmt.Errorf(h.Error)
+			call.Error = errors.New(h.Error)
 			err = client.cc.ReadBody(nil)
 			call.done()
 		default:
@@ -160,7 +160,7 @@ func (client *Client) receive() {
 
 // Go invokes the function asynchronously.
 // It returns the Call structure representing the invocation.
-func (client *Client) Go(serviceMethod string, args, reply interface{}, done chan *Call) *Call {
+func (client *Client) Go(serviceMethod string, args, reply any, done chan *Call) *Call {
 	if done == nil {
 		done = make(chan *Call, 10)
 	} else if cap(done) == 0 {
@@ -178,7 +178,7 @@ func (client *Client) Go(serviceMethod string, args, reply interface{}, done cha
 
 // Call invokes the named function, waits for it to complete,
 // and returns its error status.
-func (client *Client) Call(serviceMethod string, args, reply interface{}) error {
+func (client *Client) Call(serviceMethod string, args, reply any) error {
 	call := <-client.Go(serviceMethod, args, reply, make(chan *Call, 1)).Done
 	return call.Error
 }

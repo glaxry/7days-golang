@@ -115,7 +115,7 @@ type Context struct {
 	engine *Engine
 }
 
-func (c *Context) HTML(code int, name string, data interface{}) {
+func (c *Context) HTML(code int, name string, data any) {
 	c.SetHeader("Content-Type", "text/html")
 	c.Status(code)
 	if err := c.engine.htmlTemplates.ExecuteTemplate(c.Writer, name, data); err != nil {

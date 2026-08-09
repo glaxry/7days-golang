@@ -6,7 +6,7 @@ import (
 
 func TestDo(t *testing.T) {
 	var g Group
-	v, err := g.Do("key", func() (interface{}, error) {
+	v, err := g.Do("key", func() (any, error) {
 		return "bar", nil
 	})
 

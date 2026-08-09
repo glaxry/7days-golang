@@ -3,7 +3,7 @@ package geecache
 import (
 	"fmt"
 	"geecache/consistenthash"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -35,7 +35,7 @@ func NewHTTPPool(self string) *HTTPPool {
 }
 
 // Log info with server name
-func (p *HTTPPool) Log(format string, v ...interface{}) {
+func (p *HTTPPool) Log(format string, v ...any) {
 	log.Printf("[Server %s] %s", p.self, fmt.Sprintf(format, v...))
 }
 
@@ -117,7 +117,7 @@ func (h *httpGetter) Get(group string, key string) ([]byte, error) {
 		return nil, fmt.Errorf("server returned: %v", res.Status)
 	}
 
-	bytes, err := ioutil.ReadAll(res.Body)
+	bytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("reading response body: %v", err)
 	}

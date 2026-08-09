@@ -145,7 +145,7 @@ go.mod
 ```bash
 module example
 
-go 1.13
+go 1.26.0
 
 require gee v0.0.0
 

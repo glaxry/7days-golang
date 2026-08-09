@@ -5,6 +5,7 @@
 package geerpc
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -46,12 +47,24 @@ func NewServer() *Server {
 // DefaultServer is the default instance of *Server.
 var DefaultServer = NewServer()
 
+type bufferedReadWriteCloser struct {
+	io.Reader
+	io.Writer
+	io.Closer
+}
+
 // ServeConn runs the server on a single connection.
 // ServeConn blocks, serving the connection until the client hangs up.
 func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 	defer func() { _ = conn.Close() }()
+	reader := bufio.NewReader(conn)
+	optionData, err := reader.ReadBytes('\n')
+	if err != nil {
+		log.Println("rpc server: options error: ", err)
+		return
+	}
 	var opt Option
-	if err := json.NewDecoder(conn).Decode(&opt); err != nil {
+	if err := json.Unmarshal(optionData, &opt); err != nil {
 		log.Println("rpc server: options error: ", err)
 		return
 	}
@@ -64,7 +77,7 @@ func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 		log.Printf("rpc server: invalid codec type %s", opt.CodecType)
 		return
 	}
-	server.serveCodec(f(conn), &opt)
+	server.serveCodec(f(&bufferedReadWriteCloser{Reader: reader, Writer: conn, Closer: conn}), &opt)
 }
 
 // invalidRequest is a placeholder for response argv when error occurs
@@ -144,7 +157,7 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 
 	// make sure that argvi is a pointer, ReadBody need a pointer as parameter
 	argvi := req.argv.Interface()
-	if req.argv.Type().Kind() != reflect.Ptr {
+	if req.argv.Type().Kind() != reflect.Pointer {
 		argvi = req.argv.Addr().Interface()
 	}
 	if err = cc.ReadBody(argvi); err != nil {
@@ -154,7 +167,7 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 	return req, nil
 }
 
-func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body interface{}, sending *sync.Mutex) {
+func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body any, sending *sync.Mutex) {
 	sending.Lock()
 	defer sending.Unlock()
 	if err := cc.Write(h, body); err != nil {
@@ -164,32 +177,31 @@ func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body interfa
 
 func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.Mutex, wg *sync.WaitGroup, timeout time.Duration) {
 	defer wg.Done()
-	called := make(chan struct{})
-	sent := make(chan struct{})
-	go func() {
-		err := req.svc.call(req.mtype, req.argv, req.replyv)
-		called <- struct{}{}
+	send := func(err error) {
 		if err != nil {
 			req.h.Error = err.Error()
 			server.sendResponse(cc, req.h, invalidRequest, sending)
-			sent <- struct{}{}
 			return
 		}
 		server.sendResponse(cc, req.h, req.replyv.Interface(), sending)
-		sent <- struct{}{}
-	}()
+	}
 
 	if timeout == 0 {
-		<-called
-		<-sent
+		send(req.svc.call(req.mtype, req.argv, req.replyv))
 		return
 	}
+	called := make(chan error, 1)
+	go func() {
+		called <- req.svc.call(req.mtype, req.argv, req.replyv)
+	}()
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
 	select {
-	case <-time.After(timeout):
+	case <-timer.C:
 		req.h.Error = fmt.Sprintf("rpc server: request handle timeout: expect within %s", timeout)
 		server.sendResponse(cc, req.h, invalidRequest, sending)
-	case <-called:
-		<-sent
+	case err := <-called:
+		send(err)
 	}
 }
 
@@ -212,11 +224,11 @@ func Accept(lis net.Listener) { DefaultServer.Accept(lis) }
 
 // Register publishes in the server the set of methods of the
 // receiver value that satisfy the following conditions:
-//	- exported method of exported type
-//	- two arguments, both of exported type
-//	- the second argument is a pointer
-//	- one return value, of type error
-func (server *Server) Register(rcvr interface{}) error {
+//   - exported method of exported type
+//   - two arguments, both of exported type
+//   - the second argument is a pointer
+//   - one return value, of type error
+func (server *Server) Register(rcvr any) error {
 	s := newService(rcvr)
 	if _, dup := server.serviceMap.LoadOrStore(s.name, s); dup {
 		return errors.New("rpc: service already defined: " + s.name)
@@ -225,4 +237,4 @@ func (server *Server) Register(rcvr interface{}) error {
 }
 
 // Register publishes the receiver's methods in the DefaultServer.
-func Register(rcvr interface{}) error { return DefaultServer.Register(rcvr) }
+func Register(rcvr any) error { return DefaultServer.Register(rcvr) }

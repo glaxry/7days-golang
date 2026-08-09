@@ -94,7 +94,7 @@ func dialTimeout(f newClientFunc, network, address string, opts ...*Option) (cli
 			_ = conn.Close()
 		}
 	}()
-	ch := make(chan clientResult)
+	ch := make(chan clientResult, 1)
 	go func() {
 		client, err := f(conn, opt)
 		ch <- clientResult{client: client, err: err}
@@ -103,8 +103,10 @@ func dialTimeout(f newClientFunc, network, address string, opts ...*Option) (cli
 		result := <-ch
 		return result.client, result.err
 	}
+	timer := time.NewTimer(opt.ConnectTimeout)
+	defer timer.Stop()
 	select {
-	case <-time.After(opt.ConnectTimeout):
+	case <-timer.C:
 		return nil, fmt.Errorf("rpc client: connect timeout: expect within %s", opt.ConnectTimeout)
 	case result := <-ch:
 		return result.client, result.err
@@ -129,7 +131,7 @@ func Dial(network, address string, opts ...*Option) (*Client, error) {
 ```go
 // Call invokes the named function, waits for it to complete,
 // and returns its error status.
-func (client *Client) Call(ctx context.Context, serviceMethod string, args, reply interface{}) error {
+func (client *Client) Call(ctx context.Context, serviceMethod string, args, reply any) error {
 	call := client.Go(serviceMethod, args, reply, make(chan *Call, 1))
 	select {
 	case <-ctx.Done():
@@ -152,47 +154,48 @@ err := client.Call(ctx, "Foo.Sum", &Args{1, 2}, &reply)
 
 ## 服务端处理超时
 
-这一部分的实现与客户端很接近，使用 `time.After()` 结合 `select+chan` 完成。
+这一部分的实现与客户端很接近，使用可停止的 `time.Timer` 结合 `select` 和带缓冲 channel 完成。
 
 [day4-timeout/server.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day4-timeout)
 
 ```go
 func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.Mutex, wg *sync.WaitGroup, timeout time.Duration) {
 	defer wg.Done()
-	called := make(chan struct{})
-	sent := make(chan struct{})
-	go func() {
-		err := req.svc.call(req.mtype, req.argv, req.replyv)
-		called <- struct{}{}
+	send := func(err error) {
 		if err != nil {
 			req.h.Error = err.Error()
 			server.sendResponse(cc, req.h, invalidRequest, sending)
-			sent <- struct{}{}
 			return
 		}
 		server.sendResponse(cc, req.h, req.replyv.Interface(), sending)
-		sent <- struct{}{}
-	}()
+	}
 
 	if timeout == 0 {
-		<-called
-		<-sent
+		send(req.svc.call(req.mtype, req.argv, req.replyv))
 		return
 	}
+	called := make(chan error, 1)
+	go func() {
+		called <- req.svc.call(req.mtype, req.argv, req.replyv)
+	}()
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
 	select {
-	case <-time.After(timeout):
+	case <-timer.C:
 		req.h.Error = fmt.Sprintf("rpc server: request handle timeout: expect within %s", timeout)
 		server.sendResponse(cc, req.h, invalidRequest, sending)
-	case <-called:
-		<-sent
+	case err := <-called:
+		send(err)
 	}
 }
 ```
 
-这里需要确保 `sendResponse` 仅调用一次，因此将整个过程拆分为 `called` 和 `sent` 两个阶段，在这段代码中只会发生如下两种情况：
+这里有两个容易忽略的并发细节：
 
-1) called 信道接收到消息，代表处理没有超时，继续执行 sendResponse。
-2) `time.After()` 先于 called 接收到消息，说明处理已经超时，called 和 sent 都将被阻塞。在 `case <-time.After(timeout)` 处调用 `sendResponse`。
+1. `called` 必须有容量 1。超时分支返回后，业务函数可能仍在执行；它结束时可以写入 channel 并退出，不会泄漏 goroutine。
+2. 业务 goroutine 只返回 `error`，不直接写网络。最终只有 `handleRequest` 选择出的一个分支调用 `sendResponse`，因此不会先发超时响应、稍后又发成功响应。
+
+`time.NewTimer` 配合 `Stop` 明确了定时器生命周期；`timeout == 0` 时直接同步调用，避免创建无意义的 goroutine。
 
 ## 测试用例
 
@@ -202,7 +205,6 @@ func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.
 
 ```go
 func TestClient_dialTimeout(t *testing.T) {
-	t.Parallel()
 	l, _ := net.Listen("tcp", ":0")
 
 	f := func(conn net.Conn, opt *Option) (client *Client, err error) {
@@ -241,7 +243,6 @@ func startServer(addr chan string) {
 }
 
 func TestClient_Call(t *testing.T) {
-	t.Parallel()
 	addrCh := make(chan string)
 	go startServer(addrCh)
 	addr := <-addrCh

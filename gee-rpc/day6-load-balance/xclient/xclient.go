@@ -53,7 +53,7 @@ func (xc *XClient) dial(rpcAddr string) (*Client, error) {
 	return client, nil
 }
 
-func (xc *XClient) call(rpcAddr string, ctx context.Context, serviceMethod string, args, reply interface{}) error {
+func (xc *XClient) call(rpcAddr string, ctx context.Context, serviceMethod string, args, reply any) error {
 	client, err := xc.dial(rpcAddr)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (xc *XClient) call(rpcAddr string, ctx context.Context, serviceMethod strin
 // Call invokes the named function, waits for it to complete,
 // and returns its error status.
 // xc will choose a proper server.
-func (xc *XClient) Call(ctx context.Context, serviceMethod string, args, reply interface{}) error {
+func (xc *XClient) Call(ctx context.Context, serviceMethod string, args, reply any) error {
 	rpcAddr, err := xc.d.Get(xc.mode)
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (xc *XClient) Call(ctx context.Context, serviceMethod string, args, reply i
 }
 
 // Broadcast invokes the named function for every server registered in discovery
-func (xc *XClient) Broadcast(ctx context.Context, serviceMethod string, args, reply interface{}) error {
+func (xc *XClient) Broadcast(ctx context.Context, serviceMethod string, args, reply any) error {
 	servers, err := xc.d.GetAll()
 	if err != nil {
 		return err
@@ -87,7 +87,7 @@ func (xc *XClient) Broadcast(ctx context.Context, serviceMethod string, args, re
 		wg.Add(1)
 		go func(rpcAddr string) {
 			defer wg.Done()
-			var clonedReply interface{}
+			var clonedReply any
 			if reply != nil {
 				clonedReply = reflect.New(reflect.ValueOf(reply).Elem().Type()).Interface()
 			}

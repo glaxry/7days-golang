@@ -27,21 +27,21 @@ func testSelect(t *testing.T) {
 	if sql != "SELECT * FROM User WHERE Name = ? ORDER BY Age ASC LIMIT ?" {
 		t.Fatal("failed to build SQL")
 	}
-	if !reflect.DeepEqual(vars, []interface{}{"Tom", 3}) {
+	if !reflect.DeepEqual(vars, []any{"Tom", 3}) {
 		t.Fatal("failed to build SQLVars")
 	}
 }
 
 func testUpdate(t *testing.T) {
 	var clause Clause
-	clause.Set(UPDATE, "User", map[string]interface{}{"Age": 30})
+	clause.Set(UPDATE, "User", map[string]any{"Age": 30})
 	clause.Set(WHERE, "Name = ?", "Tom")
 	sql, vars := clause.Build(UPDATE, WHERE)
 	t.Log(sql, vars)
 	if sql != "UPDATE User SET Age = ? WHERE Name = ?" {
 		t.Fatal("failed to build SQL")
 	}
-	if !reflect.DeepEqual(vars, []interface{}{30, "Tom"}) {
+	if !reflect.DeepEqual(vars, []any{30, "Tom"}) {
 		t.Fatal("failed to build SQLVars")
 	}
 }
@@ -56,7 +56,7 @@ func testDelete(t *testing.T) {
 	if sql != "DELETE FROM User WHERE Name = ?" {
 		t.Fatal("failed to build SQL")
 	}
-	if !reflect.DeepEqual(vars, []interface{}{"Tom"}) {
+	if !reflect.DeepEqual(vars, []any{"Tom"}) {
 		t.Fatal("failed to build SQLVars")
 	}
 }

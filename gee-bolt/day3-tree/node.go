@@ -44,10 +44,9 @@ func (n *node) put(oldKey, newKey, value []byte) {
 	kv.value = value
 }
 
-func (n *node) del(key []byte)  {
+func (n *node) del(key []byte) {
 	index, exact := n.index(key)
 	if exact {
 		n.kvs = append(n.kvs[:index], n.kvs[index+1:]...)
 	}
 }
-

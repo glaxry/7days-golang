@@ -15,7 +15,7 @@ type Field struct {
 
 // Schema represents a table of database
 type Schema struct {
-	Model      interface{}
+	Model      any
 	Name       string
 	Fields     []*Field
 	FieldNames []string
@@ -28,9 +28,9 @@ func (schema *Schema) GetField(name string) *Field {
 }
 
 // Values return the values of dest's member variables
-func (schema *Schema) RecordValues(dest interface{}) []interface{} {
+func (schema *Schema) RecordValues(dest any) []any {
 	destValue := reflect.Indirect(reflect.ValueOf(dest))
-	var fieldValues []interface{}
+	var fieldValues []any
 	for _, field := range schema.Fields {
 		fieldValues = append(fieldValues, destValue.FieldByName(field.Name).Interface())
 	}
@@ -42,7 +42,7 @@ type ITableName interface {
 }
 
 // Parse a struct to a Schema instance
-func Parse(dest interface{}, d dialect.Dialect) *Schema {
+func Parse(dest any, d dialect.Dialect) *Schema {
 	modelType := reflect.Indirect(reflect.ValueOf(dest)).Type()
 	var tableName string
 	t, ok := dest.(ITableName)
@@ -56,8 +56,7 @@ func Parse(dest interface{}, d dialect.Dialect) *Schema {
 		Name:     tableName,
 		fieldMap: make(map[string]*Field),
 	}
-	for i := 0; i < modelType.NumField(); i++ {
-		p := modelType.Field(i)
+	for p := range modelType.Fields() {
 		if !p.Anonymous && ast.IsExported(p.Name) {
 			field := &Field{
 				Name: p.Name,

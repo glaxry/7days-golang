@@ -18,7 +18,7 @@ const (
 )
 
 // CallMethod calls the registered hooks
-func (s *Session) CallMethod(method string, value interface{}) {
+func (s *Session) CallMethod(method string, value any) {
 	fm := reflect.ValueOf(s.RefTable().Model).MethodByName(method)
 	if value != nil {
 		fm = reflect.ValueOf(value).MethodByName(method)

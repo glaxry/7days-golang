@@ -10,7 +10,7 @@ import (
 )
 
 // Model assigns refTable
-func (s *Session) Model(value interface{}) *Session {
+func (s *Session) Model(value any) *Session {
 	// nil or different model, update refTable
 	if s.refTable == nil || reflect.TypeOf(value) != reflect.TypeOf(s.refTable.Model) {
 		s.refTable = schema.Parse(value, s.dialect)

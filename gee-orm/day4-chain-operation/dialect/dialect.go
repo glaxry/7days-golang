@@ -7,7 +7,7 @@ var dialectsMap = map[string]Dialect{}
 // Dialect is an interface contains methods that a dialect has to implement
 type Dialect interface {
 	DataTypeOf(typ reflect.Value) string
-	TableExistSQL(tableName string) (string, []interface{})
+	TableExistSQL(tableName string) (string, []any)
 }
 
 // RegisterDialect register a dialect to the global variable

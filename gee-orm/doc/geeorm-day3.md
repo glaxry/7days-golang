@@ -52,7 +52,7 @@ import (
 	"strings"
 )
 
-type generator func(values ...interface{}) (string, []interface{})
+type generator func(values ...any) (string, []any)
 
 var generators map[Type]generator
 
@@ -68,27 +68,27 @@ func init() {
 
 func genBindVars(num int) string {
 	var vars []string
-	for i := 0; i < num; i++ {
+	for range num {
 		vars = append(vars, "?")
 	}
 	return strings.Join(vars, ", ")
 }
 
-func _insert(values ...interface{}) (string, []interface{}) {
+func _insert(values ...any) (string, []any) {
 	// INSERT INTO $tableName ($fields)
 	tableName := values[0]
 	fields := strings.Join(values[1].([]string), ",")
-	return fmt.Sprintf("INSERT INTO %s (%v)", tableName, fields), []interface{}{}
+	return fmt.Sprintf("INSERT INTO %s (%v)", tableName, fields), []any{}
 }
 
-func _values(values ...interface{}) (string, []interface{}) {
+func _values(values ...any) (string, []any) {
 	// VALUES ($v1), ($v2), ...
 	var bindStr string
 	var sql strings.Builder
-	var vars []interface{}
+	var vars []any
 	sql.WriteString("VALUES ")
 	for i, value := range values {
-		v := value.([]interface{})
+		v := value.([]any)
 		if bindStr == "" {
 			bindStr = genBindVars(len(v))
 		}
@@ -102,26 +102,26 @@ func _values(values ...interface{}) (string, []interface{}) {
 
 }
 
-func _select(values ...interface{}) (string, []interface{}) {
+func _select(values ...any) (string, []any) {
 	// SELECT $fields FROM $tableName
 	tableName := values[0]
 	fields := strings.Join(values[1].([]string), ",")
-	return fmt.Sprintf("SELECT %v FROM %s", fields, tableName), []interface{}{}
+	return fmt.Sprintf("SELECT %v FROM %s", fields, tableName), []any{}
 }
 
-func _limit(values ...interface{}) (string, []interface{}) {
+func _limit(values ...any) (string, []any) {
 	// LIMIT $num
 	return "LIMIT ?", values
 }
 
-func _where(values ...interface{}) (string, []interface{}) {
+func _where(values ...any) (string, []any) {
 	// WHERE $desc
 	desc, vars := values[0], values[1:]
 	return fmt.Sprintf("WHERE %s", desc), vars
 }
 
-func _orderBy(values ...interface{}) (string, []interface{}) {
-	return fmt.Sprintf("ORDER BY %s", values[0]), []interface{}{}
+func _orderBy(values ...any) (string, []any) {
+	return fmt.Sprintf("ORDER BY %s", values[0]), []any{}
 }
 ```
 
@@ -136,7 +136,7 @@ import "strings"
 
 type Clause struct {
 	sql     map[Type]string
-	sqlVars map[Type][]interface{}
+	sqlVars map[Type][]any
 }
 
 type Type int
@@ -149,19 +149,19 @@ const (
 	ORDERBY
 )
 
-func (c *Clause) Set(name Type, vars ...interface{}) {
+func (c *Clause) Set(name Type, vars ...any) {
 	if c.sql == nil {
 		c.sql = make(map[Type]string)
-		c.sqlVars = make(map[Type][]interface{})
+		c.sqlVars = make(map[Type][]any)
 	}
 	sql, vars := generators[name](vars...)
 	c.sql[name] = sql
 	c.sqlVars[name] = vars
 }
 
-func (c *Clause) Build(orders ...Type) (string, []interface{}) {
+func (c *Clause) Build(orders ...Type) (string, []any) {
 	var sqls []string
-	var vars []interface{}
+	var vars []any
 	for _, order := range orders {
 		if sql, ok := c.sql[order]; ok {
 			sqls = append(sqls, sql)
@@ -189,7 +189,7 @@ func testSelect(t *testing.T) {
 	if sql != "SELECT * FROM User WHERE Name = ? ORDER BY Age ASC LIMIT ?" {
 		t.Fatal("failed to build SQL")
 	}
-	if !reflect.DeepEqual(vars, []interface{}{"Tom", 3}) {
+	if !reflect.DeepEqual(vars, []any{"Tom", 3}) {
 		t.Fatal("failed to build SQLVars")
 	}
 }
@@ -213,7 +213,7 @@ type Session struct {
 	refTable *schema.Schema
 	clause   clause.Clause
 	sql      strings.Builder
-	sqlVars  []interface{}
+	sqlVars  []any
 }
 
 func (s *Session) Clear() {
@@ -237,7 +237,7 @@ INSERT INTO table_name(col1, col2, col3, ...) VALUES
 在 ORM 框架中期望 Insert 的调用方式如下：
 
 ```go
-s := geeorm.NewEngine("sqlite3", "gee.db").NewSession()
+s := geeorm.NewEngine("sqlite", "gee.db").NewSession()
 u1 := &User{Name: "Tom", Age: 18}
 u2 := &User{Name: "Sam", Age: 25}
 s.Insert(u1, u2, ...)
@@ -250,9 +250,9 @@ s.Insert(u1, u2, ...)
 [day3-save-query/schema/schema.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/schema)
 
 ```go
-func (schema *Schema) RecordValues(dest interface{}) []interface{} {
+func (schema *Schema) RecordValues(dest any) []any {
 	destValue := reflect.Indirect(reflect.ValueOf(dest))
-	var fieldValues []interface{}
+	var fieldValues []any
 	for _, field := range schema.Fields {
 		fieldValues = append(fieldValues, destValue.FieldByName(field.Name).Interface())
 	}
@@ -272,8 +272,8 @@ import (
 	"reflect"
 )
 
-func (s *Session) Insert(values ...interface{}) (int64, error) {
-	recordValues := make([]interface{}, 0)
+func (s *Session) Insert(values ...any) (int64, error) {
+	recordValues := make([]any, 0)
 	for _, value := range values {
 		table := s.Model(value).RefTable()
 		s.clause.Set(clause.INSERT, table.Name, table.FieldNames)
@@ -303,7 +303,7 @@ func (s *Session) Insert(values ...interface{}) (int64, error) {
 期望的调用方式是这样的：传入一个切片指针，查询的结果保存在切片中。
 
 ```go
-s := geeorm.NewEngine("sqlite3", "gee.db").NewSession()
+s := geeorm.NewEngine("sqlite", "gee.db").NewSession()
 var users []User
 s.Find(&users);
 ```
@@ -311,7 +311,7 @@ s.Find(&users);
 Find 功能的难点和 Insert 恰好反了过来。Insert 需要将已经存在的对象的每一个字段的值平铺开来，而 Find 则是需要根据平铺开的字段的值构造出对象。同样，也需要用到反射(reflect)。
 
 ```go
-func (s *Session) Find(values interface{}) error {
+func (s *Session) Find(values any) error {
 	destSlice := reflect.Indirect(reflect.ValueOf(values))
 	destType := destSlice.Type().Elem()
 	table := s.Model(reflect.New(destType).Elem().Interface()).RefTable()
@@ -325,7 +325,7 @@ func (s *Session) Find(values interface{}) error {
 
 	for rows.Next() {
 		dest := reflect.New(destType).Elem()
-		var values []interface{}
+		var values []any
 		for _, name := range table.FieldNames {
 			values = append(values, dest.FieldByName(name).Addr().Interface())
 		}

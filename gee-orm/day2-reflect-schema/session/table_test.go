@@ -8,6 +8,7 @@ type User struct {
 	Name string `geeorm:"PRIMARY KEY"`
 	Age  int
 }
+
 func TestSession_CreateTable(t *testing.T) {
 	s := NewSession().Model(&User{})
 	_ = s.DropTable()

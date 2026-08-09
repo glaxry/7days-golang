@@ -18,7 +18,7 @@ type Session struct {
 	refTable *schema.Schema
 	clause   clause.Clause
 	sql      strings.Builder
-	sqlVars  []interface{}
+	sqlVars  []any
 }
 
 // New creates a instance of Session
@@ -38,9 +38,9 @@ func (s *Session) Clear() {
 
 // CommonDB is a minimal function set of db
 type CommonDB interface {
-	Query(query string, args ...interface{}) (*sql.Rows, error)
-	QueryRow(query string, args ...interface{}) *sql.Row
-	Exec(query string, args ...interface{}) (sql.Result, error)
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+	Exec(query string, args ...any) (sql.Result, error)
 }
 
 var _ CommonDB = (*sql.DB)(nil)
@@ -82,7 +82,7 @@ func (s *Session) QueryRows() (rows *sql.Rows, err error) {
 }
 
 // Raw appends sql and sqlVars
-func (s *Session) Raw(sql string, values ...interface{}) *Session {
+func (s *Session) Raw(sql string, values ...any) *Session {
 	s.sql.WriteString(sql)
 	s.sql.WriteString(" ")
 	s.sqlVars = append(s.sqlVars, values...)

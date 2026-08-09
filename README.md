@@ -3,6 +3,29 @@
 [![CodeSize](https://img.shields.io/github/languages/code-size/geektutu/7days-golang)](https://github.com/geektutu/7days-golang)
 [![LICENSE](https://img.shields.io/badge/license-MIT-green)](https://mit-license.org/)
 
+## 2026 现代化版本说明
+
+本分支以 **Go 1.26** 为语言基线（当前稳定补丁版为 Go 1.26.5），保留“每天一个可独立运行快照”的教学结构，并同步更新了所有 Day 的代码与文中代码片段。
+
+- 模块声明从 Go 1.13 升级到 Go 1.26，采用 `any`、整数 `range`、`reflect.TypeFor`、反射迭代器和 `fmt.Appendf` 等当前写法。
+- GeeORM 改用无 CGO 的 `modernc.org/sqlite v1.56.0`，Windows、macOS 和 Linux 不再需要额外安装 GCC。
+- GeeCache 使用 `google.golang.org/protobuf v1.36.11`，补充 `.proto` 源文件，并用当前生成器重建代码。
+- GeeRPC 修复握手预读丢包、连接超时 goroutine 泄漏、服务端超时 goroutine 泄漏和重复响应风险。
+- GeeBolt 的 mmap 草稿已补成 Windows/Unix 均可运行的示例，并增加持久化测试。
+- GitHub Actions 会在 Windows 和 Linux 上测试全部 45 个 Go 模块，并编译 4 个 WebAssembly 示例。
+
+每个 Day 都是独立模块，请进入对应目录运行 `go test ./...`。也可以在仓库根目录一次验证全部内容：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-all.ps1
+```
+
+```bash
+bash scripts/test-all.sh
+```
+
+升级依据、兼容性取舍和容易踩坑的地方见 [现代 Go 迁移说明](MODERNIZATION.md)。
+
 <details>
 <summary><strong>README 中文版本</strong></summary>
 <div>
@@ -45,9 +68,9 @@
 
 ### 7天用Go从零实现ORM框架 GeeORM
 
-[GeeORM](https://geektutu.com/post/geeorm.html) 是一个模仿 [gorm](https://github.com/jinzhu/gorm) 和 [xorm](https://github.com/go-xorm/xorm) 的 ORM 框架
+[GeeORM](https://geektutu.com/post/geeorm.html) 是一个参考 [GORM](https://github.com/go-gorm/gorm) 和 [XORM](https://gitea.com/xorm/xorm) 设计的教学型 ORM 框架。
 
-gorm 准备推出完全重写的 v2 版本(目前还在开发中)，相对 gorm-v1 来说，xorm 的设计更容易理解，所以 geeorm 接口设计上主要参考了 xorm，一些细节实现上参考了 gorm。
+原教程写作时 GORM v2 尚在开发；现在 GORM v2 已是主版本。本教程仍保留更适合从零讲解的简化接口，不以复刻任何框架的当前完整 API 为目标。
 
 - 第一天：[database/sql 基础](https://geektutu.com/post/geeorm-day1.html) | [Code](gee-orm/day1-database-sql)
 - 第二天：[对象表结构映射](https://geektutu.com/post/geeorm-day2.html) | [Code](gee-orm/day2-reflect-schema)
@@ -111,7 +134,7 @@ What can be accomplished in 7 days? A gin-like web framework? A distributed cach
 
 ## Object Relational Mapping - GeeORM
 
-[GeeORM](https://geektutu.com/post/geeorm.html) is a [gorm](https://github.com/jinzhu/gorm)-like and [xorm](https://github.com/go-xorm/xorm)-like object relational mapping library
+[GeeORM](https://geektutu.com/post/geeorm.html) is an educational ORM inspired by [GORM](https://github.com/go-gorm/gorm) and [XORM](https://gitea.com/xorm/xorm).
 
 Xorm's desgin is easier to understand than gorm-v1, so the main designs references xorm and some detailed implementions references gorm-v1.
 

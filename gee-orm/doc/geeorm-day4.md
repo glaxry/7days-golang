@@ -68,11 +68,11 @@ func init() {
 	generators[COUNT] = _count
 }
 
-func _update(values ...interface{}) (string, []interface{}) {
+func _update(values ...any) (string, []any) {
 	tableName := values[0]
-	m := values[1].(map[string]interface{})
+	m := values[1].(map[string]any)
 	var keys []string
-	var vars []interface{}
+	var vars []any
 	for k, v := range m {
 		keys = append(keys, k+" = ?")
 		vars = append(vars, v)
@@ -80,11 +80,11 @@ func _update(values ...interface{}) (string, []interface{}) {
 	return fmt.Sprintf("UPDATE %s SET %s", tableName, strings.Join(keys, ", ")), vars
 }
 
-func _delete(values ...interface{}) (string, []interface{}) {
-	return fmt.Sprintf("DELETE FROM %s", values[0]), []interface{}{}
+func _delete(values ...any) (string, []any) {
+	return fmt.Sprintf("DELETE FROM %s", values[0]), []any{}
 }
 
-func _count(values ...interface{}) (string, []interface{}) {
+func _count(values ...any) (string, []any) {
 	return _select(values[0], []string{"count(*)"})
 }
 ```
@@ -101,12 +101,12 @@ func _count(values ...interface{}) (string, []interface{}) {
 [day4-chain-operation/session/record.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day4-chain-operation/session)
 
 ```go
-// support map[string]interface{}
+// support map[string]any
 // also support kv list: "Name", "Tom", "Age", 18, ....
-func (s *Session) Update(kv ...interface{}) (int64, error) {
-	m, ok := kv[0].(map[string]interface{})
+func (s *Session) Update(kv ...any) (int64, error) {
+	m, ok := kv[0].(map[string]any)
 	if !ok {
-		m = make(map[string]interface{})
+		m = make(map[string]any)
 		for i := 0; i < len(kv); i += 2 {
 			m[kv[i].(string)] = kv[i+1]
 		}
@@ -162,7 +162,7 @@ func (s *Session) Count() (int64, error) {
 SQL 语句的构造过程就非常符合这个条件。SQL 语句由多个子句构成，典型的例如 SELECT 语句，往往需要设置查询条件（WHERE）、限制返回行数（LIMIT）等。理想的调用方式应该是这样的：
 
 ```go
-s := geeorm.NewEngine("sqlite3", "gee.db").NewSession()
+s := geeorm.NewEngine("sqlite", "gee.db").NewSession()
 var users []User
 s.Where("Age > 18").Limit(3).Find(&users)
 ```
@@ -179,8 +179,8 @@ func (s *Session) Limit(num int) *Session {
 }
 
 // Where adds limit condition to clause
-func (s *Session) Where(desc string, args ...interface{}) *Session {
-	var vars []interface{}
+func (s *Session) Where(desc string, args ...any) *Session {
+	var vars []any
 	s.clause.Set(clause.WHERE, append(append(vars, desc), args...)...)
 	return s
 }
@@ -197,7 +197,7 @@ func (s *Session) OrderBy(desc string) *Session {
 很多时候，我们期望 SQL 语句只返回一条记录，比如根据某个童鞋的学号查询他的信息，返回结果有且只有一条。结合链式调用，我们可以非常容易地实现 First 方法。
 
 ```go
-func (s *Session) First(value interface{}) error {
+func (s *Session) First(value any) error {
 	dest := reflect.Indirect(reflect.ValueOf(value))
 	destSlice := reflect.New(reflect.SliceOf(dest.Type())).Elem()
 	if err := s.Limit(1).Find(destSlice.Addr().Interface()); err != nil {

@@ -21,7 +21,7 @@ func (f Foo) sum(args Args, reply *int) error {
 	return nil
 }
 
-func _assert(condition bool, msg string, v ...interface{}) {
+func _assert(condition bool, msg string, v ...any) {
 	if !condition {
 		panic(fmt.Sprintf("assertion failed: "+msg, v...))
 	}

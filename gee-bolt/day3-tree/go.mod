@@ -1,3 +1,3 @@
 module geebolt
 
-go 1.13
+go 1.26.0

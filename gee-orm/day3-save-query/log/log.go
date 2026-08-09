@@ -1,7 +1,7 @@
 package log
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"sync"
@@ -39,9 +39,9 @@ func SetLevel(level int) {
 	}
 
 	if ErrorLevel < level {
-		errorLog.SetOutput(ioutil.Discard)
+		errorLog.SetOutput(io.Discard)
 	}
 	if InfoLevel < level {
-		infoLog.SetOutput(ioutil.Discard)
+		infoLog.SetOutput(io.Discard)
 	}
 }

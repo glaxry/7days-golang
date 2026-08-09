@@ -13,11 +13,12 @@ func fib(i int) int {
 	return fib(i-1) + fib(i-2)
 }
 
-func fibFunc(this js.Value, args []js.Value) interface{} {
+func fibFunc(this js.Value, args []js.Value) any {
+	n := args[0].Int()
 	callback := args[len(args)-1]
 	go func() {
 		time.Sleep(3 * time.Second)
-		v := fib(args[0].Int())
+		v := fib(n)
 		callback.Invoke(v)
 	}()
 
@@ -26,7 +27,7 @@ func fibFunc(this js.Value, args []js.Value) interface{} {
 }
 
 func main() {
-	done := make(chan int, 0)
-	js.Global().Set("fibFunc", js.FuncOf(fibFunc))
-	<-done
+	callback := js.FuncOf(fibFunc)
+	js.Global().Set("fibFunc", callback)
+	select {}
 }

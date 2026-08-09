@@ -60,7 +60,7 @@ import "sync"
 
 type call struct {
 	wg  sync.WaitGroup
-	val interface{}
+	val any
 	err error
 }
 
@@ -76,7 +76,7 @@ type Group struct {
 实现 `Do` 方法
 
 ```go
-func (g *Group) Do(key string, fn func() (interface{}, error)) (interface{}, error) {
+func (g *Group) Do(key string, fn func() (any, error)) (any, error) {
 	g.mu.Lock()
 	if g.m == nil {
 		g.m = make(map[string]*call)
@@ -109,7 +109,7 @@ func (g *Group) Do(key string, fn func() (interface{}, error)) (interface{}, err
 剩下的逻辑就很清晰了：
 
 ```go
-func (g *Group) Do(key string, fn func() (interface{}, error)) (interface{}, error) {
+func (g *Group) Do(key string, fn func() (any, error)) (any, error) {
 	if c, ok := g.m[key]; ok {
 		c.wg.Wait()   // 如果请求正在进行中，则等待
 		return c.val, c.err  // 请求结束，返回结果
@@ -160,7 +160,7 @@ func NewGroup(name string, cacheBytes int64, getter Getter) *Group {
 func (g *Group) load(key string) (value ByteView, err error) {
 	// each key is only fetched once (either locally or remotely)
 	// regardless of the number of concurrent callers.
-	viewi, err := g.loader.Do(key, func() (interface{}, error) {
+	viewi, err := g.loader.Do(key, func() (any, error) {
 		if g.peers != nil {
 			if peer, ok := g.peers.PickPeer(key); ok {
 				if value, err = g.getFromPeer(peer, key); err == nil {

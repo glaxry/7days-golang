@@ -35,7 +35,7 @@ func main() {
 	_ = json.NewEncoder(conn).Encode(geerpc.DefaultOption)
 	cc := codec.NewGobCodec(conn)
 	// send request & receive response
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		h := &codec.Header{
 			ServiceMethod: "Foo.Sum",
 			Seq:           uint64(i),

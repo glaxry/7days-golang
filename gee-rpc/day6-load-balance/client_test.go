@@ -27,7 +27,6 @@ func startServer(addr chan string) {
 }
 
 func TestClient_dialTimeout(t *testing.T) {
-	t.Parallel()
 	l, _ := net.Listen("tcp", ":0")
 
 	f := func(conn net.Conn, opt *Option) (client *Client, err error) {
@@ -46,7 +45,6 @@ func TestClient_dialTimeout(t *testing.T) {
 }
 
 func TestClient_Call(t *testing.T) {
-	t.Parallel()
 	addrCh := make(chan string)
 	go startServer(addrCh)
 	addr := <-addrCh

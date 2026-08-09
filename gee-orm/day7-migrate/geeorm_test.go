@@ -3,15 +3,16 @@ package geeorm
 import (
 	"errors"
 	"geeorm/session"
+	"path/filepath"
 	"reflect"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func OpenDB(t *testing.T) *Engine {
 	t.Helper()
-	engine, err := NewEngine("sqlite3", "gee.db")
+	engine, err := NewEngine("sqlite", filepath.Join(t.TempDir(), "gee.db"))
 	if err != nil {
 		t.Fatal("failed to connect", err)
 	}
@@ -33,7 +34,7 @@ func transactionRollback(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession()
 	_ = s.Model(&User{}).DropTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, err = s.Insert(&User{"Tom", 18})
 		return nil, errors.New("Error")
@@ -48,7 +49,7 @@ func transactionCommit(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession()
 	_ = s.Model(&User{}).DropTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, err = s.Insert(&User{"Tom", 18})
 		return
@@ -78,8 +79,15 @@ func TestEngine_Migrate(t *testing.T) {
 	_, _ = s.Raw("INSERT INTO User(`Name`) values (?), (?)", "Tom", "Sam").Exec()
 	engine.Migrate(&User{})
 
-	rows, _ := s.Raw("SELECT * FROM User").QueryRows()
-	columns, _ := rows.Columns()
+	rows, err := s.Raw("SELECT * FROM User").QueryRows()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+	columns, err := rows.Columns()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !reflect.DeepEqual(columns, []string{"Name", "Age"}) {
 		t.Fatal("Failed to migrate table User, got columns", columns)
 	}

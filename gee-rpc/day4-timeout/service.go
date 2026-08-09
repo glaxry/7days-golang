@@ -21,7 +21,7 @@ func (m *methodType) NumCalls() uint64 {
 func (m *methodType) newArgv() reflect.Value {
 	var argv reflect.Value
 	// arg may be a pointer type, or a value type
-	if m.ArgType.Kind() == reflect.Ptr {
+	if m.ArgType.Kind() == reflect.Pointer {
 		argv = reflect.New(m.ArgType.Elem())
 	} else {
 		argv = reflect.New(m.ArgType).Elem()
@@ -48,7 +48,7 @@ type service struct {
 	method map[string]*methodType
 }
 
-func newService(rcvr interface{}) *service {
+func newService(rcvr any) *service {
 	s := new(service)
 	s.rcvr = reflect.ValueOf(rcvr)
 	s.name = reflect.Indirect(s.rcvr).Type().Name()
@@ -62,13 +62,12 @@ func newService(rcvr interface{}) *service {
 
 func (s *service) registerMethods() {
 	s.method = make(map[string]*methodType)
-	for i := 0; i < s.typ.NumMethod(); i++ {
-		method := s.typ.Method(i)
+	for method := range s.typ.Methods() {
 		mType := method.Type
 		if mType.NumIn() != 3 || mType.NumOut() != 1 {
 			continue
 		}
-		if mType.Out(0) != reflect.TypeOf((*error)(nil)).Elem() {
+		if mType.Out(0) != reflect.TypeFor[error]() {
 			continue
 		}
 		argType, replyType := mType.In(1), mType.In(2)

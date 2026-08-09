@@ -76,15 +76,25 @@ func difference(a []string, b []string) (diff []string) {
 }
 
 // Migrate table
-func (engine *Engine) Migrate(value interface{}) error {
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+func (engine *Engine) Migrate(value any) error {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		if !s.Model(value).HasTable() {
 			log.Infof("table %s doesn't exist", s.RefTable().Name)
 			return nil, s.CreateTable()
 		}
 		table := s.RefTable()
-		rows, _ := s.Raw(fmt.Sprintf("SELECT * FROM %s LIMIT 1", table.Name)).QueryRows()
-		columns, _ := rows.Columns()
+		rows, err := s.Raw(fmt.Sprintf("SELECT * FROM %s LIMIT 1", table.Name)).QueryRows()
+		if err != nil {
+			return nil, err
+		}
+		columns, err := rows.Columns()
+		if err != nil {
+			_ = rows.Close()
+			return nil, err
+		}
+		if err := rows.Close(); err != nil {
+			return nil, err
+		}
 		addCols := difference(table.FieldNames, columns)
 		delCols := difference(columns, table.FieldNames)
 		log.Infof("added cols %v, deleted cols %v", addCols, delCols)
@@ -113,6 +123,7 @@ func (engine *Engine) Migrate(value interface{}) error {
 ```
 
 - `difference` 用来计算前后两个字段切片的差集。新表 - 旧表 = 新增字段，旧表 - 新表 = 删除字段。
+- 读取列信息后立即关闭 `rows`。SQLite 在游标存活期间会保持读锁，如果直接执行 `ALTER TABLE`，严格的驱动会返回 `SQLITE_LOCKED`。
 - 使用 `ALTER` 语句新增字段。
 - 使用创建新表并重命名的方式删除字段。
 

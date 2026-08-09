@@ -45,7 +45,7 @@ var dialectsMap = map[string]Dialect{}
 
 type Dialect interface {
 	DataTypeOf(typ reflect.Value) string
-	TableExistSQL(tableName string) (string, []interface{})
+	TableExistSQL(tableName string) (string, []any)
 }
 
 func RegisterDialect(name string, dialect Dialect) {
@@ -85,7 +85,7 @@ type sqlite3 struct{}
 var _ Dialect = (*sqlite3)(nil)
 
 func init() {
-	RegisterDialect("sqlite3", &sqlite3{})
+	RegisterDialect("sqlite", &sqlite3{})
 }
 
 func (s *sqlite3) DataTypeOf(typ reflect.Value) string {
@@ -111,8 +111,8 @@ func (s *sqlite3) DataTypeOf(typ reflect.Value) string {
 	panic(fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind()))
 }
 
-func (s *sqlite3) TableExistSQL(tableName string) (string, []interface{}) {
-	args := []interface{}{tableName}
+func (s *sqlite3) TableExistSQL(tableName string) (string, []any) {
+	args := []any{tableName}
 	return "SELECT name FROM sqlite_master WHERE type='table' and name = ?", args
 }
 ```
@@ -167,7 +167,7 @@ type Field struct {
 
 // Schema represents a table of database
 type Schema struct {
-	Model      interface{}
+	Model      any
 	Name       string
 	Fields     []*Field
 	FieldNames []string
@@ -186,7 +186,7 @@ func (schema *Schema) GetField(name string) *Field {
 接下来实现 Parse 函数，将任意的对象解析为 Schema 实例。
 
 ```go
-func Parse(dest interface{}, d dialect.Dialect) *Schema {
+func Parse(dest any, d dialect.Dialect) *Schema {
 	modelType := reflect.Indirect(reflect.ValueOf(dest)).Type()
 	schema := &Schema{
 		Model:    dest,
@@ -194,8 +194,7 @@ func Parse(dest interface{}, d dialect.Dialect) *Schema {
 		fieldMap: make(map[string]*Field),
 	}
 
-	for i := 0; i < modelType.NumField(); i++ {
-		p := modelType.Field(i)
+	for p := range modelType.Fields() {
 		if !p.Anonymous && ast.IsExported(p.Name) {
 			field := &Field{
 				Name: p.Name,
@@ -215,7 +214,7 @@ func Parse(dest interface{}, d dialect.Dialect) *Schema {
 
 - `TypeOf()` 和 `ValueOf()` 是 reflect 包最为基本也是最重要的 2 个方法，分别用来返回入参的类型和值。因为设计的入参是一个对象的指针，因此需要 `reflect.Indirect()` 获取指针指向的实例。
 - `modelType.Name()` 获取到结构体的名称作为表名。
-- `NumField()` 获取实例的字段的个数，然后通过下标获取到特定字段 `p := modelType.Field(i)`。
+- Go 1.26 的 `modelType.Fields()` 返回字段迭代器，可以直接遍历所有字段，不再手动维护下标；每次得到的 `p` 都是一个 `reflect.StructField`。
 - `p.Name` 即字段名，`p.Type` 即字段类型，通过 `(Dialect).DataTypeOf()` 转换为数据库的字段类型，`p.Tag` 即额外的约束条件。
 
 写一个测试用例来验证 Parse 函数。
@@ -227,7 +226,7 @@ type User struct {
 	Age  int
 }
 
-var TestDial, _ = dialect.GetDialect("sqlite3")
+var TestDial, _ = dialect.GetDialect("sqlite")
 
 func TestParse(t *testing.T) {
 	schema := Parse(&User{}, TestDial)
@@ -250,7 +249,7 @@ type Session struct {
 	dialect  dialect.Dialect
 	refTable *schema.Schema
 	sql      strings.Builder
-	sqlVars  []interface{}
+	sqlVars  []any
 }
 
 func New(db *sql.DB, dialect dialect.Dialect) *Session {
@@ -269,7 +268,7 @@ func New(db *sql.DB, dialect dialect.Dialect) *Session {
 [day2-reflect-schema/session/table.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/session)
 
 ```go
-func (s *Session) Model(value interface{}) *Session {
+func (s *Session) Model(value any) *Session {
 	// nil or different model, update refTable
 	if s.refTable == nil || reflect.TypeOf(value) != reflect.TypeOf(s.refTable.Model) {
 		s.refTable = schema.Parse(value, s.dialect)

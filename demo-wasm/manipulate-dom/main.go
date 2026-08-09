@@ -19,7 +19,7 @@ var (
 	btnEle   = js.Global().Get("btn")
 )
 
-func fibFunc(this js.Value, args []js.Value) interface{} {
+func fibFunc(this js.Value, args []js.Value) any {
 	v := numEle.Get("value")
 	if num, err := strconv.Atoi(v.String()); err == nil {
 		ansEle.Set("innerHTML", js.ValueOf(fib(num)))
@@ -28,7 +28,7 @@ func fibFunc(this js.Value, args []js.Value) interface{} {
 }
 
 func main() {
-	done := make(chan int, 0)
-	btnEle.Call("addEventListener", "click", js.FuncOf(fibFunc))
-	<-done
+	callback := js.FuncOf(fibFunc)
+	btnEle.Call("addEventListener", "click", callback)
+	select {}
 }

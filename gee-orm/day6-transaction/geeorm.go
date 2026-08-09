@@ -52,10 +52,10 @@ func (engine *Engine) NewSession() *session.Session {
 
 // TxFunc will be called between tx.Begin() and tx.Commit()
 // https://stackoverflow.com/questions/16184238/database-sql-tx-detecting-commit-or-rollback
-type TxFunc func(*session.Session) (interface{}, error)
+type TxFunc func(*session.Session) (any, error)
 
 // Transaction executes sql wrapped in a transaction, then automatically commit if no error occurs
-func (engine *Engine) Transaction(f TxFunc) (result interface{}, err error) {
+func (engine *Engine) Transaction(f TxFunc) (result any, err error) {
 	s := engine.NewSession()
 	if err := s.Begin(); err != nil {
 		return nil, err

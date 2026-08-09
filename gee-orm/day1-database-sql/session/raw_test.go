@@ -5,13 +5,13 @@ import (
 	"os"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 var TestDB *sql.DB
 
 func TestMain(m *testing.M) {
-	TestDB, _ = sql.Open("sqlite3", "../gee.db")
+	TestDB, _ = sql.Open("sqlite", "file:geeorm-session-tests?mode=memory&cache=shared")
 	code := m.Run()
 	_ = TestDB.Close()
 	os.Exit(code)

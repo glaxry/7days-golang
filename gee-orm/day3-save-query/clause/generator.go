@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type generator func(values ...interface{}) (string, []interface{})
+type generator func(values ...any) (string, []any)
 
 var generators map[Type]generator
 
@@ -21,27 +21,27 @@ func init() {
 
 func genBindVars(num int) string {
 	var vars []string
-	for i := 0; i < num; i++ {
+	for range num {
 		vars = append(vars, "?")
 	}
 	return strings.Join(vars, ", ")
 }
 
-func _insert(values ...interface{}) (string, []interface{}) {
+func _insert(values ...any) (string, []any) {
 	// INSERT INTO $tableName ($fields)
 	tableName := values[0]
 	fields := strings.Join(values[1].([]string), ",")
-	return fmt.Sprintf("INSERT INTO %s (%v)", tableName, fields), []interface{}{}
+	return fmt.Sprintf("INSERT INTO %s (%v)", tableName, fields), []any{}
 }
 
-func _values(values ...interface{}) (string, []interface{}) {
+func _values(values ...any) (string, []any) {
 	// VALUES ($v1), ($v2), ...
 	var bindStr string
 	var sql strings.Builder
-	var vars []interface{}
+	var vars []any
 	sql.WriteString("VALUES ")
 	for i, value := range values {
-		v := value.([]interface{})
+		v := value.([]any)
 		if bindStr == "" {
 			bindStr = genBindVars(len(v))
 		}
@@ -55,24 +55,24 @@ func _values(values ...interface{}) (string, []interface{}) {
 
 }
 
-func _select(values ...interface{}) (string, []interface{}) {
+func _select(values ...any) (string, []any) {
 	// SELECT $fields FROM $tableName
 	tableName := values[0]
 	fields := strings.Join(values[1].([]string), ",")
-	return fmt.Sprintf("SELECT %v FROM %s", fields, tableName), []interface{}{}
+	return fmt.Sprintf("SELECT %v FROM %s", fields, tableName), []any{}
 }
 
-func _limit(values ...interface{}) (string, []interface{}) {
+func _limit(values ...any) (string, []any) {
 	// LIMIT $num
 	return "LIMIT ?", values
 }
 
-func _where(values ...interface{}) (string, []interface{}) {
+func _where(values ...any) (string, []any) {
 	// WHERE $desc
 	desc, vars := values[0], values[1:]
 	return fmt.Sprintf("WHERE %s", desc), vars
 }
 
-func _orderBy(values ...interface{}) (string, []interface{}) {
-	return fmt.Sprintf("ORDER BY %s", values[0]), []interface{}{}
+func _orderBy(values ...any) (string, []any) {
+	return fmt.Sprintf("ORDER BY %s", values[0]), []any{}
 }

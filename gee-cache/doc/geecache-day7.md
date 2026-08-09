@@ -47,6 +47,8 @@ syntax = "proto3";
 
 package geecachepb;
 
+option go_package = "geecache/geecachepb";
+
 message Request {
   string group = 1;
   string key = 2;
@@ -64,10 +66,11 @@ service GroupCache {
 - `Request` 包含 2 个字段， group 和 cache，这与我们之前定义的接口 `/_geecache/<group>/<name>` 所需的参数吻合。
 - `Response` 包含 1 个字段，bytes，类型为 byte 数组，与之前吻合。
 
-生成 `geecache.pb.go`
+当前的 `protoc-gen-go` 要求提供 Go 包导入路径，因此 `.proto` 中必须包含 `go_package`。安装与 `go.mod` 匹配的生成器后，使用源码相对路径模式生成 `geecachepb.pb.go`：
 
 ```bash
-$ protoc --go_out=. *.proto
+$ go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+$ protoc --go_out=. --go_opt=paths=source_relative geecachepb.proto
 $ ls
 geecachepb.pb.go  geecachepb.proto
 ```
@@ -76,14 +79,16 @@ geecachepb.pb.go  geecachepb.proto
 
 ```go
 type Request struct {
-	Group string   `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
-    Key   string   `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-    ...
+	// 生成器还会加入反射和未知字段所需的内部状态。
+	Group string `protobuf:"bytes,1,opt,name=group,proto3" json:"group,omitempty"`
+	Key   string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 }
 type Response struct {
-	Value []byte   `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Value []byte `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
 }
 ```
+
+生成文件由工具维护，不要手工编辑；需要调整消息时应修改 `.proto` 后重新生成。
 
 接下来，修改 `peers.go` 中的 `PeerGetter` 接口，参数使用 `geecachepb.pb.go` 中的数据类型。
 
@@ -127,7 +132,7 @@ func (g *Group) getFromPeer(peer PeerGetter, key string) (ByteView, error) {
 import (
     // ...
 	pb "geecache/geecachepb"
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 func (p *HTTPPool) ServeHTTP(w http.ResponseWriter, r *http.Request) {

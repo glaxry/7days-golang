@@ -35,7 +35,7 @@ func call(addrCh chan string) {
 	time.Sleep(time.Second)
 	// send request & receive response
 	var wg sync.WaitGroup
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()

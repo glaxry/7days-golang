@@ -64,8 +64,8 @@ type Header struct {
 type Codec interface {
 	io.Closer
 	ReadHeader(*Header) error
-	ReadBody(interface{}) error
-	Write(*Header, interface{}) error
+	ReadBody(any) error
+	Write(*Header, any) error
 }
 ```
 
@@ -132,11 +132,11 @@ func (c *GobCodec) ReadHeader(h *Header) error {
 	return c.dec.Decode(h)
 }
 
-func (c *GobCodec) ReadBody(body interface{}) error {
+func (c *GobCodec) ReadBody(body any) error {
 	return c.dec.Decode(body)
 }
 
-func (c *GobCodec) Write(h *Header, body interface{}) (err error) {
+func (c *GobCodec) Write(h *Header, body any) (err error) {
 	defer func() {
 		_ = c.buf.Flush()
 		if err != nil {
@@ -186,7 +186,7 @@ var DefaultOption = &Option{
 一般来说，涉及协议协商的这部分信息，需要设计固定的字节来传输的。但是为了实现上更简单，GeeRPC 客户端固定采用 JSON 编码 Option，后续的 header 和 body 的编码方式由 Option 中的 CodeType 指定，服务端首先使用 JSON 解码 Option，然后通过 Option 的 CodeType 解码剩余的内容。即报文将以这样的形式发送：
 
 ```bash
-| Option{MagicNumber: xxx, CodecType: xxx} | Header{ServiceMethod ...} | Body interface{} |
+| Option{MagicNumber: xxx, CodecType: xxx} | Header{ServiceMethod ...} | Body any |
 | <------      固定 JSON 编码      ------>  | <-------   编码方式由 CodeType 决定   ------->|
 ```
 
@@ -243,15 +243,29 @@ lis, _ := net.Listen("tcp", ":9999")
 geerpc.Accept(lis)
 ```
 
-`ServeConn` 的实现就和之前讨论的通信过程紧密相关了，首先使用 `json.NewDecoder` 反序列化得到 Option 实例，检查 MagicNumber 和 CodeType 的值是否正确。然后根据 CodeType 得到对应的消息编解码器，接下来的处理交给 `serverCodec`。
+`ServeConn` 的实现就和之前讨论的通信过程紧密相关了。先读取一行 JSON 并反序列化得到 Option，检查 MagicNumber 和 CodecType；再根据 CodecType 选择消息编解码器，后续处理交给 `serveCodec`。
+
+客户端的 `json.Encoder.Encode` 会以换行结束 Option，因此服务端把握手明确为“一行 JSON”：用同一个 `bufio.Reader` 调用 `ReadBytes('\n')`，再把 reader 交给 Gob codec。`ReadBytes` 不会读过分隔符；即使底层 reader 已经预取了紧随其后的 Gob 字节，这些字节也仍在同一个 reader 中，不会在切换 codec 时丢失。
 
 ```go
 // ServeConn runs the server on a single connection.
 // ServeConn blocks, serving the connection until the client hangs up.
+type bufferedReadWriteCloser struct {
+	io.Reader
+	io.Writer
+	io.Closer
+}
+
 func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 	defer func() { _ = conn.Close() }()
+	reader := bufio.NewReader(conn)
+	optionData, err := reader.ReadBytes('\n')
+	if err != nil {
+		log.Println("rpc server: options error: ", err)
+		return
+	}
 	var opt Option
-	if err := json.NewDecoder(conn).Decode(&opt); err != nil {
+	if err := json.Unmarshal(optionData, &opt); err != nil {
 		log.Println("rpc server: options error: ", err)
 		return
 	}
@@ -264,7 +278,11 @@ func (server *Server) ServeConn(conn io.ReadWriteCloser) {
 		log.Printf("rpc server: invalid codec type %s", opt.CodecType)
 		return
 	}
-	server.serveCodec(f(conn))
+	server.serveCodec(f(&bufferedReadWriteCloser{
+		Reader: reader,
+		Writer: conn,
+		Closer: conn,
+	}))
 }
 
 // invalidRequest is a placeholder for response argv when error occurs
@@ -290,6 +308,8 @@ func (server *Server) serveCodec(cc codec.Codec) {
 	_ = cc.Close()
 }
 ```
+
+回归测试会把 JSON Option 和第一条 Gob 请求拼在同一次写入中；如果握手读取和 Gob codec 没有共享 reader，测试会因服务端一直等待已经被预读的数据而超时。
 
 `serveCodec` 的过程非常简单。主要包含三个阶段
 
@@ -336,7 +356,7 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 	return req, nil
 }
 
-func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body interface{}, sending *sync.Mutex) {
+func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body any, sending *sync.Mutex) {
 	sending.Lock()
 	defer sending.Unlock()
 	if err := cc.Write(h, body); err != nil {

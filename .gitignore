@@ -3,4 +3,5 @@
 .vscode
 tmp
 *.db
-*.sum
+*.wasm
+*.exe

@@ -10,7 +10,7 @@ type User struct {
 	Age  int
 }
 
-var TestDial, _ = dialect.GetDialect("sqlite3")
+var TestDial, _ = dialect.GetDialect("sqlite")
 
 func TestParse(t *testing.T) {
 	schema := Parse(&User{}, TestDial)

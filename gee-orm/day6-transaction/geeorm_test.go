@@ -3,14 +3,15 @@ package geeorm
 import (
 	"errors"
 	"geeorm/session"
+	"path/filepath"
 	"testing"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func OpenDB(t *testing.T) *Engine {
 	t.Helper()
-	engine, err := NewEngine("sqlite3", "gee.db")
+	engine, err := NewEngine("sqlite", filepath.Join(t.TempDir(), "gee.db"))
 	if err != nil {
 		t.Fatal("failed to connect", err)
 	}
@@ -32,7 +33,7 @@ func transactionRollback(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession()
 	_ = s.Model(&User{}).DropTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, err = s.Insert(&User{"Tom", 18})
 		return nil, errors.New("Error")
@@ -47,7 +48,7 @@ func transactionCommit(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession()
 	_ = s.Model(&User{}).DropTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, err = s.Insert(&User{"Tom", 18})
 		return

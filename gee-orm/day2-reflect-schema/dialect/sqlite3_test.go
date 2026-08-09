@@ -8,7 +8,7 @@ import (
 func TestDataTypeOf(t *testing.T) {
 	dial := &sqlite3{}
 	cases := []struct {
-		Value interface{}
+		Value any
 		Type  string
 	}{
 		{"Tom", "text"},

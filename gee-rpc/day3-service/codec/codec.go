@@ -13,8 +13,8 @@ type Header struct {
 type Codec interface {
 	io.Closer
 	ReadHeader(*Header) error
-	ReadBody(interface{}) error
-	Write(*Header, interface{}) error
+	ReadBody(any) error
+	Write(*Header, any) error
 }
 
 type NewCodecFunc func(io.ReadWriteCloser) Codec

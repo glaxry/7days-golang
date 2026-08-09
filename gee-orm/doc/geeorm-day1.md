@@ -97,11 +97,11 @@ import (
 	"database/sql"
 	"log"
 	
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func main() {
-	db, _ := sql.Open("sqlite3", "gee.db")
+	db, _ := sql.Open("sqlite", "gee.db")
 	defer func() { _ = db.Close() }()
 	_, _ = db.Exec("DROP TABLE IF EXISTS User;")
 	_, _ = db.Exec("CREATE TABLE User(Name text);")
@@ -118,7 +118,7 @@ func main() {
 }
 ```
 
-> go-sqlite3 依赖于 gcc，如果这份代码在 Windows 上运行的话，需要安装 [mingw](http://mingw.org/) 或其他包含有 gcc 编译器的工具包。
+> 本版使用纯 Go 的 `modernc.org/sqlite` 驱动，不依赖 CGO。Windows、macOS 和 Linux 都不需要额外安装 GCC；首次运行时 Go 会按 `go.mod` 下载并校验驱动依赖。
 
 执行 `go run .`，输出如下。
 
@@ -128,7 +128,7 @@ func main() {
 2020/03/07 20:28:37 Tom
 ```
 
-- 使用 `sql.Open()` 连接数据库，第一个参数是驱动名称，import 语句 `_ "github.com/mattn/go-sqlite3"` 包导入时会注册 sqlite3 的驱动，第二个参数是数据库的名称，对于 SQLite 来说，也就是文件名，不存在会新建。返回一个 `sql.DB` 实例的指针。
+- 使用 `sql.Open()` 连接数据库，第一个参数是驱动名称，import 语句 `_ "modernc.org/sqlite"` 会注册名为 `sqlite` 的驱动；第二个参数是数据源名称，对 SQLite 来说就是数据库文件名，不存在时会创建。返回值 `*sql.DB` 是并发安全的连接池句柄，`Open` 本身通常不会立即建立连接，真正的错误会在首次操作或 `Ping` 时暴露。
 - `Exec()` 用于执行 SQL 语句，如果是查询语句，不会返回相关的记录。所以查询语句通常使用 `Query()` 和 `QueryRow()`，前者可以返回多条记录，后者只返回一条记录。
 - `Exec()`、`Query()`、`QueryRow()` 接受1或多个入参，第一个入参是 SQL 语句，后面的入参是 SQL 语句中的占位符 `?` 对应的值，占位符一般用来防 SQL 注入。
 - `QueryRow()` 的返回值类型是 `*sql.Row`，`row.Scan()` 接受1或多个指针作为参数，可以获取对应列(column)的值，在这个示例中，只有 `Name` 一列，因此传入字符串指针 `&name` 即可获取到查询的结果。
@@ -169,7 +169,7 @@ day1-database-sql/
 package log
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"sync"
@@ -215,16 +215,16 @@ func SetLevel(level int) {
 	}
 
 	if ErrorLevel < level {
-		errorLog.SetOutput(ioutil.Discard)
+		errorLog.SetOutput(io.Discard)
 	}
 	if InfoLevel < level {
-		infoLog.SetOutput(ioutil.Discard)
+		infoLog.SetOutput(io.Discard)
 	}
 }
 ```
 
 - 这一部分的实现非常简单，三个层级声明为三个常量，通过控制 `Output`，来控制日志是否打印。
-- 如果设置为 ErrorLevel，infoLog 的输出会被定向到 `ioutil.Discard`，即不打印该日志。
+- 如果设置为 ErrorLevel，infoLog 的输出会被定向到 `io.Discard`，即不打印该日志。
 
 至此呢，一个简单的支持分级的 log 库就实现完成了。
 
@@ -246,7 +246,7 @@ import (
 type Session struct {
 	db      *sql.DB
 	sql     strings.Builder
-	sqlVars []interface{}
+	sqlVars []any
 }
 
 func New(db *sql.DB) *Session {
@@ -262,7 +262,7 @@ func (s *Session) DB() *sql.DB {
 	return s.db
 }
 
-func (s *Session) Raw(sql string, values ...interface{}) *Session {
+func (s *Session) Raw(sql string, values ...any) *Session {
 	s.sql.WriteString(sql)
 	s.sql.WriteString(" ")
 	s.sqlVars = append(s.sqlVars, values...)
@@ -387,11 +387,11 @@ import (
 	"geeorm"
 	"geeorm/log"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 func main() {
-	engine, _ := geeorm.NewEngine("sqlite3", "gee.db")
+	engine, _ := geeorm.NewEngine("sqlite", "gee.db")
 	defer engine.Close()
 	s := engine.NewSession()
 	_, _ = s.Raw("DROP TABLE IF EXISTS User;").Exec()

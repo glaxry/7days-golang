@@ -55,10 +55,10 @@ func (engine *Engine) NewSession() *session.Session {
 
 // TxFunc will be called between tx.Begin() and tx.Commit()
 // https://stackoverflow.com/questions/16184238/database-sql-tx-detecting-commit-or-rollback
-type TxFunc func(*session.Session) (interface{}, error)
+type TxFunc func(*session.Session) (any, error)
 
 // Transaction executes sql wrapped in a transaction, then automatically commit if no error occurs
-func (engine *Engine) Transaction(f TxFunc) (result interface{}, err error) {
+func (engine *Engine) Transaction(f TxFunc) (result any, err error) {
 	s := engine.NewSession()
 	if err := s.Begin(); err != nil {
 		return nil, err
@@ -92,15 +92,28 @@ func difference(a []string, b []string) (diff []string) {
 }
 
 // Migrate table
-func (engine *Engine) Migrate(value interface{}) error {
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+func (engine *Engine) Migrate(value any) error {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		if !s.Model(value).HasTable() {
 			log.Infof("table %s doesn't exist", s.RefTable().Name)
 			return nil, s.CreateTable()
 		}
 		table := s.RefTable()
-		rows, _ := s.Raw(fmt.Sprintf("SELECT * FROM %s LIMIT 1", table.Name)).QueryRows()
-		columns, _ := rows.Columns()
+		rows, err := s.Raw(fmt.Sprintf("SELECT * FROM %s LIMIT 1", table.Name)).QueryRows()
+		if err != nil {
+			return nil, err
+		}
+		columns, err := rows.Columns()
+		if err != nil {
+			_ = rows.Close()
+			return nil, err
+		}
+		// Close the read cursor before ALTER TABLE. SQLite keeps a read lock
+		// while rows is open, which would make the migration fail with
+		// SQLITE_LOCKED on stricter drivers.
+		if err := rows.Close(); err != nil {
+			return nil, err
+		}
 		addCols := difference(table.FieldNames, columns)
 		delCols := difference(columns, table.FieldNames)
 		log.Infof("added cols %v, deleted cols %v", addCols, delCols)

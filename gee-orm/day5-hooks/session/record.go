@@ -7,8 +7,8 @@ import (
 )
 
 // Insert one or more records in database
-func (s *Session) Insert(values ...interface{}) (int64, error) {
-	recordValues := make([]interface{}, 0)
+func (s *Session) Insert(values ...any) (int64, error) {
+	recordValues := make([]any, 0)
 	for _, value := range values {
 		s.CallMethod(BeforeInsert, value)
 		table := s.Model(value).RefTable()
@@ -27,7 +27,7 @@ func (s *Session) Insert(values ...interface{}) (int64, error) {
 }
 
 // Find gets all eligible records
-func (s *Session) Find(values interface{}) error {
+func (s *Session) Find(values any) error {
 	s.CallMethod(BeforeQuery, nil)
 	destSlice := reflect.Indirect(reflect.ValueOf(values))
 	destType := destSlice.Type().Elem()
@@ -42,7 +42,7 @@ func (s *Session) Find(values interface{}) error {
 
 	for rows.Next() {
 		dest := reflect.New(destType).Elem()
-		var values []interface{}
+		var values []any
 		for _, name := range table.FieldNames {
 			values = append(values, dest.FieldByName(name).Addr().Interface())
 		}
@@ -56,7 +56,7 @@ func (s *Session) Find(values interface{}) error {
 }
 
 // First gets the 1st row
-func (s *Session) First(value interface{}) error {
+func (s *Session) First(value any) error {
 	dest := reflect.Indirect(reflect.ValueOf(value))
 	destSlice := reflect.New(reflect.SliceOf(dest.Type())).Elem()
 	if err := s.Limit(1).Find(destSlice.Addr().Interface()); err != nil {
@@ -76,8 +76,8 @@ func (s *Session) Limit(num int) *Session {
 }
 
 // Where adds limit condition to clause
-func (s *Session) Where(desc string, args ...interface{}) *Session {
-	var vars []interface{}
+func (s *Session) Where(desc string, args ...any) *Session {
+	var vars []any
 	s.clause.Set(clause.WHERE, append(append(vars, desc), args...)...)
 	return s
 }
@@ -89,13 +89,13 @@ func (s *Session) OrderBy(desc string) *Session {
 }
 
 // Update records with where clause
-// support map[string]interface{}
+// support map[string]any
 // also support kv list: "Name", "Tom", "Age", 18, ....
-func (s *Session) Update(kv ...interface{}) (int64, error) {
+func (s *Session) Update(kv ...any) (int64, error) {
 	s.CallMethod(BeforeUpdate, nil)
-	m, ok := kv[0].(map[string]interface{})
+	m, ok := kv[0].(map[string]any)
 	if !ok {
-		m = make(map[string]interface{})
+		m = make(map[string]any)
 		for i := 0; i < len(kv); i += 2 {
 			m[kv[i].(string)] = kv[i+1]
 		}
