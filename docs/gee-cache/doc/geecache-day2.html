@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了 sync.Mutex 互斥锁的使用，并发控制 LRU 缓存。实现 G…">
+  <meta name="color-scheme" content="light dark">
+  <title>动手写分布式缓存 - GeeCache第二天 单机并发缓存 · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="../../gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="../../gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="../../gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="../../gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="../../gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="../../gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="../../gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="../../gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../../gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item is-current" href="geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache" aria-current="page">Day2 单机并发缓存</a><a class="nav-item" href="geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>GeeCache</span><span>14 / 37</span></div>
+          <h1>动手写分布式缓存 - GeeCache第二天 单机并发缓存</h1>
+          <p>7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了 sync.Mutex 互斥锁的使用，并发控制 LRU 缓存。实现 G…</p>
+        </header>
+        <div class="prose"><p><img src="geecache-day2/concurrent_cache.jpg" alt="geecache concurrent cache"></p>
+<p>本文是<a href="https://geektutu.com/post/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第二篇。</p>
+<ul>
+<li>介绍 sync.Mutex 互斥锁的使用，并实现 LRU 缓存的并发控制。</li>
+<li>实现 GeeCache 核心数据结构 Group，缓存不存在时，调用回调函数获取源数据，<strong>代码约150行</strong></li>
+</ul>
+<h2 id="1-syncmutex">1 sync.Mutex</h2>
+<p>多个协程(goroutine)同时读写同一个变量，在并发度较高的情况下，会发生冲突。确保一次只有一个协程(goroutine)可以访问该变量以避免冲突，这称之为<code>互斥</code>，互斥锁可以解决这个问题。</p>
+<blockquote>
+<p>sync.Mutex 是一个互斥锁，可以由不同的协程加锁和解锁。</p>
+</blockquote>
+<p><code>sync.Mutex</code> 是 Go 语言标准库提供的一个互斥锁，当一个协程(goroutine)获得了这个锁的拥有权后，其它请求锁的协程(goroutine) 就会阻塞在 <code>Lock()</code> 方法的调用上，直到调用 <code>Unlock()</code> 锁被释放。</p>
+<p>接下来举一个简单的例子，假设有10个并发的协程打印了同一个数字<code>100</code>，为了避免重复打印，实现了<code>printOnce(num int)</code> 函数，使用集合 set 记录已打印过的数字，如果数字已打印过，则不再打印。</p>
+<pre><code class="language-go">var set = make(map[int]bool, 0)
+
+func printOnce(num int) {
+	if _, exist := set[num]; !exist {
+		fmt.Println(num)
+	}
+	set[num] = true
+}
+
+func main() {
+	for i := 0; i &lt; 10; i++ {
+		go printOnce(100)
+	}
+	time.Sleep(time.Second)
+}
+</code></pre>
+<p>我们运行 <code>go run .</code> 会发生什么情况呢？</p>
+<pre><code class="language-bash">$ go run .
+100
+100
+</code></pre>
+<p>有时候打印 2 次，有时候打印 4 次，有时候还会触发 panic，因为对同一个数据结构<code>set</code>的访问冲突了。接下来用互斥锁的<code>Lock()</code>和<code>Unlock()</code> 方法将冲突的部分包裹起来：</p>
+<pre><code class="language-go">var m sync.Mutex
+var set = make(map[int]bool, 0)
+
+func printOnce(num int) {
+	m.Lock()
+	if _, exist := set[num]; !exist {
+		fmt.Println(num)
+	}
+	set[num] = true
+	m.Unlock()
+}
+
+func main() {
+	for i := 0; i &lt; 10; i++ {
+		go printOnce(100)
+	}
+	time.Sleep(time.Second)
+}
+</code></pre>
+<pre><code class="language-bash">$ go run .
+100
+</code></pre>
+<p>相同的数字只会被打印一次。当一个协程调用了 <code>Lock()</code> 方法时，其他协程被阻塞了，直到<code>Unlock()</code>调用将锁释放。因此被包裹部分的代码就能够避免冲突，实现互斥。</p>
+<p><code>Unlock()</code>释放锁还有另外一种写法：</p>
+<pre><code class="language-go">func printOnce(num int) {
+	m.Lock()
+	defer m.Unlock()
+	if _, exist := set[num]; !exist {
+		fmt.Println(num)
+	}
+	set[num] = true
+}
+</code></pre>
+<h2 id="2-">2 支持并发读写</h2>
+<p>上一篇文章 <a href="https://geektutu.com/post/geecache-day1.html">GeeCache 第一天</a> 实现了 LRU 缓存淘汰策略。接下来我们使用 <code>sync.Mutex</code> 封装 LRU 的几个方法，使之支持并发的读写。在这之前，我们抽象了一个只读数据结构 <code>ByteView</code> 用来表示缓存值，是 GeeCache 主要的数据结构之一。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day2-single-node/geecache">day2-single-node/geecache/byteview.go - github</a></p>
+<pre><code class="language-go">package geecache
+
+// A ByteView holds an immutable view of bytes.
+type ByteView struct {
+	b []byte
+}
+
+// Len returns the view's length
+func (v ByteView) Len() int {
+	return len(v.b)
+}
+
+// ByteSlice returns a copy of the data as a byte slice.
+func (v ByteView) ByteSlice() []byte {
+	return cloneBytes(v.b)
+}
+
+// String returns the data as a string, making a copy if necessary.
+func (v ByteView) String() string {
+	return string(v.b)
+}
+
+func cloneBytes(b []byte) []byte {
+	c := make([]byte, len(b))
+	copy(c, b)
+	return c
+}
+</code></pre>
+<ul>
+<li>ByteView 只有一个数据成员，<code>b []byte</code>，b 将会存储真实的缓存值。选择 byte 类型是为了能够支持任意的数据类型的存储，例如字符串、图片等。</li>
+<li>实现 <code>Len() int</code> 方法，我们在 lru.Cache 的实现中，要求被缓存对象必须实现 Value 接口，即 <code>Len() int</code> 方法，返回其所占的内存大小。</li>
+<li><code>b</code> 是只读的，使用 <code>ByteSlice()</code> 方法返回一个拷贝，防止缓存值被外部程序修改。</li>
+</ul>
+<p>接下来就可以为 lru.Cache 添加并发特性了。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day2-single-node/geecache">day2-single-node/geecache/cache.go - github</a></p>
+<pre><code class="language-go">package geecache
+
+import (
+	&quot;geecache/lru&quot;
+	&quot;sync&quot;
+)
+
+type cache struct {
+	mu         sync.Mutex
+	lru        *lru.Cache
+	cacheBytes int64
+}
+
+func (c *cache) add(key string, value ByteView) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.lru == nil {
+		c.lru = lru.New(c.cacheBytes, nil)
+	}
+	c.lru.Add(key, value)
+}
+
+func (c *cache) get(key string) (value ByteView, ok bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.lru == nil {
+		return
+	}
+
+	if v, ok := c.lru.Get(key); ok {
+		return v.(ByteView), ok
+	}
+
+	return
+}
+</code></pre>
+<ul>
+<li><code>cache.go</code> 的实现非常简单，实例化 lru，封装 get 和 add 方法，并添加互斥锁 mu。</li>
+<li>在 <code>add</code> 方法中，判断了 <code>c.lru</code> 是否为 nil，如果等于 nil 再创建实例。这种方法称之为延迟初始化(Lazy Initialization)，一个对象的延迟初始化意味着该对象的创建将会延迟至第一次使用该对象时。主要用于提高性能，并减少程序内存要求。</li>
+</ul>
+<h2 id="3--group">3 主体结构 Group</h2>
+<p>Group 是 GeeCache 最核心的数据结构，负责与用户的交互，并且控制缓存值存储和获取的流程。</p>
+<pre><code class="language-bash">                            是
+接收 key --&gt; 检查是否被缓存 -----&gt; 返回缓存值 ⑴
+                |  否                         是
+                |-----&gt; 是否应当从远程节点获取 -----&gt; 与远程节点交互 --&gt; 返回缓存值 ⑵
+                            |  否
+                            |-----&gt; 调用`回调函数`，获取值并添加到缓存 --&gt; 返回缓存值 ⑶
+</code></pre>
+<p>我们将在 <code>geecache.go</code> 中实现主体结构 Group，那么 GeeCache 的代码结构的雏形已经形成了。</p>
+<pre><code class="language-bash">geecache/
+    |--lru/
+        |--lru.go  // lru 缓存淘汰策略
+    |--byteview.go // 缓存值的抽象与封装
+    |--cache.go    // 并发控制
+    |--geecache.go // 负责与外部交互，控制缓存存储和获取的主流程
+</code></pre>
+<p>接下来我们将实现流程 ⑴ 和 ⑶，远程交互的部分后续再实现。</p>
+<h3 id="31--getter">3.1 回调 Getter</h3>
+<p>我们思考一下，如果缓存不存在，应从数据源（文件，数据库等）获取数据并添加到缓存中。GeeCache 是否应该支持多种数据源的配置呢？不应该，一是数据源的种类太多，没办法一一实现；二是扩展性不好。如何从源头获取数据，应该是用户决定的事情，我们就把这件事交给用户好了。因此，我们设计了一个回调函数(callback)，在缓存不存在时，调用这个函数，得到源数据。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day2-single-node/geecache">day2-single-node/geecache/geecache.go - github</a></p>
+<pre><code class="language-go">// A Getter loads data for a key.
+type Getter interface {
+	Get(key string) ([]byte, error)
+}
+
+// A GetterFunc implements Getter with a function.
+type GetterFunc func(key string) ([]byte, error)
+
+// Get implements Getter interface function
+func (f GetterFunc) Get(key string) ([]byte, error) {
+	return f(key)
+}
+</code></pre>
+<ul>
+<li>定义接口 Getter 和 回调函数 <code>Get(key string)([]byte, error)</code>，参数是 key，返回值是 []byte。</li>
+<li>定义函数类型 GetterFunc，并实现 Getter 接口的 <code>Get</code> 方法。</li>
+<li>函数类型实现某一个接口，称之为接口型函数，方便使用者在调用时既能够传入函数作为参数，也能够传入实现了该接口的结构体作为参数。</li>
+</ul>
+<blockquote>
+<p>了解接口型函数的使用场景，可以参考 <a href="https://geektutu.com/post/7days-golang-q1.html">Go 接口型函数的使用场景 - 7days-golang Q &amp; A</a></p>
+</blockquote>
+<p>我们可以写一个测试用例来保证回调函数能够正常工作。</p>
+<pre><code class="language-go">func TestGetter(t *testing.T) {
+	var f Getter = GetterFunc(func(key string) ([]byte, error) {
+		return []byte(key), nil
+	})
+
+	expect := []byte(&quot;key&quot;)
+	if v, _ := f.Get(&quot;key&quot;); !reflect.DeepEqual(v, expect) {
+		t.Errorf(&quot;callback failed&quot;)
+	}
+}
+</code></pre>
+<ul>
+<li>在这个测试用例中，我们借助 GetterFunc 的类型转换，将一个匿名回调函数转换成了接口 <code>f Getter</code>。</li>
+<li>调用该接口的方法 <code>f.Get(key string)</code>，实际上就是在调用匿名回调函数。</li>
+</ul>
+<blockquote>
+<p>定义一个函数类型 F，并且实现接口 A 的方法，然后在这个方法中调用自己。这是 Go 语言中将其他函数（参数返回值定义与 F 一致）转换为接口 A 的常用技巧。</p>
+</blockquote>
+<h3 id="32-group-">3.2 Group 的定义</h3>
+<p>接下来是最核心数据结构 Group 的定义：</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day2-single-node/geecache">day2-single-node/geecache/geecache.go - github</a></p>
+<pre><code class="language-go">// A Group is a cache namespace and associated data loaded spread over
+type Group struct {
+	name      string
+	getter    Getter
+	mainCache cache
+}
+
+var (
+	mu     sync.RWMutex
+	groups = make(map[string]*Group)
+)
+
+// NewGroup create a new instance of Group
+func NewGroup(name string, cacheBytes int64, getter Getter) *Group {
+	if getter == nil {
+		panic(&quot;nil Getter&quot;)
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	g := &amp;Group{
+		name:      name,
+		getter:    getter,
+		mainCache: cache{cacheBytes: cacheBytes},
+	}
+	groups[name] = g
+	return g
+}
+
+// GetGroup returns the named group previously created with NewGroup, or
+// nil if there's no such group.
+func GetGroup(name string) *Group {
+	mu.RLock()
+	g := groups[name]
+	mu.RUnlock()
+	return g
+}
+</code></pre>
+<ul>
+<li>一个 Group 可以认为是一个缓存的命名空间，每个 Group 拥有一个唯一的名称 <code>name</code>。比如可以创建三个 Group，缓存学生的成绩命名为 scores，缓存学生信息的命名为 info，缓存学生课程的命名为 courses。</li>
+<li>第二个属性是 <code>getter Getter</code>，即缓存未命中时获取源数据的回调(callback)。</li>
+<li>第三个属性是 <code>mainCache cache</code>，即一开始实现的并发缓存。</li>
+<li>构建函数 <code>NewGroup</code> 用来实例化 Group，并且将 group 存储在全局变量 <code>groups</code> 中。</li>
+<li><code>GetGroup</code> 用来特定名称的 Group，这里使用了只读锁 <code>RLock()</code>，因为不涉及任何冲突变量的写操作。</li>
+</ul>
+<h3 id="33-group--get-">3.3 Group 的 Get 方法</h3>
+<p>接下来是 GeeCache 最为核心的方法 <code>Get</code>：</p>
+<pre><code class="language-go">// Get value for a key from cache
+func (g *Group) Get(key string) (ByteView, error) {
+	if key == &quot;&quot; {
+		return ByteView{}, fmt.Errorf(&quot;key is required&quot;)
+	}
+
+	if v, ok := g.mainCache.get(key); ok {
+		log.Println(&quot;[GeeCache] hit&quot;)
+		return v, nil
+	}
+
+	return g.load(key)
+}
+
+func (g *Group) load(key string) (value ByteView, err error) {
+	return g.getLocally(key)
+}
+
+func (g *Group) getLocally(key string) (ByteView, error) {
+	bytes, err := g.getter.Get(key)
+	if err != nil {
+		return ByteView{}, err
+
+	}
+	value := ByteView{b: cloneBytes(bytes)}
+	g.populateCache(key, value)
+	return value, nil
+}
+
+func (g *Group) populateCache(key string, value ByteView) {
+	g.mainCache.add(key, value)
+}
+</code></pre>
+<ul>
+<li>Get 方法实现了上述所说的流程 ⑴ 和 ⑶。</li>
+<li>流程 ⑴ ：从 mainCache 中查找缓存，如果存在则返回缓存值。</li>
+<li>流程 ⑶ ：缓存不存在，则调用 load 方法，load 调用 getLocally（分布式场景下会调用 getFromPeer 从其他节点获取），getLocally 调用用户回调函数 <code>g.getter.Get()</code> 获取源数据，并且将源数据添加到缓存 mainCache 中（通过 populateCache 方法）</li>
+</ul>
+<p>至此，这一章节的单机并发缓存就已经完成了。</p>
+<h2 id="4-">4 测试</h2>
+<p>可以写测试用例，也可以写 main 函数来测试这一章节实现的功能。那我们通过测试用例来看一下，如何使用我们实现的单机并发缓存吧。</p>
+<p>首先，用一个 map 模拟耗时的数据库。</p>
+<pre><code class="language-go">var db = map[string]string{
+	&quot;Tom&quot;:  &quot;630&quot;,
+	&quot;Jack&quot;: &quot;589&quot;,
+	&quot;Sam&quot;:  &quot;567&quot;,
+}
+</code></pre>
+<p>创建 group 实例，并测试 <code>Get</code> 方法</p>
+<pre><code class="language-go">func TestGet(t *testing.T) {
+	loadCounts := make(map[string]int, len(db))
+	gee := NewGroup(&quot;scores&quot;, 2&lt;&lt;10, GetterFunc(
+		func(key string) ([]byte, error) {
+			log.Println(&quot;[SlowDB] search key&quot;, key)
+			if v, ok := db[key]; ok {
+				if _, ok := loadCounts[key]; !ok {
+					loadCounts[key] = 0
+				}
+				loadCounts[key] += 1
+				return []byte(v), nil
+			}
+			return nil, fmt.Errorf(&quot;%s not exist&quot;, key)
+		}))
+
+	for k, v := range db {
+		if view, err := gee.Get(k); err != nil || view.String() != v {
+			t.Fatal(&quot;failed to get value of Tom&quot;)
+		} // load from callback function
+		if _, err := gee.Get(k); err != nil || loadCounts[k] &gt; 1 {
+			t.Fatalf(&quot;cache %s miss&quot;, k)
+		} // cache hit
+	}
+
+	if view, err := gee.Get(&quot;unknown&quot;); err == nil {
+		t.Fatalf(&quot;the value of unknow should be empty, but %s got&quot;, view)
+	}
+}
+</code></pre>
+<ul>
+<li>在这个测试用例中，我们主要测试了 2 种情况</li>
+<li>1）在缓存为空的情况下，能够通过回调函数获取到源数据。</li>
+<li>2）在缓存已经存在的情况下，是否直接从缓存中获取，为了实现这一点，使用 <code>loadCounts</code> 统计某个键调用回调函数的次数，如果次数大于1，则表示调用了多次回调函数，没有缓存。</li>
+</ul>
+<p>测试结果如下：</p>
+<pre><code class="language-bash">$ go test -run TestGet
+2020/02/11 22:07:31 [SlowDB] search key Sam
+2020/02/11 22:07:31 [GeeCache] hit
+2020/02/11 22:07:31 [SlowDB] search key Tom
+2020/02/11 22:07:31 [GeeCache] hit
+2020/02/11 22:07:31 [SlowDB] search key Jack
+2020/02/11 22:07:31 [GeeCache] hit
+2020/02/11 22:07:31 [SlowDB] search key unknown
+PASS
+ok      geecache        0.008s
+</code></pre>
+<p>可以很清晰地看到，缓存为空时，调用了回调函数，第二次访问时，则直接从缓存中读取。</p>
+<h2 id="-">附 推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html#7-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-goroutine">Go 语言简明教程 - 并发编程</a></li>
+<li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
+<li><a href="https://golang.org/pkg/sync/">sync 官方文档 - golang.org</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="geecache-day1.html"><span>上一篇</span><strong>Day1 LRU 缓存淘汰策略</strong></a>
+          <a class="page-nav-item next" href="geecache-day3.html"><span>下一篇</span><strong>Day3 HTTP 服务端</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-syncmutex">1 sync.Mutex</a><a class="toc-level-2" href="#2-">2 支持并发读写</a><a class="toc-level-2" href="#3--group">3 主体结构 Group</a><a class="toc-level-3" href="#31--getter">3.1 回调 Getter</a><a class="toc-level-3" href="#32-group-">3.2 Group 的定义</a><a class="toc-level-3" href="#33-group--get-">3.3 Group 的 Get 方法</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

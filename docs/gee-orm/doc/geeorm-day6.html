@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。介绍数据库中的事务(transactio…">
+  <meta name="color-scheme" content="light dark">
+  <title>动手写ORM框架 - GeeORM第六天 支持事务(Transaction) · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="../../gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="../../gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="../../gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="../../gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="../../gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="../../gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="../../gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="../../gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../../gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item is-current" href="geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm" aria-current="page">Day6 支持事务</a><a class="nav-item" href="geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>GeeORM</span><span>26 / 37</span></div>
+          <h1>动手写ORM框架 - GeeORM第六天 支持事务(Transaction)</h1>
+          <p>7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。介绍数据库中的事务(transactio…</p>
+        </header>
+        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第六篇。</p>
+<ul>
+<li>介绍数据库中的事务(transaction)。</li>
+<li>封装事务，用户自定义回调函数实现原子操作。<strong>代码约100行</strong></li>
+</ul>
+<h2 id="1--acid-">1 事务的 ACID 属性</h2>
+<blockquote>
+<p>数据库事务(transaction)是访问并可能操作各种数据项的一个数据库操作序列，这些操作要么全部执行,要么全部不执行，是一个不可分割的工作单位。事务由事务开始与事务结束之间执行的全部数据库操作组成。</p>
+</blockquote>
+<p>举一个简单的例子，转账。A 转账给 B 一万元，那么数据库至少需要执行 2 个操作：</p>
+<ul>
+<li>1）A 的账户减掉一万元。</li>
+<li>2）B 的账户增加一万元。</li>
+</ul>
+<p>这两个操作要么全部执行，代表转账成功。任意一个操作失败了，之前的操作都必须回退，代表转账失败。一个操作完成，另一个操作失败，这种结果是不能够接受的。这种场景就非常适合利用数据库事务的特性来解决。</p>
+<p>如果一个数据库支持事务，那么必须具备 ACID 四个属性。</p>
+<ul>
+<li>1）原子性(Atomicity)：事务中的全部操作在数据库中是不可分割的，要么全部完成，要么全部不执行。</li>
+<li>2）一致性(Consistency): 几个并行执行的事务，其执行结果必须与按某一顺序 串行执行的结果相一致。</li>
+<li>3）隔离性(Isolation)：事务的执行不受其他事务的干扰，事务执行的中间结果对其他事务必须是透明的。</li>
+<li>4）持久性(Durability)：对于任意已提交事务，系统必须保证该事务对数据库的改变不被丢失，即使数据库出现故障。</li>
+</ul>
+<h2 id="2-sqlite--go-">2 SQLite 和 Go 标准库中的事务</h2>
+<p>SQLite 中创建一个事务的原生 SQL 长什么样子呢？</p>
+<pre><code class="language-sql">sqlite&gt; BEGIN;
+sqlite&gt; DELETE FROM User WHERE Age &gt; 25;
+sqlite&gt; INSERT INTO User VALUES (&quot;Tom&quot;, 25), (&quot;Jack&quot;, 18);
+sqlite&gt; COMMIT;
+</code></pre>
+<p><code>BEGIN</code> 开启事务，<code>COMMIT</code> 提交事务，<code>ROLLBACK</code> 回滚事务。任何一个事务，均以 <code>BEGIN</code> 开始，<code>COMMIT</code> 或 <code>ROLLBACK</code> 结束。</p>
+<p>Go 语言标准库 database/sql 提供了支持事务的接口。用一个简单的例子，看一看 Go 语言标准是如何支持事务的。</p>
+<pre><code class="language-go">package main
+
+import (
+	&quot;database/sql&quot;
+	_ &quot;modernc.org/sqlite&quot;
+	&quot;log&quot;
+)
+
+func main() {
+	db, _ := sql.Open(&quot;sqlite&quot;, &quot;gee.db&quot;)
+	defer func() { _ = db.Close() }()
+	_, _ = db.Exec(&quot;CREATE TABLE IF NOT EXISTS User(`Name` text);&quot;)
+
+	tx, _ := db.Begin()
+	_, err1 := tx.Exec(&quot;INSERT INTO User(`Name`) VALUES (?)&quot;, &quot;Tom&quot;)
+	_, err2 := tx.Exec(&quot;INSERT INTO User(`Name`) VALUES (?)&quot;, &quot;Jack&quot;)
+	if err1 != nil || err2 != nil {
+		_ = tx.Rollback()
+		log.Println(&quot;Rollback&quot;, err1, err2)
+	} else {
+		_ = tx.Commit()
+		log.Println(&quot;Commit&quot;)
+	}
+}
+</code></pre>
+<p>Go 语言中实现事务和 SQL 原生语句其实是非常接近的。调用 <code>db.Begin()</code> 得到 <code>*sql.Tx</code> 对象，使用 <code>tx.Exec()</code> 执行一系列操作，如果发生错误，通过 <code>tx.Rollback()</code> 回滚，如果没有发生错误，则通过 <code>tx.Commit()</code> 提交。</p>
+<h2 id="3-geeorm-">3 GeeORM 支持事务</h2>
+<p>GeeORM 之前的操作均是执行完即自动提交的，每个操作是相互独立的。之前直接使用 <code>sql.DB</code> 对象执行 SQL 语句，如果要支持事务，需要更改为 <code>sql.Tx</code> 执行。在 Session 结构体中新增成员变量 <code>tx *sql.Tx</code>，当 <code>tx</code> 不为空时，则使用 <code>tx</code> 执行 SQL 语句，否则使用 <code>db</code> 执行 SQL 语句。这样既兼容了原有的执行方式，又提供了对事务的支持。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day6-transaction/session">day6-transaction/session/raw.go</a></p>
+<pre><code class="language-go">type Session struct {
+	db       *sql.DB
+	dialect  dialect.Dialect
+	tx       *sql.Tx
+	refTable *schema.Schema
+	clause   clause.Clause
+	sql      strings.Builder
+	sqlVars  []any
+}
+
+// CommonDB is a minimal function set of db
+type CommonDB interface {
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+	Exec(query string, args ...any) (sql.Result, error)
+}
+
+var _ CommonDB = (*sql.DB)(nil)
+var _ CommonDB = (*sql.Tx)(nil)
+
+// DB returns tx if a tx begins. otherwise return *sql.DB
+func (s *Session) DB() CommonDB {
+	if s.tx != nil {
+		return s.tx
+	}
+	return s.db
+}
+</code></pre>
+<p>新建文件 <code>session/transaction.go</code> 封装事务的 Begin、Commit 和 Rollback 三个接口。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day6-transaction/session">day6-transaction/session/transaction.go</a></p>
+<pre><code class="language-go">package session
+
+import &quot;geeorm/log&quot;
+
+func (s *Session) Begin() (err error) {
+	log.Info(&quot;transaction begin&quot;)
+	if s.tx, err = s.db.Begin(); err != nil {
+		log.Error(err)
+		return
+	}
+	return
+}
+
+func (s *Session) Commit() (err error) {
+	log.Info(&quot;transaction commit&quot;)
+	if err = s.tx.Commit(); err != nil {
+		log.Error(err)
+	}
+	return
+}
+
+func (s *Session) Rollback() (err error) {
+	log.Info(&quot;transaction rollback&quot;)
+	if err = s.tx.Rollback(); err != nil {
+		log.Error(err)
+	}
+	return
+}
+</code></pre>
+<ul>
+<li>调用 <code>s.db.Begin()</code> 得到 <code>*sql.Tx</code> 对象，赋值给 s.tx。</li>
+<li>封装的另一个目的是统一打印日志，方便定位问题。</li>
+</ul>
+<p>最后一步，在 <code>geeorm.go</code> 中为用户提供傻瓜式/一键式使用的接口。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day6-transaction">day6-transaction/geeorm.go</a></p>
+<pre><code class="language-go">type TxFunc func(*session.Session) (any, error)
+
+func (engine *Engine) Transaction(f TxFunc) (result any, err error) {
+	s := engine.NewSession()
+	if err := s.Begin(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			_ = s.Rollback()
+			panic(p) // re-throw panic after Rollback
+		} else if err != nil {
+			_ = s.Rollback() // err is non-nil; don't change it
+		} else {
+			err = s.Commit() // err is nil; if Commit returns error update err
+		}
+	}()
+
+	return f(s)
+}
+</code></pre>
+<blockquote>
+<p>Transaction 的实现参考了 <a href="https://stackoverflow.com/questions/16184238/database-sql-tx-detecting-commit-or-rollback">stackoverflow</a></p>
+</blockquote>
+<p>用户只需要将所有的操作放到一个回调函数中，作为入参传递给 <code>engine.Transaction()</code>，发生任何错误，自动回滚，如果没有错误发生，则提交。</p>
+<h2 id="4-">4 测试</h2>
+<p>在 <code>geeorm_test.go</code> 中添加测试用例看看 Transaction 如何工作的吧。</p>
+<pre><code class="language-go">func OpenDB(t *testing.T) *Engine {
+	t.Helper()
+	engine, err := NewEngine(&quot;sqlite&quot;, &quot;gee.db&quot;)
+	if err != nil {
+		t.Fatal(&quot;failed to connect&quot;, err)
+	}
+	return engine
+}
+
+type User struct {
+	Name string `geeorm:&quot;PRIMARY KEY&quot;`
+	Age  int
+}
+
+func TestEngine_Transaction(t *testing.T) {
+	t.Run(&quot;rollback&quot;, func(t *testing.T) {
+		transactionRollback(t)
+	})
+	t.Run(&quot;commit&quot;, func(t *testing.T) {
+		transactionCommit(t)
+	})
+}
+</code></pre>
+<p>首先是 rollback 的用例：</p>
+<pre><code class="language-go">func transactionRollback(t *testing.T) {
+	engine := OpenDB(t)
+	defer engine.Close()
+	s := engine.NewSession()
+	_ = s.Model(&amp;User{}).DropTable()
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
+		_ = s.Model(&amp;User{}).CreateTable()
+		_, err = s.Insert(&amp;User{&quot;Tom&quot;, 18})
+		return nil, errors.New(&quot;Error&quot;)
+	})
+	if err == nil || s.HasTable() {
+		t.Fatal(&quot;failed to rollback&quot;)
+	}
+}
+</code></pre>
+<ul>
+<li>在这个用例中，如何执行成功，则会创建一张表 <code>User</code>，并插入一条记录。</li>
+<li>故意返回了一个自定义 error，最终事务回滚，表创建失败。</li>
+</ul>
+<p>接下来是 commit 的用例：</p>
+<pre><code class="language-go">func transactionCommit(t *testing.T) {
+	engine := OpenDB(t)
+	defer engine.Close()
+	s := engine.NewSession()
+	_ = s.Model(&amp;User{}).DropTable()
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
+		_ = s.Model(&amp;User{}).CreateTable()
+		_, err = s.Insert(&amp;User{&quot;Tom&quot;, 18})
+		return
+	})
+	u := &amp;User{}
+	_ = s.First(u)
+	if err != nil || u.Name != &quot;Tom&quot; {
+		t.Fatal(&quot;failed to commit&quot;)
+	}
+}
+</code></pre>
+<ul>
+<li>创建表和插入记录均成功执行，最终通过 <code>s.First()</code> 方法查询到插入的记录。</li>
+</ul>
+<h2 id="-">附 推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
+<li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
+<li><a href="https://geektutu.com/post/cheat-sheet-sqlite.html">SQLite 常用命令速查表</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="geeorm-day5.html"><span>上一篇</span><strong>Day5 实现钩子</strong></a>
+          <a class="page-nav-item next" href="geeorm-day7.html"><span>下一篇</span><strong>Day7 数据库迁移</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--acid-">1 事务的 ACID 属性</a><a class="toc-level-2" href="#2-sqlite--go-">2 SQLite 和 Go 标准库中的事务</a><a class="toc-level-2" href="#3-geeorm-">3 GeeORM 支持事务</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

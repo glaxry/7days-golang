@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。">
+  <meta name="color-scheme" content="light dark">
+  <title>7天用Go从零实现Web框架Gee教程 · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item is-current" href="gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web" aria-current="page">系列总览</a><a class="nav-item" href="gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>Gee Web</span><span>3 / 37</span></div>
+          <h1>7天用Go从零实现Web框架Gee教程</h1>
+          <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。</p>
+        </header>
+        <div class="prose"><p><img src="gee/gee.jpg" alt="gee"></p>
+<h2 id="heading">设计一个框架</h2>
+<p>大部分时候，我们需要实现一个 Web 应用，第一反应是应该使用哪个框架。不同的框架设计理念和提供的功能有很大的差别。比如 Python 语言的 <code>django</code>和<code>flask</code>，前者大而全，后者小而美。Go语言/golang 也是如此，新框架层出不穷，比如<code>Beego</code>，<code>Gin</code>，<code>Iris</code>等。那为什么不直接使用标准库，而必须使用框架呢？在设计一个框架之前，我们需要回答框架核心为我们解决了什么问题。只有理解了这一点，才能想明白我们需要在框架中实现什么功能。</p>
+<p>我们先看看标准库<code>net/http</code>如何处理一个请求。</p>
+<pre><code class="language-go">func main() {
+    http.HandleFunc(&quot;/&quot;, handler)
+    http.HandleFunc(&quot;/count&quot;, counter)
+    log.Fatal(http.ListenAndServe(&quot;localhost:8000&quot;, nil))
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, &quot;URL.Path = %q\n&quot;, r.URL.Path)
+}
+</code></pre>
+<p><code>net/http</code>提供了基础的Web功能，即监听端口，映射静态路由，解析HTTP报文。一些Web开发中简单的需求并不支持，需要手工实现。</p>
+<ul>
+<li>动态路由：例如<code>hello/:name</code>，<code>hello/*</code>这类的规则。</li>
+<li>鉴权：没有分组/统一鉴权的能力，需要在每个路由映射的handler中实现。</li>
+<li>模板：没有统一简化的HTML机制。</li>
+<li>...</li>
+</ul>
+<p>当我们离开框架，使用基础库时，需要频繁手工处理的地方，就是框架的价值所在。但并不是每一个频繁处理的地方都适合在框架中完成。Python有一个很著名的Web框架，名叫<a href="https://github.com/bottlepy/bottle"><code>bottle</code></a>，整个框架由<code>bottle.py</code>一个文件构成，共4400行，可以说是一个微框架。那么理解这个微框架提供的特性，可以帮助我们理解框架的核心能力。</p>
+<ul>
+<li>路由(Routing)：将请求映射到函数，支持动态路由。例如<code>'/hello/:name</code>。</li>
+<li>模板(Templates)：使用内置模板引擎提供模板渲染机制。</li>
+<li>工具集(Utilites)：提供对 cookies，headers 等处理机制。</li>
+<li>插件(Plugin)：Bottle本身功能有限，但提供了插件机制。可以选择安装到全局，也可以只针对某几个路由生效。</li>
+<li>...</li>
+</ul>
+<h2 id="gee-">Gee 框架</h2>
+<p>这个教程将使用 Go 语言实现一个简单的 Web 框架，起名叫做<code>Gee</code>，<a href="https://geektutu.com"><code>geektutu.com</code></a>的前三个字母。我第一次接触的 Go 语言的 Web 框架是<code>Gin</code>，<code>Gin</code>的代码总共是14K，其中测试代码9K，也就是说实际代码量只有<strong>5K</strong>。<code>Gin</code>也是我非常喜欢的一个框架，与Python中的<code>Flask</code>很像，小而美。</p>
+<p><code>7天实现Gee框架</code>这个教程的很多设计，包括源码，参考了<code>Gin</code>，大家可以看到很多<code>Gin</code>的影子。</p>
+<p>时间关系，同时为了尽可能地简洁明了，这个框架中的很多部分实现的功能都很简单，但是尽可能地体现一个框架核心的设计原则。例如<code>Router</code>的设计，虽然支持的动态路由规则有限，但为了性能考虑匹配算法是用<code>Trie树</code>实现的，<code>Router</code>最重要的指标之一便是性能。</p>
+<p>希望这个教程能够对你有所启发，如果对 Gee 有任何好的建议，欢迎提<a href="https://github.com/geektutu/7days-golang/issues">issues - Github</a> 和 PR。教程中的任何问题，可以直接在文章末尾评论。</p>
+<h2 id="heading-1">目录</h2>
+<ul>
+<li>第一天：<a href="https://geektutu.com/post/gee-day1.html">前置知识(http.Handler接口)</a>，<a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base">Code - Github</a></li>
+<li>第二天：<a href="https://geektutu.com/post/gee-day2.html">上下文设计(Context)</a>，<a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day2-context">Code - Github</a></li>
+<li>第三天：<a href="https://geektutu.com/post/gee-day3.html">Trie树路由(Router)</a>，<a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day3-router">Code - Github</a></li>
+<li>第四天：<a href="https://geektutu.com/post/gee-day4.html">分组控制(Group)</a>，<a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day4-group">Code - Github</a></li>
+<li>第五天：<a href="https://geektutu.com/post/gee-day5.html">中间件(Middleware)</a>，<a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day5-middleware">Code - Github</a></li>
+<li>第六天：<a href="https://geektutu.com/post/gee-day6.html">HTML模板(Template)</a>，<a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">Code - Github</a></li>
+<li>第七天：<a href="https://geektutu.com/post/gee-day7.html">错误恢复(Panic Recover)</a>，<a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day7-panic-recover">Code - Github</a></li>
+</ul>
+<h2 id="heading-2">推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go Test 单元测试简明教程</a></li>
+<li><a href="https://geektutu.com/post/quick-go-gin.html">Go Gin 简明教程</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="../../MODERNIZATION.html"><span>上一篇</span><strong>现代化迁移</strong></a>
+          <a class="page-nav-item next" href="gee-day1.html"><span>下一篇</span><strong>Day1 HTTP 基础</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">设计一个框架</a><a class="toc-level-2" href="#gee-">Gee 框架</a><a class="toc-level-2" href="#heading-1">目录</a><a class="toc-level-2" href="#heading-2">推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

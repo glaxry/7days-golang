@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何用 Trie 前缀树实现路由 Route。支持简单…">
+  <meta name="color-scheme" content="light dark">
+  <title>Go语言动手写Web框架 - Gee第三天 前缀树路由Router · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item is-current" href="gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web" aria-current="page">Day3 前缀树路由</a><a class="nav-item" href="gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>Gee Web</span><span>6 / 37</span></div>
+          <h1>Go语言动手写Web框架 - Gee第三天 前缀树路由Router</h1>
+          <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何用 Trie 前缀树实现路由 Route。支持简单…</p>
+        </header>
+        <div class="prose"><p>本文是 <a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第三篇。</p>
+<ul>
+<li>使用 Trie 树实现动态路由(dynamic route)解析。</li>
+<li>支持两种模式<code>:name</code>和<code>*filepath</code>，<strong>代码约150行</strong>。</li>
+</ul>
+<h2 id="trie-">Trie 树简介</h2>
+<p>之前，我们用了一个非常简单的<code>map</code>结构存储了路由表，使用<code>map</code>存储键值对，索引非常高效，但是有一个弊端，键值对的存储的方式，只能用来索引静态路由。那如果我们想支持类似于<code>/hello/:name</code>这样的动态路由怎么办呢？所谓动态路由，即一条路由规则可以匹配某一类型而非某一条固定的路由。例如<code>/hello/:name</code>，可以匹配<code>/hello/geektutu</code>、<code>hello/jack</code>等。</p>
+<p>动态路由有很多种实现方式，支持的规则、性能等有很大的差异。例如开源的路由实现<code>gorouter</code>支持在路由规则中嵌入正则表达式，例如<code>/p/[0-9A-Za-z]+</code>，即路径中的参数仅匹配数字和字母；另一个开源实现<code>httprouter</code>就不支持正则表达式。著名的Web开源框架<code>gin</code> 在早期的版本，并没有实现自己的路由，而是直接使用了<code>httprouter</code>，后来不知道什么原因，放弃了<code>httprouter</code>，自己实现了一个版本。</p>
+<p><img src="gee-day3/trie_eg.jpg" alt="trie tree"></p>
+<p>实现动态路由最常用的数据结构，被称为前缀树(Trie树)。看到名字你大概也能知道前缀树长啥样了：每一个节点的所有的子节点都拥有相同的前缀。这种结构非常适用于路由匹配，比如我们定义了如下路由规则：</p>
+<ul>
+<li>/:lang/doc</li>
+<li>/:lang/tutorial</li>
+<li>/:lang/intro</li>
+<li>/about</li>
+<li>/p/blog</li>
+<li>/p/related</li>
+</ul>
+<p>我们用前缀树来表示，是这样的。</p>
+<p><img src="gee-day3/trie_router.jpg" alt="trie tree"></p>
+<p>HTTP请求的路径恰好是由<code>/</code>分隔的多段构成的，因此，每一段可以作为前缀树的一个节点。我们通过树结构查询，如果中间某一层的节点都不满足条件，那么就说明没有匹配到的路由，查询结束。</p>
+<p>接下来我们实现的动态路由具备以下两个功能。</p>
+<ul>
+<li>参数匹配<code>:</code>。例如 <code>/p/:lang/doc</code>，可以匹配 <code>/p/c/doc</code> 和 <code>/p/go/doc</code>。</li>
+<li>通配<code>*</code>。例如 <code>/static/*filepath</code>，可以匹配<code>/static/fav.ico</code>，也可以匹配<code>/static/js/jQuery.js</code>，这种模式常用于静态服务器，能够递归地匹配子路径。</li>
+</ul>
+<h2 id="trie--1">Trie 树实现</h2>
+<p>首先我们需要设计树节点上应该存储那些信息。</p>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day3-router">day3-router/gee/trie.go</a></strong></p>
+<pre><code class="language-go">type node struct {
+	pattern  string // 待匹配路由，例如 /p/:lang
+	part     string // 路由中的一部分，例如 :lang
+	children []*node // 子节点，例如 [doc, tutorial, intro]
+	isWild   bool // 是否精确匹配，part 含有 : 或 * 时为true
+}
+</code></pre>
+<p>与普通的树不同，为了实现动态路由匹配，加上了<code>isWild</code>这个参数。即当我们匹配 <code>/p/go/doc/</code>这个路由时，第一层节点，<code>p</code>精准匹配到了<code>p</code>，第二层节点，<code>go</code>模糊匹配到<code>:lang</code>，那么将会把<code>lang</code>这个参数赋值为<code>go</code>，继续下一层匹配。我们将匹配的逻辑，包装为一个辅助函数。</p>
+<pre><code class="language-go">// 第一个匹配成功的节点，用于插入
+func (n *node) matchChild(part string) *node {
+	for _, child := range n.children {
+		if child.part == part || child.isWild {
+			return child
+		}
+	}
+	return nil
+}
+// 所有匹配成功的节点，用于查找
+func (n *node) matchChildren(part string) []*node {
+	nodes := make([]*node, 0)
+	for _, child := range n.children {
+		if child.part == part || child.isWild {
+			nodes = append(nodes, child)
+		}
+	}
+	return nodes
+}
+</code></pre>
+<p>对于路由来说，最重要的当然是注册与匹配了。开发服务时，注册路由规则，映射handler；访问时，匹配路由规则，查找到对应的handler。因此，Trie 树需要支持节点的插入与查询。插入功能很简单，递归查找每一层的节点，如果没有匹配到当前<code>part</code>的节点，则新建一个，有一点需要注意，<code>/p/:lang/doc</code>只有在第三层节点，即<code>doc</code>节点，<code>pattern</code>才会设置为<code>/p/:lang/doc</code>。<code>p</code>和<code>:lang</code>节点的<code>pattern</code>属性皆为空。因此，当匹配结束时，我们可以使用<code>n.pattern == &quot;&quot;</code>来判断路由规则是否匹配成功。例如，<code>/p/python</code>虽能成功匹配到<code>:lang</code>，但<code>:lang</code>的<code>pattern</code>值为空，因此匹配失败。查询功能，同样也是递归查询每一层的节点，退出规则是，匹配到了<code>*</code>，匹配失败，或者匹配到了第<code>len(parts)</code>层节点。</p>
+<pre><code class="language-go">func (n *node) insert(pattern string, parts []string, height int) {
+	if len(parts) == height {
+		n.pattern = pattern
+		return
+	}
+
+	part := parts[height]
+	child := n.matchChild(part)
+	if child == nil {
+		child = &amp;node{part: part, isWild: part[0] == ':' || part[0] == '*'}
+		n.children = append(n.children, child)
+	}
+	child.insert(pattern, parts, height+1)
+}
+
+func (n *node) search(parts []string, height int) *node {
+	if len(parts) == height || strings.HasPrefix(n.part, &quot;*&quot;) {
+		if n.pattern == &quot;&quot; {
+			return nil
+		}
+		return n
+	}
+
+	part := parts[height]
+	children := n.matchChildren(part)
+
+	for _, child := range children {
+		result := child.search(parts, height+1)
+		if result != nil {
+			return result
+		}
+	}
+
+	return nil
+}
+</code></pre>
+<h2 id="router">Router</h2>
+<p>Trie 树的插入与查找都成功实现了，接下来我们将 Trie 树应用到路由中去吧。我们使用 roots 来存储每种请求方式的Trie 树根节点。使用 handlers 存储每种请求方式的 HandlerFunc 。getRoute 函数中，还解析了<code>:</code>和<code>*</code>两种匹配符的参数，返回一个 map 。例如<code>/p/go/doc</code>匹配到<code>/p/:lang/doc</code>，解析结果为：<code>{lang: &quot;go&quot;}</code>，<code>/static/css/geektutu.css</code>匹配到<code>/static/*filepath</code>，解析结果为<code>{filepath: &quot;css/geektutu.css&quot;}</code>。</p>
+<p><strong>day3-router/gee/router.go</strong></p>
+<pre><code class="language-go">type router struct {
+	roots    map[string]*node
+	handlers map[string]HandlerFunc
+}
+
+// roots key eg, roots['GET'] roots['POST']
+// handlers key eg, handlers['GET-/p/:lang/doc'], handlers['POST-/p/book']
+
+func newRouter() *router {
+	return &amp;router{
+		roots:    make(map[string]*node),
+		handlers: make(map[string]HandlerFunc),
+	}
+}
+
+// Only one * is allowed
+func parsePattern(pattern string) []string {
+	vs := strings.Split(pattern, &quot;/&quot;)
+
+	parts := make([]string, 0)
+	for _, item := range vs {
+		if item != &quot;&quot; {
+			parts = append(parts, item)
+			if item[0] == '*' {
+				break
+			}
+		}
+	}
+	return parts
+}
+
+func (r *router) addRoute(method string, pattern string, handler HandlerFunc) {
+	parts := parsePattern(pattern)
+
+	key := method + &quot;-&quot; + pattern
+	_, ok := r.roots[method]
+	if !ok {
+		r.roots[method] = &amp;node{}
+	}
+	r.roots[method].insert(pattern, parts, 0)
+	r.handlers[key] = handler
+}
+
+func (r *router) getRoute(method string, path string) (*node, map[string]string) {
+	searchParts := parsePattern(path)
+	params := make(map[string]string)
+	root, ok := r.roots[method]
+
+	if !ok {
+		return nil, nil
+	}
+
+	n := root.search(searchParts, 0)
+
+	if n != nil {
+		parts := parsePattern(n.pattern)
+		for index, part := range parts {
+			if part[0] == ':' {
+				params[part[1:]] = searchParts[index]
+			}
+			if part[0] == '*' &amp;&amp; len(part) &gt; 1 {
+				params[part[1:]] = strings.Join(searchParts[index:], &quot;/&quot;)
+				break
+			}
+		}
+		return n, params
+	}
+
+	return nil, nil
+}
+</code></pre>
+<h2 id="contexthandle">Context与handle的变化</h2>
+<p>在 HandlerFunc 中，希望能够访问到解析的参数，因此，需要对 Context 对象增加一个属性和方法，来提供对路由参数的访问。我们将解析后的参数存储到<code>Params</code>中，通过<code>c.Param(&quot;lang&quot;)</code>的方式获取到对应的值。</p>
+<p><strong>day3-router/gee/context.go</strong></p>
+<pre><code class="language-go">type Context struct {
+	// origin objects
+	Writer http.ResponseWriter
+	Req    *http.Request
+	// request info
+	Path   string
+	Method string
+	Params map[string]string
+	// response info
+	StatusCode int
+}
+
+func (c *Context) Param(key string) string {
+	value, _ := c.Params[key]
+	return value
+}
+</code></pre>
+<p><strong>day3-router/gee/router.go</strong></p>
+<pre><code class="language-go">func (r *router) handle(c *Context) {
+	n, params := r.getRoute(c.Method, c.Path)
+	if n != nil {
+		c.Params = params
+		key := c.Method + &quot;-&quot; + n.pattern
+		r.handlers[key](c)
+	} else {
+		c.String(http.StatusNotFound, &quot;404 NOT FOUND: %s\n&quot;, c.Path)
+	}
+}
+</code></pre>
+<p><code>router.go</code>的变化比较小，比较重要的一点是，在调用匹配到的<code>handler</code>前，将解析出来的路由参数赋值给了<code>c.Params</code>。这样就能够在<code>handler</code>中，通过<code>Context</code>对象访问到具体的值了。</p>
+<h2 id="heading">单元测试</h2>
+<pre><code class="language-go">func newTestRouter() *router {
+	r := newRouter()
+	r.addRoute(&quot;GET&quot;, &quot;/&quot;, nil)
+	r.addRoute(&quot;GET&quot;, &quot;/hello/:name&quot;, nil)
+	r.addRoute(&quot;GET&quot;, &quot;/hello/b/c&quot;, nil)
+	r.addRoute(&quot;GET&quot;, &quot;/hi/:name&quot;, nil)
+	r.addRoute(&quot;GET&quot;, &quot;/assets/*filepath&quot;, nil)
+	return r
+}
+
+func TestParsePattern(t *testing.T) {
+	ok := reflect.DeepEqual(parsePattern(&quot;/p/:name&quot;), []string{&quot;p&quot;, &quot;:name&quot;})
+	ok = ok &amp;&amp; reflect.DeepEqual(parsePattern(&quot;/p/*&quot;), []string{&quot;p&quot;, &quot;*&quot;})
+	ok = ok &amp;&amp; reflect.DeepEqual(parsePattern(&quot;/p/*name/*&quot;), []string{&quot;p&quot;, &quot;*name&quot;})
+	if !ok {
+		t.Fatal(&quot;test parsePattern failed&quot;)
+	}
+}
+
+func TestGetRoute(t *testing.T) {
+	r := newTestRouter()
+	n, ps := r.getRoute(&quot;GET&quot;, &quot;/hello/geektutu&quot;)
+
+	if n == nil {
+		t.Fatal(&quot;nil shouldn't be returned&quot;)
+	}
+
+	if n.pattern != &quot;/hello/:name&quot; {
+		t.Fatal(&quot;should match /hello/:name&quot;)
+	}
+
+	if ps[&quot;name&quot;] != &quot;geektutu&quot; {
+		t.Fatal(&quot;name should be equal to 'geektutu'&quot;)
+	}
+
+	fmt.Printf(&quot;matched path: %s, params['name']: %s\n&quot;, n.pattern, ps[&quot;name&quot;])
+
+}
+</code></pre>
+<h2 id="demo">使用Demo</h2>
+<p>看看框架使用的样例吧。</p>
+<p><strong>day3-router/main.go</strong></p>
+<pre><code class="language-go">func main() {
+	r := gee.New()
+	r.GET(&quot;/&quot;, func(c *gee.Context) {
+		c.HTML(http.StatusOK, &quot;&lt;h1&gt;Hello Gee&lt;/h1&gt;&quot;)
+	})
+
+	r.GET(&quot;/hello&quot;, func(c *gee.Context) {
+		// expect /hello?name=geektutu
+		c.String(http.StatusOK, &quot;hello %s, you're at %s\n&quot;, c.Query(&quot;name&quot;), c.Path)
+	})
+
+	r.GET(&quot;/hello/:name&quot;, func(c *gee.Context) {
+		// expect /hello/geektutu
+		c.String(http.StatusOK, &quot;hello %s, you're at %s\n&quot;, c.Param(&quot;name&quot;), c.Path)
+	})
+
+	r.GET(&quot;/assets/*filepath&quot;, func(c *gee.Context) {
+		c.JSON(http.StatusOK, gee.H{&quot;filepath&quot;: c.Param(&quot;filepath&quot;)})
+	})
+
+	r.Run(&quot;:9999&quot;)
+}
+</code></pre>
+<p>使用<code>curl</code>工具，测试结果。</p>
+<pre><code class="language-bash">$ curl &quot;http://localhost:9999/hello/geektutu&quot;
+hello geektutu, you're at /hello/geektutu
+
+$ curl &quot;http://localhost:9999/assets/css/geektutu.css&quot;
+{&quot;filepath&quot;:&quot;css/geektutu.css&quot;}
+</code></pre>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="gee-day2.html"><span>上一篇</span><strong>Day2 上下文</strong></a>
+          <a class="page-nav-item next" href="gee-day4.html"><span>下一篇</span><strong>Day4 分组控制</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#trie-">Trie 树简介</a><a class="toc-level-2" href="#trie--1">Trie 树实现</a><a class="toc-level-2" href="#router">Router</a><a class="toc-level-2" href="#contexthandle">Context与handle的变化</a><a class="toc-level-2" href="#heading">单元测试</a><a class="toc-level-2" href="#demo">使用Demo</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

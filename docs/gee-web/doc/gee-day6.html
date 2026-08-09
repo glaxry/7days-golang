@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何为Web框架添加HTML模板(HTML Templ…">
+  <meta name="color-scheme" content="light dark">
+  <title>Go语言动手写Web框架 - Gee第六天 模板(HTML Template) · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item is-current" href="gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web" aria-current="page">Day6 模板 Template</a><a class="nav-item" href="gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>Gee Web</span><span>9 / 37</span></div>
+          <h1>Go语言动手写Web框架 - Gee第六天 模板(HTML Template)</h1>
+          <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何为Web框架添加HTML模板(HTML Templ…</p>
+        </header>
+        <div class="prose"><p>本文是 <a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第六篇。</p>
+<ul>
+<li>实现静态资源服务(Static Resource)。</li>
+<li>支持HTML模板渲染。</li>
+</ul>
+<h2 id="heading">服务端渲染</h2>
+<p>现在越来越流行前后端分离的开发模式，即 Web 后端提供 RESTful 接口，返回结构化的数据(通常为 JSON 或者 XML)。前端使用 AJAX 技术请求到所需的数据，利用 JavaScript 进行渲染。Vue/React 等前端框架持续火热，这种开发模式前后端解耦，优势非常突出。后端童鞋专心解决资源利用，并发，数据库等问题，只需要考虑数据如何生成；前端童鞋专注于界面设计实现，只需要考虑拿到数据后如何渲染即可。使用 JSP 写过网站的童鞋，应该能感受到前后端耦合的痛苦。JSP 的表现力肯定是远不如 Vue/React 等专业做前端渲染的框架的。而且前后端分离在当前还有另外一个不可忽视的优势。因为后端只关注于数据，接口返回值是结构化的，与前端解耦。同一套后端服务能够同时支撑小程序、移动APP、PC端 Web 页面，以及对外提供的接口。随着前端工程化的不断地发展，Webpack，gulp 等工具层出不穷，前端技术越来越自成体系了。</p>
+<p>但前后分离的一大问题在于，页面是在客户端渲染的，比如浏览器，这对于爬虫并不友好。Google 爬虫已经能够爬取渲染后的网页，但是短期内爬取服务端直接渲染的 HTML 页面仍是主流。</p>
+<p>今天的内容便是介绍 Web 框架如何支持服务端渲染的场景。</p>
+<h2 id="serve-static-files">静态文件(Serve Static Files)</h2>
+<p>网页的三剑客，JavaScript、CSS 和 HTML。要做到服务端渲染，第一步便是要支持 JS、CSS 等静态文件。还记得我们之前设计动态路由的时候，支持通配符<code>*</code>匹配多级子路径。比如路由规则<code>/assets/*filepath</code>，可以匹配<code>/assets/</code>开头的所有的地址。例如<code>/assets/js/geektutu.js</code>，匹配后，参数<code>filepath</code>就赋值为<code>js/geektutu.js</code>。</p>
+<p>那如果我么将所有的静态文件放在<code>/usr/web</code>目录下，那么<code>filepath</code>的值即是该目录下文件的相对地址。映射到真实的文件后，将文件返回，静态服务器就实现了。</p>
+<p>找到文件后，如何返回这一步，<code>net/http</code>库已经实现了。因此，gee 框架要做的，仅仅是解析请求的地址，映射到服务器上文件的真实地址，交给<code>http.FileServer</code>处理就好了。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">day6-template/gee/gee.go</a></p>
+<pre><code class="language-go">// create static handler
+func (group *RouterGroup) createStaticHandler(relativePath string, fs http.FileSystem) HandlerFunc {
+	absolutePath := path.Join(group.prefix, relativePath)
+	fileServer := http.StripPrefix(absolutePath, http.FileServer(fs))
+	return func(c *Context) {
+		file := c.Param(&quot;filepath&quot;)
+		// Check if file exists and/or if we have permission to access it
+		if _, err := fs.Open(file); err != nil {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		fileServer.ServeHTTP(c.Writer, c.Req)
+	}
+}
+
+// serve static files
+func (group *RouterGroup) Static(relativePath string, root string) {
+	handler := group.createStaticHandler(relativePath, http.Dir(root))
+	urlPattern := path.Join(relativePath, &quot;/*filepath&quot;)
+	// Register GET handlers
+	group.GET(urlPattern, handler)
+}
+</code></pre>
+<p>我们给<code>RouterGroup</code>添加了2个方法，<code>Static</code>这个方法是暴露给用户的。用户可以将磁盘上的某个文件夹<code>root</code>映射到路由<code>relativePath</code>。例如：</p>
+<pre><code class="language-go">r := gee.New()
+r.Static(&quot;/assets&quot;, &quot;/usr/geektutu/blog/static&quot;)
+// 或相对路径 r.Static(&quot;/assets&quot;, &quot;./static&quot;)
+r.Run(&quot;:9999&quot;)
+</code></pre>
+<p>用户访问<code>localhost:9999/assets/js/geektutu.js</code>，最终返回<code>/usr/geektutu/blog/static/js/geektutu.js</code>。</p>
+<h2 id="html-">HTML 模板渲染</h2>
+<p>Go语言内置了<code>text/template</code>和<code>html/template</code>2个模板标准库，其中<a href="https://golang.org/pkg/html/template/">html/template</a>为 HTML 提供了较为完整的支持。包括普通变量渲染、列表渲染、对象渲染等。gee 框架的模板渲染直接使用了<code>html/template</code>提供的能力。</p>
+<pre><code class="language-go">Engine struct {
+	*RouterGroup
+	router        *router
+	groups        []*RouterGroup     // store all groups
+	htmlTemplates *template.Template // for html render
+	funcMap       template.FuncMap   // for html render
+}
+
+func (engine *Engine) SetFuncMap(funcMap template.FuncMap) {
+	engine.funcMap = funcMap
+}
+
+func (engine *Engine) LoadHTMLGlob(pattern string) {
+	engine.htmlTemplates = template.Must(template.New(&quot;&quot;).Funcs(engine.funcMap).ParseGlob(pattern))
+}
+</code></pre>
+<p>首先为 Engine 示例添加了 <code>*template.Template</code> 和 <code>template.FuncMap</code>对象，前者将所有的模板加载进内存，后者是所有的自定义模板渲染函数。</p>
+<p>另外，给用户分别提供了设置自定义渲染函数<code>funcMap</code>和加载模板的方法。</p>
+<p>接下来，对原来的 <code>(*Context).HTML()</code>方法做了些小修改，使之支持根据模板文件名选择模板进行渲染。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">day6-template/gee/context.go</a></p>
+<pre><code class="language-go">type Context struct {
+    // ...
+	// engine pointer
+	engine *Engine
+}
+
+func (c *Context) HTML(code int, name string, data any) {
+	c.SetHeader(&quot;Content-Type&quot;, &quot;text/html&quot;)
+	c.Status(code)
+	if err := c.engine.htmlTemplates.ExecuteTemplate(c.Writer, name, data); err != nil {
+		c.Fail(500, err.Error())
+	}
+}
+</code></pre>
+<p>我们在 <code>Context</code> 中添加了成员变量 <code>engine *Engine</code>，这样就能够通过 Context 访问 Engine 中的 HTML 模板。实例化 Context 时，还需要给 <code>c.engine</code> 赋值。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">day6-template/gee/gee.go</a></p>
+<pre><code class="language-go">func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	// ...
+	c := newContext(w, req)
+	c.handlers = middlewares
+	c.engine = engine
+	engine.router.handle(c)
+}
+</code></pre>
+<h2 id="demo">使用Demo</h2>
+<p>最终的目录结构</p>
+<pre><code class="language-bash">---gee/
+---static/
+   |---css/
+        |---geektutu.css
+   |---file1.txt
+---templates/
+   |---arr.tmpl
+   |---css.tmpl
+   |---custom_func.tmpl
+---main.go
+</code></pre>
+<pre><code class="language-html">&lt;!-- day6-template/templates/css.tmpl --&gt;
+&lt;html&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;/assets/css/geektutu.css&quot;&gt;
+    &lt;p&gt;geektutu.css is loaded&lt;/p&gt;
+&lt;/html&gt;
+</code></pre>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">day6-template/main.go</a></p>
+<pre><code class="language-go">type student struct {
+	Name string
+	Age  int8
+}
+
+func FormatAsDate(t time.Time) string {
+	year, month, day := t.Date()
+	return fmt.Sprintf(&quot;%d-%02d-%02d&quot;, year, month, day)
+}
+
+func main() {
+	r := gee.New()
+	r.Use(gee.Logger())
+	r.SetFuncMap(template.FuncMap{
+		&quot;FormatAsDate&quot;: FormatAsDate,
+	})
+	r.LoadHTMLGlob(&quot;templates/*&quot;)
+	r.Static(&quot;/assets&quot;, &quot;./static&quot;)
+
+	stu1 := &amp;student{Name: &quot;Geektutu&quot;, Age: 20}
+	stu2 := &amp;student{Name: &quot;Jack&quot;, Age: 22}
+	r.GET(&quot;/&quot;, func(c *gee.Context) {
+		c.HTML(http.StatusOK, &quot;css.tmpl&quot;, nil)
+	})
+	r.GET(&quot;/students&quot;, func(c *gee.Context) {
+		c.HTML(http.StatusOK, &quot;arr.tmpl&quot;, gee.H{
+			&quot;title&quot;:  &quot;gee&quot;,
+			&quot;stuArr&quot;: [2]*student{stu1, stu2},
+		})
+	})
+
+	r.GET(&quot;/date&quot;, func(c *gee.Context) {
+		c.HTML(http.StatusOK, &quot;custom_func.tmpl&quot;, gee.H{
+			&quot;title&quot;: &quot;gee&quot;,
+			&quot;now&quot;:   time.Date(2019, 8, 17, 0, 0, 0, 0, time.UTC),
+		})
+	})
+
+	r.Run(&quot;:9999&quot;)
+}
+</code></pre>
+<p>访问下主页，模板正常渲染，CSS 静态文件加载成功。</p>
+<p><img src="gee-day6/static.jpg" alt="day6-template"></p>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="gee-day5.html"><span>上一篇</span><strong>Day5 中间件</strong></a>
+          <a class="page-nav-item next" href="gee-day7.html"><span>下一篇</span><strong>Day7 错误恢复</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">服务端渲染</a><a class="toc-level-2" href="#serve-static-files">静态文件(Serve Static Files)</a><a class="toc-level-2" href="#html-">HTML 模板渲染</a><a class="toc-level-2" href="#demo">使用Demo</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

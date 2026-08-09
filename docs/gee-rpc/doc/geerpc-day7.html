@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…">
+  <meta name="color-scheme" content="light dark">
+  <title>动手写RPC框架 - GeeRPC第七天 服务发现与注册中心(registry) · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="../../gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="../../gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="../../gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="../../gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="../../gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="../../gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="../../gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="../../gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../../gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item is-current" href="geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc" aria-current="page">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>GeeRPC</span><span>35 / 37</span></div>
+          <h1>动手写RPC框架 - GeeRPC第七天 服务发现与注册中心(registry)</h1>
+          <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
+        </header>
+        <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
+<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第七篇。</p>
+<ul>
+<li>实现一个简单的注册中心，支持服务注册、接收心跳等功能</li>
+<li>客户端实现基于注册中心的服务发现机制，代码约 250 行</li>
+</ul>
+<h2 id="heading">注册中心的位置</h2>
+<p><img src="geerpc-day7/registry.jpg" alt="geerpc registry"></p>
+<p>注册中心的位置如上图所示。注册中心的好处在于，客户端和服务端都只需要感知注册中心的存在，而无需感知对方的存在。更具体一些：</p>
+<ol>
+<li>服务端启动后，向注册中心发送注册消息，注册中心得知该服务已经启动，处于可用状态。一般来说，服务端还需要定期向注册中心发送心跳，证明自己还活着。</li>
+<li>客户端向注册中心询问，当前哪天服务是可用的，注册中心将可用的服务列表返回客户端。</li>
+<li>客户端根据注册中心得到的服务列表，选择其中一个发起调用。</li>
+</ol>
+<p>如果没有注册中心，就像 GeeRPC 第六天实现的一样，客户端需要硬编码服务端的地址，而且没有机制保证服务端是否处于可用状态。当然注册中心的功能还有很多，比如配置的动态同步、通知机制等。比较常用的注册中心有 <a href="https://github.com/etcd-io/etcd">etcd</a>、<a href="https://github.com/apache/zookeeper">zookeeper</a>、<a href="https://github.com/hashicorp/consul">consul</a>，一般比较出名的微服务或者 RPC 框架，这些主流的注册中心都是支持的。</p>
+<h2 id="gee-registry">Gee Registry</h2>
+<p>主流的注册中心 etcd、zookeeper 等功能强大，与这类注册中心的对接代码量是比较大的，需要实现的接口很多。GeeRPC 选择自己实现一个简单的支持心跳保活的注册中心。</p>
+<p>GeeRegistry 的代码独立放置在子目录 registry 中。</p>
+<p>首先定义 GeeRegistry 结构体，默认超时时间设置为 5 min，也就是说，任何注册的服务超过 5 min，即视为不可用状态。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry">day7-registry/registry/registry.go</a></p>
+<pre><code class="language-go">// GeeRegistry is a simple register center, provide following functions.
+// add a server and receive heartbeat to keep it alive.
+// returns all alive servers and delete dead servers sync simultaneously.
+type GeeRegistry struct {
+	timeout time.Duration
+	mu      sync.Mutex // protect following
+	servers map[string]*ServerItem
+}
+
+type ServerItem struct {
+	Addr  string
+	start time.Time
+}
+
+const (
+	defaultPath    = &quot;/_geerpc_/registry&quot;
+	defaultTimeout = time.Minute * 5
+)
+
+// New create a registry instance with timeout setting
+func New(timeout time.Duration) *GeeRegistry {
+	return &amp;GeeRegistry{
+		servers: make(map[string]*ServerItem),
+		timeout: timeout,
+	}
+}
+
+var DefaultGeeRegister = New(defaultTimeout)
+</code></pre>
+<p>为 GeeRegistry 实现添加服务实例和返回服务列表的方法。</p>
+<ul>
+<li>putServer：添加服务实例，如果服务已经存在，则更新 start。</li>
+<li>aliveServers：返回可用的服务列表，如果存在超时的服务，则删除。</li>
+</ul>
+<pre><code class="language-go">func (r *GeeRegistry) putServer(addr string) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	s := r.servers[addr]
+	if s == nil {
+		r.servers[addr] = &amp;ServerItem{Addr: addr, start: time.Now()}
+	} else {
+		s.start = time.Now() // if exists, update start time to keep alive
+	}
+}
+
+func (r *GeeRegistry) aliveServers() []string {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	var alive []string
+	for addr, s := range r.servers {
+		if r.timeout == 0 || s.start.Add(r.timeout).After(time.Now()) {
+			alive = append(alive, addr)
+		} else {
+			delete(r.servers, addr)
+		}
+	}
+	sort.Strings(alive)
+	return alive
+}
+</code></pre>
+<p>为了实现上的简单，GeeRegistry 采用 HTTP 协议提供服务，且所有的有用信息都承载在 HTTP Header 中。</p>
+<ul>
+<li>Get：返回所有可用的服务列表，通过自定义字段 X-Geerpc-Servers 承载。</li>
+<li>Post：添加服务实例或发送心跳，通过自定义字段 X-Geerpc-Server 承载。</li>
+</ul>
+<pre><code class="language-go">// Runs at /_geerpc_/registry
+func (r *GeeRegistry) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case &quot;GET&quot;:
+		// keep it simple, server is in req.Header
+		w.Header().Set(&quot;X-Geerpc-Servers&quot;, strings.Join(r.aliveServers(), &quot;,&quot;))
+	case &quot;POST&quot;:
+		// keep it simple, server is in req.Header
+		addr := req.Header.Get(&quot;X-Geerpc-Server&quot;)
+		if addr == &quot;&quot; {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		r.putServer(addr)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+
+// HandleHTTP registers an HTTP handler for GeeRegistry messages on registryPath
+func (r *GeeRegistry) HandleHTTP(registryPath string) {
+	http.Handle(registryPath, r)
+	log.Println(&quot;rpc registry path:&quot;, registryPath)
+}
+
+func HandleHTTP() {
+	DefaultGeeRegister.HandleHTTP(defaultPath)
+}
+</code></pre>
+<p>另外，提供 Heartbeat 方法，便于服务启动时定时向注册中心发送心跳，默认周期比注册中心设置的过期时间少 1 min。</p>
+<pre><code class="language-go">// Heartbeat send a heartbeat message every once in a while
+// it's a helper function for a server to register or send heartbeat
+func Heartbeat(registry, addr string, duration time.Duration) {
+	if duration == 0 {
+		// make sure there is enough time to send heart beat
+		// before it's removed from registry
+		duration = defaultTimeout - time.Duration(1)*time.Minute
+	}
+	var err error
+	err = sendHeartbeat(registry, addr)
+	go func() {
+		t := time.NewTicker(duration)
+		for err == nil {
+			&lt;-t.C
+			err = sendHeartbeat(registry, addr)
+		}
+	}()
+}
+
+func sendHeartbeat(registry, addr string) error {
+	log.Println(addr, &quot;send heart beat to registry&quot;, registry)
+	httpClient := &amp;http.Client{}
+	req, _ := http.NewRequest(&quot;POST&quot;, registry, nil)
+	req.Header.Set(&quot;X-Geerpc-Server&quot;, addr)
+	if _, err := httpClient.Do(req); err != nil {
+		log.Println(&quot;rpc server: heart beat err:&quot;, err)
+		return err
+	}
+	return nil
+}
+</code></pre>
+<h2 id="geeregistrydiscovery">GeeRegistryDiscovery</h2>
+<p>在 xclient 中对应实现 Discovery。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry">day7-registry/xclient/discovery_gee.go</a></p>
+<pre><code class="language-go">package xclient
+
+type GeeRegistryDiscovery struct {
+	*MultiServersDiscovery
+	registry   string
+	timeout    time.Duration
+	lastUpdate time.Time
+}
+
+const defaultUpdateTimeout = time.Second * 10
+
+func NewGeeRegistryDiscovery(registerAddr string, timeout time.Duration) *GeeRegistryDiscovery {
+	if timeout == 0 {
+		timeout = defaultUpdateTimeout
+	}
+	d := &amp;GeeRegistryDiscovery{
+		MultiServersDiscovery: NewMultiServerDiscovery(make([]string, 0)),
+		registry:              registerAddr,
+		timeout:               timeout,
+	}
+	return d
+}
+</code></pre>
+<ul>
+<li>GeeRegistryDiscovery 嵌套了 MultiServersDiscovery，很多能力可以复用。</li>
+<li>registry 即注册中心的地址</li>
+<li>timeout 服务列表的过期时间</li>
+<li>lastUpdate 是代表最后从注册中心更新服务列表的时间，默认 10s 过期，即 10s 之后，需要从注册中心更新新的列表。</li>
+</ul>
+<p>实现 Update 和 Refresh 方法，超时重新获取的逻辑在 Refresh 中实现：</p>
+<pre><code class="language-go">func (d *GeeRegistryDiscovery) Update(servers []string) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	d.servers = servers
+	d.lastUpdate = time.Now()
+	return nil
+}
+
+func (d *GeeRegistryDiscovery) Refresh() error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if d.lastUpdate.Add(d.timeout).After(time.Now()) {
+		return nil
+	}
+	log.Println(&quot;rpc registry: refresh servers from registry&quot;, d.registry)
+	resp, err := http.Get(d.registry)
+	if err != nil {
+		log.Println(&quot;rpc registry refresh err:&quot;, err)
+		return err
+	}
+	servers := strings.Split(resp.Header.Get(&quot;X-Geerpc-Servers&quot;), &quot;,&quot;)
+	d.servers = make([]string, 0, len(servers))
+	for _, server := range servers {
+		if strings.TrimSpace(server) != &quot;&quot; {
+			d.servers = append(d.servers, strings.TrimSpace(server))
+		}
+	}
+	d.lastUpdate = time.Now()
+	return nil
+}
+</code></pre>
+<p><code>Get</code> 和 <code>GetAll</code> 与 MultiServersDiscovery 相似，唯一的不同在于，GeeRegistryDiscovery 需要先调用 Refresh 确保服务列表没有过期。</p>
+<pre><code class="language-go">func (d *GeeRegistryDiscovery) Get(mode SelectMode) (string, error) {
+	if err := d.Refresh(); err != nil {
+		return &quot;&quot;, err
+	}
+	return d.MultiServersDiscovery.Get(mode)
+}
+
+func (d *GeeRegistryDiscovery) GetAll() ([]string, error) {
+	if err := d.Refresh(); err != nil {
+		return nil, err
+	}
+	return d.MultiServersDiscovery.GetAll()
+}
+</code></pre>
+<h2 id="demo">Demo</h2>
+<p>最后，依旧通过简单的 Demo 验证今天的成果。</p>
+<p>添加函数 startRegistry，稍微修改 startServer，添加调用注册中心的 <code>Heartbeat</code> 方法的逻辑，定期向注册中心发送心跳保活。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry">day7-registry/main/main.go</a></p>
+<pre><code class="language-go">func startRegistry(wg *sync.WaitGroup) {
+	l, _ := net.Listen(&quot;tcp&quot;, &quot;:9999&quot;)
+	registry.HandleHTTP()
+	wg.Done()
+	_ = http.Serve(l, nil)
+}
+
+func startServer(registryAddr string, wg *sync.WaitGroup) {
+	var foo Foo
+	l, _ := net.Listen(&quot;tcp&quot;, &quot;:0&quot;)
+	server := geerpc.NewServer()
+	_ = server.Register(&amp;foo)
+	registry.Heartbeat(registryAddr, &quot;tcp@&quot;+l.Addr().String(), 0)
+	wg.Done()
+	server.Accept(l)
+}
+</code></pre>
+<p>接下来，将 call 和 broadcast 的 MultiServersDiscovery 替换为 GeeRegistryDiscovery，不再需要硬编码服务列表。</p>
+<pre><code class="language-go">func call(registry string) {
+	d := xclient.NewGeeRegistryDiscovery(registry, 0)
+	xc := xclient.NewXClient(d, xclient.RandomSelect, nil)
+	defer func() { _ = xc.Close() }()
+	// send request &amp; receive response
+	var wg sync.WaitGroup
+	for i := 0; i &lt; 5; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			foo(xc, context.Background(), &quot;call&quot;, &quot;Foo.Sum&quot;, &amp;Args{Num1: i, Num2: i * i})
+		}(i)
+	}
+	wg.Wait()
+}
+
+func broadcast(registry string) {
+	d := xclient.NewGeeRegistryDiscovery(registry, 0)
+	xc := xclient.NewXClient(d, xclient.RandomSelect, nil)
+	defer func() { _ = xc.Close() }()
+	var wg sync.WaitGroup
+	for i := 0; i &lt; 5; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			foo(xc, context.Background(), &quot;broadcast&quot;, &quot;Foo.Sum&quot;, &amp;Args{Num1: i, Num2: i * i})
+			// expect 2 - 5 timeout
+			ctx, _ := context.WithTimeout(context.Background(), time.Second*2)
+			foo(xc, ctx, &quot;broadcast&quot;, &quot;Foo.Sleep&quot;, &amp;Args{Num1: i, Num2: i * i})
+		}(i)
+	}
+	wg.Wait()
+}
+</code></pre>
+<p>最后在 main 函数中，将所有的逻辑串联起来，确保注册中心启动后，再启动 RPC 服务端，最后客户端远程调用。</p>
+<pre><code class="language-go">func main() {
+	log.SetFlags(0)
+	registryAddr := &quot;http://localhost:9999/_geerpc_/registry&quot;
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go startRegistry(&amp;wg)
+	wg.Wait()
+
+	time.Sleep(time.Second)
+	wg.Add(2)
+	go startServer(registryAddr, &amp;wg)
+	go startServer(registryAddr, &amp;wg)
+	wg.Wait()
+
+	time.Sleep(time.Second)
+	call(registryAddr)
+	broadcast(registryAddr)
+}
+</code></pre>
+<p>运行结果如下：</p>
+<pre><code class="language-go">rpc registry path: /_geerpc_/registry
+rpc server: register Foo.Sleep
+rpc server: register Foo.Sum
+tcp@[::]:56276 send heart beat to registry http://localhost:9999/_geerpc_/registry
+rpc server: register Foo.Sleep
+rpc server: register Foo.Sum
+tcp@[::]:56277 send heart beat to registry http://localhost:9999/_geerpc_/registry
+rpc registry: refresh servers from registry http://localhost:9999/_geerpc_/registry
+call Foo.Sum success: 3 + 9 = 12
+call Foo.Sum success: 4 + 16 = 20
+call Foo.Sum success: 1 + 1 = 2
+call Foo.Sum success: 0 + 0 = 0
+call Foo.Sum success: 2 + 4 = 6
+rpc registry: refresh servers from registry http://localhost:9999/_geerpc_/registry
+broadcast Foo.Sum success: 4 + 16 = 20
+broadcast Foo.Sum success: 1 + 1 = 2
+broadcast Foo.Sum success: 3 + 9 = 12
+broadcast Foo.Sum success: 0 + 0 = 0
+broadcast Foo.Sum success: 2 + 4 = 6
+broadcast Foo.Sleep success: 0 + 0 = 0
+broadcast Foo.Sleep success: 1 + 1 = 2
+broadcast Foo.Sleep error: rpc client: call failed: context deadline exceeded
+broadcast Foo.Sleep error: rpc client: call failed: context deadline exceeded
+broadcast Foo.Sleep error: rpc client: call failed: context deadline exceeded
+</code></pre>
+<p>到这里，七天用 Go 从零实现 RPC 框架的教程也结束了。我们用七天时间参照 golang 标准库 net/rpc，实现了服务端以及支持并发的客户端，并且支持选择不同的序列化与反序列化方式；为了防止服务挂死，在其中一些关键部分添加了超时处理机制；支持 TCP、Unix、HTTP 等多种传输协议；支持多种负载均衡模式，最后还实现了一个简易的服务注册和发现中心。</p>
+<h2 id="-">附 推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
+<li><a href="https://geektutu.com/post/qa-golang.html">Go 语言笔试面试题</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="geerpc-day6.html"><span>上一篇</span><strong>Day6 负载均衡</strong></a>
+          <a class="page-nav-item next" href="../../demo-wasm/README.html"><span>下一篇</span><strong>WebAssembly 示例</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">注册中心的位置</a><a class="toc-level-2" href="#gee-registry">Gee Registry</a><a class="toc-level-2" href="#geeregistrydiscovery">GeeRegistryDiscovery</a><a class="toc-level-2" href="#demo">Demo</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

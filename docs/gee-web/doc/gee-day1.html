@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了Go标准库 net/http 和 http.Handl…">
+  <meta name="color-scheme" content="light dark">
+  <title>Go语言动手写Web框架 - Gee第一天 http.Handler · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item is-current" href="gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web" aria-current="page">Day1 HTTP 基础</a><a class="nav-item" href="gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>Gee Web</span><span>4 / 37</span></div>
+          <h1>Go语言动手写Web框架 - Gee第一天 http.Handler</h1>
+          <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了Go标准库 net/http 和 http.Handl…</p>
+        </header>
+        <div class="prose"><p>本文是 <a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第一篇。</p>
+<ul>
+<li>简单介绍<code>net/http</code>库以及<code>http.Handler</code>接口。</li>
+<li>搭建<code>Gee</code>框架的雏形，<strong>代码约50行</strong>。</li>
+</ul>
+<h2 id="web">标准库启动Web服务</h2>
+<p>Go语言内置了 <code>net/http</code>库，封装了HTTP网络编程的基础的接口，我们实现的<code>Gee</code> Web 框架便是基于<code>net/http</code>的。我们接下来通过一个例子，简单介绍下这个库的使用。</p>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base1">day1-http-base/base1/main.go</a></strong></p>
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;net/http&quot;
+)
+
+func main() {
+	http.HandleFunc(&quot;/&quot;, indexHandler)
+	http.HandleFunc(&quot;/hello&quot;, helloHandler)
+	log.Fatal(http.ListenAndServe(&quot;:9999&quot;, nil))
+}
+
+// handler echoes r.URL.Path
+func indexHandler(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, &quot;URL.Path = %q\n&quot;, req.URL.Path)
+}
+
+// handler echoes r.URL.Header
+func helloHandler(w http.ResponseWriter, req *http.Request) {
+	for k, v := range req.Header {
+		fmt.Fprintf(w, &quot;Header[%q] = %q\n&quot;, k, v)
+	}
+}
+</code></pre>
+<p>我们设置了2个路由，<code>/</code>和<code>/hello</code>，分别绑定 <em>indexHandler</em> 和 <em>helloHandler</em> ， 根据不同的HTTP请求会调用不同的处理函数。访问<code>/</code>，响应是<code>URL.Path = /</code>，而<code>/hello</code>的响应则是请求头(header)中的键值对信息。</p>
+<p>用 curl 这个工具测试一下，将会得到如下的结果。</p>
+<pre><code class="language-bash">$ curl http://localhost:9999/
+URL.Path = &quot;/&quot;
+$ curl http://localhost:9999/hello
+Header[&quot;Accept&quot;] = [&quot;*/*&quot;]
+Header[&quot;User-Agent&quot;] = [&quot;curl/7.54.0&quot;]
+</code></pre>
+<p><em>main</em> 函数的最后一行，是用来启动 Web 服务的，第一个参数是地址，<code>:9999</code>表示在 <em>9999</em> 端口监听。而第二个参数则代表处理所有的HTTP请求的实例，<code>nil</code> 代表使用标准库中的实例处理。第二个参数，则是我们基于<code>net/http</code>标准库实现Web框架的入口。</p>
+<h2 id="httphandler">实现http.Handler接口</h2>
+<pre><code class="language-go">package http
+
+type Handler interface {
+    ServeHTTP(w ResponseWriter, r *Request)
+}
+
+func ListenAndServe(address string, h Handler) error
+</code></pre>
+<p>第二个参数的类型是什么呢？通过查看<code>net/http</code>的源码可以发现，<code>Handler</code>是一个接口，需要实现方法 <em>ServeHTTP</em> ，也就是说，只要传入任何实现了 <em>ServerHTTP</em> 接口的实例，所有的HTTP请求，就都交给了该实例处理了。马上来试一试吧。</p>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base2">day1-http-base/base2/main.go</a></strong></p>
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;log&quot;
+	&quot;net/http&quot;
+)
+
+// Engine is the uni handler for all requests
+type Engine struct{}
+
+func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	switch req.URL.Path {
+	case &quot;/&quot;:
+		fmt.Fprintf(w, &quot;URL.Path = %q\n&quot;, req.URL.Path)
+	case &quot;/hello&quot;:
+		for k, v := range req.Header {
+			fmt.Fprintf(w, &quot;Header[%q] = %q\n&quot;, k, v)
+		}
+	default:
+		fmt.Fprintf(w, &quot;404 NOT FOUND: %s\n&quot;, req.URL)
+	}
+}
+
+func main() {
+	engine := new(Engine)
+	log.Fatal(http.ListenAndServe(&quot;:9999&quot;, engine))
+}
+</code></pre>
+<ul>
+<li>
+<p>我们定义了一个空的结构体<code>Engine</code>，实现了方法<code>ServeHTTP</code>。这个方法有2个参数，第二个参数是 <em>Request</em> ，该对象包含了该HTTP请求的所有的信息，比如请求地址、Header和Body等信息；第一个参数是 <em>ResponseWriter</em> ，利用 <em>ResponseWriter</em> 可以构造针对该请求的响应。</p>
+</li>
+<li>
+<p>在 <em>main</em> 函数中，我们给 <em>ListenAndServe</em> 方法的第二个参数传入了刚才创建的<code>engine</code>实例。至此，我们走出了实现Web框架的第一步，即，将所有的HTTP请求转向了我们自己的处理逻辑。还记得吗，在实现<code>Engine</code>之前，我们调用 <em>http.HandleFunc</em> 实现了路由和Handler的映射，也就是只能针对具体的路由写处理逻辑。比如<code>/hello</code>。但是在实现<code>Engine</code>之后，我们拦截了所有的HTTP请求，拥有了统一的控制入口。在这里我们可以自由定义路由映射的规则，也可以统一添加一些处理逻辑，例如日志、异常处理等。</p>
+</li>
+<li>
+<p>代码的运行结果与之前的是一致的。</p>
+</li>
+</ul>
+<h2 id="gee">Gee框架的雏形</h2>
+<p>我们接下来重新组织上面的代码，搭建出整个框架的雏形。</p>
+<p>最终的代码目录结构是这样的。</p>
+<pre><code class="language-bash">gee/
+  |--gee.go
+  |--go.mod
+main.go
+go.mod
+</code></pre>
+<h3 id="gomod">go.mod</h3>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3">day1-http-base/base3/go.mod</a></strong></p>
+<pre><code class="language-bash">module example
+
+go 1.26.0
+
+require gee v0.0.0
+
+replace gee =&gt; ./gee
+</code></pre>
+<ul>
+<li>在 <code>go.mod</code> 中使用 <code>replace</code> 将 gee 指向 <code>./gee</code></li>
+</ul>
+<blockquote>
+<p>从 go 1.11 版本开始，引用相对路径的 package 需要使用上述方式。</p>
+</blockquote>
+<h3 id="maingo">main.go</h3>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3">day1-http-base/base3/main.go</a></strong></p>
+<pre><code class="language-go">package main
+
+import (
+	&quot;fmt&quot;
+	&quot;net/http&quot;
+
+	&quot;gee&quot;
+)
+
+func main() {
+	r := gee.New()
+	r.GET(&quot;/&quot;, func(w http.ResponseWriter, req *http.Request) {
+		fmt.Fprintf(w, &quot;URL.Path = %q\n&quot;, req.URL.Path)
+	})
+
+	r.GET(&quot;/hello&quot;, func(w http.ResponseWriter, req *http.Request) {
+		for k, v := range req.Header {
+			fmt.Fprintf(w, &quot;Header[%q] = %q\n&quot;, k, v)
+		}
+	})
+
+	r.Run(&quot;:9999&quot;)
+}
+</code></pre>
+<p>看到这里，如果你使用过<code>gin</code>框架的话，肯定会觉得无比的亲切。<code>gee</code>框架的设计以及API均参考了<code>gin</code>。使用<code>New()</code>创建 gee 的实例，使用 <code>GET()</code>方法添加路由，最后使用<code>Run()</code>启动Web服务。这里的路由，只是静态路由，不支持<code>/hello/:name</code>这样的动态路由，动态路由我们将在下一次实现。</p>
+<h3 id="geego">gee.go</h3>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3">day1-http-base/base3/gee/gee.go</a></strong></p>
+<pre><code class="language-go">package gee
+
+import (
+	&quot;fmt&quot;
+	&quot;net/http&quot;
+)
+
+// HandlerFunc defines the request handler used by gee
+type HandlerFunc func(http.ResponseWriter, *http.Request)
+
+// Engine implement the interface of ServeHTTP
+type Engine struct {
+	router map[string]HandlerFunc
+}
+
+// New is the constructor of gee.Engine
+func New() *Engine {
+	return &amp;Engine{router: make(map[string]HandlerFunc)}
+}
+
+func (engine *Engine) addRoute(method string, pattern string, handler HandlerFunc) {
+	key := method + &quot;-&quot; + pattern
+	engine.router[key] = handler
+}
+
+// GET defines the method to add GET request
+func (engine *Engine) GET(pattern string, handler HandlerFunc) {
+	engine.addRoute(&quot;GET&quot;, pattern, handler)
+}
+
+// POST defines the method to add POST request
+func (engine *Engine) POST(pattern string, handler HandlerFunc) {
+	engine.addRoute(&quot;POST&quot;, pattern, handler)
+}
+
+// Run defines the method to start a http server
+func (engine *Engine) Run(addr string) (err error) {
+	return http.ListenAndServe(addr, engine)
+}
+
+func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	key := req.Method + &quot;-&quot; + req.URL.Path
+	if handler, ok := engine.router[key]; ok {
+		handler(w, req)
+	} else {
+		fmt.Fprintf(w, &quot;404 NOT FOUND: %s\n&quot;, req.URL)
+	}
+}
+</code></pre>
+<p>那么<code>gee.go</code>就是重头戏了。我们重点介绍一下这部分的实现。</p>
+<ul>
+<li>
+<p>首先定义了类型<code>HandlerFunc</code>，这是提供给框架用户的，用来定义路由映射的处理方法。我们在<code>Engine</code>中，添加了一张路由映射表<code>router</code>，key 由请求方法和静态路由地址构成，例如<code>GET-/</code>、<code>GET-/hello</code>、<code>POST-/hello</code>，这样针对相同的路由，如果请求方法不同,可以映射不同的处理方法(Handler)，value 是用户映射的处理方法。</p>
+</li>
+<li>
+<p>当用户调用<code>(*Engine).GET()</code>方法时，会将路由和处理方法注册到映射表 <em>router</em> 中，<code>(*Engine).Run()</code>方法，是 <em>ListenAndServe</em> 的包装。</p>
+</li>
+<li>
+<p><code>Engine</code>实现的 <em>ServeHTTP</em> 方法的作用就是，解析请求的路径，查找路由映射表，如果查到，就执行注册的处理方法。如果查不到，就返回 <em>404 NOT FOUND</em> 。</p>
+</li>
+</ul>
+<p>执行<code>go run main.go</code>，再用 <em>curl</em> 工具访问，结果与最开始的一致。</p>
+<pre><code class="language-bash">$ curl http://localhost:9999/
+URL.Path = &quot;/&quot;
+$ curl http://localhost:9999/hello
+Header[&quot;Accept&quot;] = [&quot;*/*&quot;]
+Header[&quot;User-Agent&quot;] = [&quot;curl/7.54.0&quot;]
+curl http://localhost:9999/world
+404 NOT FOUND: /world
+</code></pre>
+<p>至此，整个<code>Gee</code>框架的原型已经出来了。实现了路由映射表，提供了用户注册静态路由的方法，包装了启动服务的函数。当然，到目前为止，我们还没有实现比<code>net/http</code>标准库更强大的能力，不用担心，很快就可以将动态路由、中间件等功能添加上去了。</p>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="gee.html"><span>上一篇</span><strong>系列总览</strong></a>
+          <a class="page-nav-item next" href="gee-day2.html"><span>下一篇</span><strong>Day2 上下文</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#web">标准库启动Web服务</a><a class="toc-level-2" href="#httphandler">实现http.Handler接口</a><a class="toc-level-2" href="#gee">Gee框架的雏形</a><a class="toc-level-3" href="#gomod">go.mod</a><a class="toc-level-3" href="#maingo">main.go</a><a class="toc-level-3" href="#geego">gee.go</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

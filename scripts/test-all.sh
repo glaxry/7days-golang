@@ -9,6 +9,9 @@ while IFS= read -r -d '' module; do
   (cd "$module_dir" && go test -timeout 2m ./...)
 done < <(find "$repo_root" -name go.mod -print0 | sort -z)
 
+echo "==> verify generated HTML documentation"
+(cd "$repo_root/tools/docsite" && go run . -root "$repo_root" -check)
+
 wasm_output="$(mktemp -d)"
 trap 'rm -rf -- "$wasm_output"' EXIT
 

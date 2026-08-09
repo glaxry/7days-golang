@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何为Web框架添加中间件的功能(middleware…">
+  <meta name="color-scheme" content="light dark">
+  <title>Go语言动手写Web框架 - Gee第五天 中间件Middleware · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item is-current" href="gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web" aria-current="page">Day5 中间件</a><a class="nav-item" href="gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>Gee Web</span><span>8 / 37</span></div>
+          <h1>Go语言动手写Web框架 - Gee第五天 中间件Middleware</h1>
+          <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何为Web框架添加中间件的功能(middleware…</p>
+        </header>
+        <div class="prose"><p>本文是 <a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第五篇。</p>
+<ul>
+<li>设计并实现 Web 框架的中间件(Middlewares)机制。</li>
+<li>实现通用的<code>Logger</code>中间件，能够记录请求到响应所花费的时间，<strong>代码约50行</strong></li>
+</ul>
+<h2 id="heading">中间件是什么</h2>
+<p>中间件(middlewares)，简单说，就是非业务的技术类组件。Web 框架本身不可能去理解所有的业务，因而不可能实现所有的功能。因此，框架需要有一个插口，允许用户自己定义功能，嵌入到框架中，仿佛这个功能是框架原生支持的一样。因此，对中间件而言，需要考虑2个比较关键的点：</p>
+<ul>
+<li>插入点在哪？使用框架的人并不关心底层逻辑的具体实现，如果插入点太底层，中间件逻辑就会非常复杂。如果插入点离用户太近，那和用户直接定义一组函数，每次在 Handler 中手工调用没有多大的优势了。</li>
+<li>中间件的输入是什么？中间件的输入，决定了扩展能力。暴露的参数太少，用户发挥空间有限。</li>
+</ul>
+<p>那对于一个 Web 框架而言，中间件应该设计成什么样呢？接下来的实现，基本参考了 Gin 框架。</p>
+<h2 id="heading-1">中间件设计</h2>
+<p>Gee 的中间件的定义与路由映射的 Handler 一致，处理的输入是<code>Context</code>对象。插入点是框架接收到请求初始化<code>Context</code>对象后，允许用户使用自己定义的中间件做一些额外的处理，例如记录日志等，以及对<code>Context</code>进行二次加工。另外通过调用<code>(*Context).Next()</code>函数，中间件可等待用户自己定义的 <code>Handler</code>处理结束后，再做一些额外的操作，例如计算本次处理所用时间等。即 Gee 的中间件支持用户在请求被处理的前后，做一些额外的操作。举个例子，我们希望最终能够支持如下定义的中间件，<code>c.Next()</code>表示等待执行其他的中间件或用户的<code>Handler</code>：</p>
+<p><strong><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day5-middleware">day4-group/gee/logger.go</a></strong></strong></p>
+<pre><code class="language-go">func Logger() HandlerFunc {
+	return func(c *Context) {
+		// Start timer
+		t := time.Now()
+		// Process request
+		c.Next()
+		// Calculate resolution time
+		log.Printf(&quot;[%d] %s in %v&quot;, c.StatusCode, c.Req.RequestURI, time.Since(t))
+	}
+}
+</code></pre>
+<p>另外，支持设置多个中间件，依次进行调用。</p>
+<p>我们上一篇文章<a href="https://geektutu.com/post/gee-day4.html">分组控制 Group Control</a>中讲到，中间件是应用在<code>RouterGroup</code>上的，应用在最顶层的 Group，相当于作用于全局，所有的请求都会被中间件处理。那为什么不作用在每一条路由规则上呢？作用在某条路由规则，那还不如用户直接在 Handler 中调用直观。只作用在某条路由规则的功能通用性太差，不适合定义为中间件。</p>
+<p>我们之前的框架设计是这样的，当接收到请求后，匹配路由，该请求的所有信息都保存在<code>Context</code>中。中间件也不例外，接收到请求后，应查找所有应作用于该路由的中间件，保存在<code>Context</code>中，依次进行调用。为什么依次调用后，还需要在<code>Context</code>中保存呢？因为在设计中，中间件不仅作用在处理流程前，也可以作用在处理流程后，即在用户定义的 Handler 处理完毕后，还可以执行剩下的操作。</p>
+<p>为此，我们给<code>Context</code>添加了2个参数，定义了<code>Next</code>方法：</p>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day5-middleware">day4-group/gee/context.go</a></strong></p>
+<pre><code class="language-go">type Context struct {
+	// origin objects
+	Writer http.ResponseWriter
+	Req    *http.Request
+	// request info
+	Path   string
+	Method string
+	Params map[string]string
+	// response info
+	StatusCode int
+	// middleware
+	handlers []HandlerFunc
+	index    int
+}
+
+func newContext(w http.ResponseWriter, req *http.Request) *Context {
+	return &amp;Context{
+		Path:   req.URL.Path,
+		Method: req.Method,
+		Req:    req,
+		Writer: w,
+		index:  -1,
+	}
+}
+
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ; c.index &lt; s; c.index++ {
+		c.handlers[c.index](c)
+	}
+}
+</code></pre>
+<p><code>index</code>是记录当前执行到第几个中间件，当在中间件中调用<code>Next</code>方法时，控制权交给了下一个中间件，直到调用到最后一个中间件，然后再从后往前，调用每个中间件在<code>Next</code>方法之后定义的部分。如果我们将用户在映射路由时定义的<code>Handler</code>添加到<code>c.handlers</code>列表中，结果会怎么样呢？想必你已经猜到了。</p>
+<pre><code>func A(c *Context) {
+    part1
+    c.Next()
+    part2
+}
+func B(c *Context) {
+    part3
+    c.Next()
+    part4
+}
+</code></pre>
+<p>假设我们应用了中间件 A 和 B，和路由映射的 Handler。<code>c.handlers</code>是这样的[A, B, Handler]，<code>c.index</code>初始化为-1。调用<code>c.Next()</code>，接下来的流程是这样的：</p>
+<ul>
+<li>c.index++，c.index 变为 0</li>
+<li>0 &lt; 3，调用 c.handlers[0]，即 A</li>
+<li>执行 part1，调用 c.Next()</li>
+<li>c.index++，c.index 变为 1</li>
+<li>1 &lt; 3，调用 c.handlers[1]，即 B</li>
+<li>执行 part3，调用 c.Next()</li>
+<li>c.index++，c.index 变为 2</li>
+<li>2 &lt; 3，调用 c.handlers[2]，即Handler</li>
+<li>Handler 调用完毕，返回到 B 中的 part4，执行 part4</li>
+<li>part4 执行完毕，返回到 A 中的 part2，执行 part2</li>
+<li>part2 执行完毕，结束。</li>
+</ul>
+<p>一句话说清楚重点，最终的顺序是<code>part1 -&gt; part3 -&gt; Handler -&gt; part 4 -&gt; part2</code>。恰恰满足了我们对中间件的要求，接下来看调用部分的代码，就能全部串起来了。</p>
+<h2 id="heading-2">代码实现</h2>
+<ul>
+<li>定义<code>Use</code>函数，将中间件应用到某个 Group 。</li>
+</ul>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day5-middleware">day4-group/gee/gee.go</a></strong></p>
+<pre><code class="language-go">// Use is defined to add middleware to the group
+func (group *RouterGroup) Use(middlewares ...HandlerFunc) {
+	group.middlewares = append(group.middlewares, middlewares...)
+}
+
+func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	var middlewares []HandlerFunc
+	for _, group := range engine.groups {
+		if strings.HasPrefix(req.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
+	c := newContext(w, req)
+	c.handlers = middlewares
+	engine.router.handle(c)
+}
+</code></pre>
+<p>ServeHTTP 函数也有变化，当我们接收到一个具体请求时，要判断该请求适用于哪些中间件，在这里我们简单通过 URL 的前缀来判断。得到中间件列表后，赋值给 <code>c.handlers</code>。</p>
+<ul>
+<li>handle 函数中，将从路由匹配得到的 Handler 添加到 <code>c.handlers</code>列表中，执行<code>c.Next()</code>。</li>
+</ul>
+<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day5-middleware">day4-group/gee/router.go</a></strong></p>
+<pre><code class="language-go">func (r *router) handle(c *Context) {
+	n, params := r.getRoute(c.Method, c.Path)
+
+	if n != nil {
+		key := c.Method + &quot;-&quot; + n.pattern
+		c.Params = params
+		c.handlers = append(c.handlers, r.handlers[key])
+	} else {
+		c.handlers = append(c.handlers, func(c *Context) {
+			c.String(http.StatusNotFound, &quot;404 NOT FOUND: %s\n&quot;, c.Path)
+		})
+	}
+	c.Next()
+}
+</code></pre>
+<h2 id="-demo">使用 Demo</h2>
+<pre><code class="language-go">func onlyForV2() gee.HandlerFunc {
+	return func(c *gee.Context) {
+		// Start timer
+		t := time.Now()
+		// if a server error occurred
+		c.Fail(500, &quot;Internal Server Error&quot;)
+		// Calculate resolution time
+		log.Printf(&quot;[%d] %s in %v for group v2&quot;, c.StatusCode, c.Req.RequestURI, time.Since(t))
+	}
+}
+
+func main() {
+	r := gee.New()
+	r.Use(gee.Logger()) // global midlleware
+	r.GET(&quot;/&quot;, func(c *gee.Context) {
+		c.HTML(http.StatusOK, &quot;&lt;h1&gt;Hello Gee&lt;/h1&gt;&quot;)
+	})
+
+	v2 := r.Group(&quot;/v2&quot;)
+	v2.Use(onlyForV2()) // v2 group middleware
+	{
+		v2.GET(&quot;/hello/:name&quot;, func(c *gee.Context) {
+			// expect /hello/geektutu
+			c.String(http.StatusOK, &quot;hello %s, you're at %s\n&quot;, c.Param(&quot;name&quot;), c.Path)
+		})
+	}
+
+	r.Run(&quot;:9999&quot;)
+}
+</code></pre>
+<p><code>gee.Logger()</code>即我们一开始就介绍的中间件，我们将这个中间件和框架代码放在了一起，作为框架默认提供的中间件。在这个例子中，我们将<code>gee.Logger()</code>应用在了全局，所有的路由都会应用该中间件。<code>onlyForV2()</code>是用来测试功能的，仅在<code>v2</code>对应的 Group 中应用了。</p>
+<p>接下来使用 curl 测试，可以看到，v2 Group 2个中间件都生效了。</p>
+<pre><code class="language-bash">$ curl http://localhost:9999/
+&gt;&gt;&gt; log
+2019/08/17 01:37:38 [200] / in 3.14µs
+
+(2) global + group middleware
+$ curl http://localhost:9999/v2/hello/geektutu
+&gt;&gt;&gt; log
+2019/08/17 01:38:48 [200] /v2/hello/geektutu in 61.467µs for group v2
+2019/08/17 01:38:48 [200] /v2/hello/geektutu in 281µs
+</code></pre>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="gee-day4.html"><span>上一篇</span><strong>Day4 分组控制</strong></a>
+          <a class="page-nav-item next" href="gee-day6.html"><span>下一篇</span><strong>Day6 模板 Template</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">中间件是什么</a><a class="toc-level-2" href="#heading-1">中间件设计</a><a class="toc-level-2" href="#heading-2">代码实现</a><a class="toc-level-2" href="#-demo">使用 Demo</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

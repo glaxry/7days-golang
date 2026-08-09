@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…">
+  <meta name="color-scheme" content="light dark">
+  <title>动手写RPC框架 - GeeRPC第一天 服务端与消息编码 · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="../../gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="../../gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="../../gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="../../gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="../../gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="../../gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="../../gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="../../gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../../gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item is-current" href="geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc" aria-current="page">Day1 服务端与消息编码</a><a class="nav-item" href="geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>GeeRPC</span><span>29 / 37</span></div>
+          <h1>动手写RPC框架 - GeeRPC第一天 服务端与消息编码</h1>
+          <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
+        </header>
+        <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
+<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第一篇。</p>
+<ul>
+<li>使用 <code>encoding/gob</code> 实现消息的编解码(序列化与反序列化)</li>
+<li>实现一个简易的服务端，仅接受消息，不处理，代码约 200 行</li>
+</ul>
+<h2 id="heading">消息的序列化与反序列化</h2>
+<p>一个典型的 RPC 调用如下：</p>
+<pre><code class="language-go">err = client.Call(&quot;Arith.Multiply&quot;, args, &amp;reply)
+</code></pre>
+<p>客户端发送的请求包括服务名 <code>Arith</code>，方法名 <code>Multiply</code>，参数 <code>args</code> 三个，服务端的响应包括错误 <code>error</code>，返回值 <code>reply</code> 2 个。我们将请求和响应中的参数和返回值抽象为 body，剩余的信息放在 header 中，那么就可以抽象出数据结构 Header：</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/codec/codec.go</a></p>
+<pre><code class="language-go">package codec
+
+import &quot;io&quot;
+
+type Header struct {
+	ServiceMethod string // format &quot;Service.Method&quot;
+	Seq           uint64 // sequence number chosen by client
+	Error         string
+}
+</code></pre>
+<ul>
+<li>ServiceMethod 是服务名和方法名，通常与 Go 语言中的结构体和方法相映射。</li>
+<li>Seq 是请求的序号，也可以认为是某个请求的 ID，用来区分不同的请求。</li>
+<li>Error 是错误信息，客户端置为空，服务端如果如果发生错误，将错误信息置于 Error 中。</li>
+</ul>
+<p>我们将和消息编解码相关的代码都放到 codec 子目录中，在此之前，还需要在根目录下使用 <code>go mod init geerpc</code> 初始化项目，方便后续子 package 之间的引用。</p>
+<p>进一步，抽象出对消息体进行编解码的接口 Codec，抽象出接口是为了实现不同的 Codec 实例：</p>
+<pre><code class="language-go">type Codec interface {
+	io.Closer
+	ReadHeader(*Header) error
+	ReadBody(any) error
+	Write(*Header, any) error
+}
+</code></pre>
+<p>紧接着，抽象出 Codec 的构造函数，客户端和服务端可以通过 Codec 的 <code>Type</code> 得到构造函数，从而创建 Codec 实例。这部分代码和工厂模式类似，与工厂模式不同的是，返回的是构造函数，而非实例。</p>
+<pre><code class="language-go">type NewCodecFunc func(io.ReadWriteCloser) Codec
+
+type Type string
+
+const (
+	GobType  Type = &quot;application/gob&quot;
+	JsonType Type = &quot;application/json&quot; // not implemented
+)
+
+var NewCodecFuncMap map[Type]NewCodecFunc
+
+func init() {
+	NewCodecFuncMap = make(map[Type]NewCodecFunc)
+	NewCodecFuncMap[GobType] = NewGobCodec
+}
+</code></pre>
+<p>我们定义了 2 种 Codec，<code>Gob</code> 和 <code>Json</code>，但是实际代码中只实现了 <code>Gob</code> 一种，事实上，2 者的实现非常接近，甚至只需要把 <code>gob</code> 换成 <code>json</code> 即可。</p>
+<p>首先定义 <code>GobCodec</code> 结构体，这个结构体由四部分构成，<code>conn</code> 是由构建函数传入，通常是通过 TCP 或者 Unix 建立 socket 时得到的链接实例，dec 和 enc 对应 gob 的 Decoder 和 Encoder，buf 是为了防止阻塞而创建的带缓冲的 <code>Writer</code>，一般这么做能提升性能。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/codec/gob.go</a></p>
+<pre><code class="language-go">package codec
+
+import (
+	&quot;bufio&quot;
+	&quot;encoding/gob&quot;
+	&quot;io&quot;
+	&quot;log&quot;
+)
+
+type GobCodec struct {
+	conn io.ReadWriteCloser
+	buf  *bufio.Writer
+	dec  *gob.Decoder
+	enc  *gob.Encoder
+}
+
+var _ Codec = (*GobCodec)(nil)
+
+func NewGobCodec(conn io.ReadWriteCloser) Codec {
+	buf := bufio.NewWriter(conn)
+	return &amp;GobCodec{
+		conn: conn,
+		buf:  buf,
+		dec:  gob.NewDecoder(conn),
+		enc:  gob.NewEncoder(buf),
+	}
+}
+</code></pre>
+<p>接着实现 <code>ReadHeader</code>、<code>ReadBody</code>、<code>Write</code> 和 <code>Close</code> 方法。</p>
+<pre><code class="language-go">func (c *GobCodec) ReadHeader(h *Header) error {
+	return c.dec.Decode(h)
+}
+
+func (c *GobCodec) ReadBody(body any) error {
+	return c.dec.Decode(body)
+}
+
+func (c *GobCodec) Write(h *Header, body any) (err error) {
+	defer func() {
+		_ = c.buf.Flush()
+		if err != nil {
+			_ = c.Close()
+		}
+	}()
+	if err := c.enc.Encode(h); err != nil {
+		log.Println(&quot;rpc codec: gob error encoding header:&quot;, err)
+		return err
+	}
+	if err := c.enc.Encode(body); err != nil {
+		log.Println(&quot;rpc codec: gob error encoding body:&quot;, err)
+		return err
+	}
+	return nil
+}
+
+func (c *GobCodec) Close() error {
+	return c.conn.Close()
+}
+</code></pre>
+<h2 id="heading-1">通信过程</h2>
+<p>客户端与服务端的通信需要协商一些内容，例如 HTTP 报文，分为 header 和 body 2 部分，body 的格式和长度通过 header 中的 <code>Content-Type</code> 和 <code>Content-Length</code> 指定，服务端通过解析 header 就能够知道如何从 body 中读取需要的信息。对于 RPC 协议来说，这部分协商是需要自主设计的。为了提升性能，一般在报文的最开始会规划固定的字节，来协商相关的信息。比如第1个字节用来表示序列化方式，第2个字节表示压缩方式，第3-6字节表示 header 的长度，7-10 字节表示 body 的长度。</p>
+<p>对于 GeeRPC 来说，目前需要协商的唯一一项内容是消息的编解码方式。我们将这部分信息，放到结构体 <code>Option</code> 中承载。目前，已经进入到服务端的实现阶段了。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/server.go</a></p>
+<pre><code class="language-go">package geerpc
+
+const MagicNumber = 0x3bef5c
+
+type Option struct {
+	MagicNumber int        // MagicNumber marks this's a geerpc request
+	CodecType   codec.Type // client may choose different Codec to encode body
+}
+
+var DefaultOption = &amp;Option{
+	MagicNumber: MagicNumber,
+	CodecType:   codec.GobType,
+}
+</code></pre>
+<p>一般来说，涉及协议协商的这部分信息，需要设计固定的字节来传输的。但是为了实现上更简单，GeeRPC 客户端固定采用 JSON 编码 Option，后续的 header 和 body 的编码方式由 Option 中的 CodeType 指定，服务端首先使用 JSON 解码 Option，然后通过 Option 的 CodeType 解码剩余的内容。即报文将以这样的形式发送：</p>
+<pre><code class="language-bash">| Option{MagicNumber: xxx, CodecType: xxx} | Header{ServiceMethod ...} | Body any |
+| &lt;------      固定 JSON 编码      ------&gt;  | &lt;-------   编码方式由 CodeType 决定   -------&gt;|
+</code></pre>
+<p>在一次连接中，Option 固定在报文的最开始，Header 和 Body 可以有多个，即报文可能是这样的。</p>
+<pre><code class="language-go">| Option | Header1 | Body1 | Header2 | Body2 | ...
+</code></pre>
+<h2 id="heading-2">服务端的实现</h2>
+<p>通信过程已经定义清楚了，那么服务端的实现就比较直接了。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/server.go</a></p>
+<pre><code class="language-go">// Server represents an RPC Server.
+type Server struct{}
+
+// NewServer returns a new Server.
+func NewServer() *Server {
+	return &amp;Server{}
+}
+
+// DefaultServer is the default instance of *Server.
+var DefaultServer = NewServer()
+
+// Accept accepts connections on the listener and serves requests
+// for each incoming connection.
+func (server *Server) Accept(lis net.Listener) {
+	for {
+		conn, err := lis.Accept()
+		if err != nil {
+			log.Println(&quot;rpc server: accept error:&quot;, err)
+			return
+		}
+		go server.ServeConn(conn)
+	}
+}
+
+// Accept accepts connections on the listener and serves requests
+// for each incoming connection.
+func Accept(lis net.Listener) { DefaultServer.Accept(lis) }
+</code></pre>
+<ul>
+<li>首先定义了结构体 <code>Server</code>，没有任何的成员字段。</li>
+<li>实现了 <code>Accept</code> 方式，<code>net.Listener</code> 作为参数，for 循环等待 socket 连接建立，并开启子协程处理，处理过程交给了 <code>ServerConn</code> 方法。</li>
+<li>DefaultServer 是一个默认的 <code>Server</code> 实例，主要为了用户使用方便。</li>
+</ul>
+<p>如果想启动服务，过程是非常简单的，传入 listener 即可，tcp 协议和 unix 协议都支持。</p>
+<pre><code class="language-go">lis, _ := net.Listen(&quot;tcp&quot;, &quot;:9999&quot;)
+geerpc.Accept(lis)
+</code></pre>
+<p><code>ServeConn</code> 的实现就和之前讨论的通信过程紧密相关了。先读取一行 JSON 并反序列化得到 Option，检查 MagicNumber 和 CodecType；再根据 CodecType 选择消息编解码器，后续处理交给 <code>serveCodec</code>。</p>
+<p>客户端的 <code>json.Encoder.Encode</code> 会以换行结束 Option，因此服务端把握手明确为“一行 JSON”：用同一个 <code>bufio.Reader</code> 调用 <code>ReadBytes('\n')</code>，再把 reader 交给 Gob codec。<code>ReadBytes</code> 不会读过分隔符；即使底层 reader 已经预取了紧随其后的 Gob 字节，这些字节也仍在同一个 reader 中，不会在切换 codec 时丢失。</p>
+<pre><code class="language-go">// ServeConn runs the server on a single connection.
+// ServeConn blocks, serving the connection until the client hangs up.
+type bufferedReadWriteCloser struct {
+	io.Reader
+	io.Writer
+	io.Closer
+}
+
+func (server *Server) ServeConn(conn io.ReadWriteCloser) {
+	defer func() { _ = conn.Close() }()
+	reader := bufio.NewReader(conn)
+	optionData, err := reader.ReadBytes('\n')
+	if err != nil {
+		log.Println(&quot;rpc server: options error: &quot;, err)
+		return
+	}
+	var opt Option
+	if err := json.Unmarshal(optionData, &amp;opt); err != nil {
+		log.Println(&quot;rpc server: options error: &quot;, err)
+		return
+	}
+	if opt.MagicNumber != MagicNumber {
+		log.Printf(&quot;rpc server: invalid magic number %x&quot;, opt.MagicNumber)
+		return
+	}
+	f := codec.NewCodecFuncMap[opt.CodecType]
+	if f == nil {
+		log.Printf(&quot;rpc server: invalid codec type %s&quot;, opt.CodecType)
+		return
+	}
+	server.serveCodec(f(&amp;bufferedReadWriteCloser{
+		Reader: reader,
+		Writer: conn,
+		Closer: conn,
+	}))
+}
+
+// invalidRequest is a placeholder for response argv when error occurs
+var invalidRequest = struct{}{}
+
+func (server *Server) serveCodec(cc codec.Codec) {
+	sending := new(sync.Mutex) // make sure to send a complete response
+	wg := new(sync.WaitGroup)  // wait until all request are handled
+	for {
+		req, err := server.readRequest(cc)
+		if err != nil {
+			if req == nil {
+				break // it's not possible to recover, so close the connection
+			}
+			req.h.Error = err.Error()
+			server.sendResponse(cc, req.h, invalidRequest, sending)
+			continue
+		}
+		wg.Add(1)
+		go server.handleRequest(cc, req, sending, wg)
+	}
+	wg.Wait()
+	_ = cc.Close()
+}
+</code></pre>
+<p>回归测试会把 JSON Option 和第一条 Gob 请求拼在同一次写入中；如果握手读取和 Gob codec 没有共享 reader，测试会因服务端一直等待已经被预读的数据而超时。</p>
+<p><code>serveCodec</code> 的过程非常简单。主要包含三个阶段</p>
+<ul>
+<li>读取请求 readRequest</li>
+<li>处理请求 handleRequest</li>
+<li>回复请求 sendResponse</li>
+</ul>
+<p>之前提到过，在一次连接中，允许接收多个请求，即多个 request header 和 request body，因此这里使用了 for 无限制地等待请求的到来，直到发生错误（例如连接被关闭，接收到的报文有问题等），这里需要注意的点有三个：</p>
+<ul>
+<li>handleRequest 使用了协程并发执行请求。</li>
+<li>处理请求是并发的，但是回复请求的报文必须是逐个发送的，并发容易导致多个回复报文交织在一起，客户端无法解析。在这里使用锁(sending)保证。</li>
+<li>尽力而为，只有在 header 解析失败时，才终止循环。</li>
+</ul>
+<pre><code class="language-go">// request stores all information of a call
+type request struct {
+	h            *codec.Header // header of request
+	argv, replyv reflect.Value // argv and replyv of request
+}
+
+func (server *Server) readRequestHeader(cc codec.Codec) (*codec.Header, error) {
+	var h codec.Header
+	if err := cc.ReadHeader(&amp;h); err != nil {
+		if err != io.EOF &amp;&amp; err != io.ErrUnexpectedEOF {
+			log.Println(&quot;rpc server: read header error:&quot;, err)
+		}
+		return nil, err
+	}
+	return &amp;h, nil
+}
+
+func (server *Server) readRequest(cc codec.Codec) (*request, error) {
+	h, err := server.readRequestHeader(cc)
+	if err != nil {
+		return nil, err
+	}
+	req := &amp;request{h: h}
+	// TODO: now we don't know the type of request argv
+	// day 1, just suppose it's string
+	req.argv = reflect.New(reflect.TypeOf(&quot;&quot;))
+	if err = cc.ReadBody(req.argv.Interface()); err != nil {
+		log.Println(&quot;rpc server: read argv err:&quot;, err)
+	}
+	return req, nil
+}
+
+func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body any, sending *sync.Mutex) {
+	sending.Lock()
+	defer sending.Unlock()
+	if err := cc.Write(h, body); err != nil {
+		log.Println(&quot;rpc server: write response error:&quot;, err)
+	}
+}
+
+func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.Mutex, wg *sync.WaitGroup) {
+	// TODO, should call registered rpc methods to get the right replyv
+	// day 1, just print argv and send a hello message
+	defer wg.Done()
+	log.Println(req.h, req.argv.Elem())
+	req.replyv = reflect.ValueOf(fmt.Sprintf(&quot;geerpc resp %d&quot;, req.h.Seq))
+	server.sendResponse(cc, req.h, req.replyv.Interface(), sending)
+}
+</code></pre>
+<p>目前还不能判断 body 的类型，因此在 readRequest 和 handleRequest 中，day1 将 body 作为字符串处理。接收到请求，打印 header，并回复 <code>geerpc resp ${req.h.Seq}</code>。这一部分后续再实现。</p>
+<h2 id="main-">main 函数(一个简易的客户端)</h2>
+<p>day1 的内容就到此为止了，在这里我们已经实现了一个消息的编解码器 <code>GobCodec</code>，并且客户端与服务端实现了简单的协议交换(protocol exchange)，即允许客户端使用不同的编码方式。同时实现了服务端的雏形，建立连接，读取、处理并回复客户端的请求。</p>
+<p>接下来，我们就在 main 函数中看看如何使用刚实现的 GeeRPC 吧。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/main/main.go</a></p>
+<pre><code class="language-go">package main
+
+import (
+	&quot;encoding/json&quot;
+	&quot;fmt&quot;
+	&quot;geerpc&quot;
+	&quot;geerpc/codec&quot;
+	&quot;log&quot;
+	&quot;net&quot;
+	&quot;time&quot;
+)
+
+func startServer(addr chan string) {
+	// pick a free port
+	l, err := net.Listen(&quot;tcp&quot;, &quot;:0&quot;)
+	if err != nil {
+		log.Fatal(&quot;network error:&quot;, err)
+	}
+	log.Println(&quot;start rpc server on&quot;, l.Addr())
+	addr &lt;- l.Addr().String()
+	geerpc.Accept(l)
+}
+
+func main() {
+	addr := make(chan string)
+	go startServer(addr)
+
+	// in fact, following code is like a simple geerpc client
+	conn, _ := net.Dial(&quot;tcp&quot;, &lt;-addr)
+	defer func() { _ = conn.Close() }()
+
+	time.Sleep(time.Second)
+	// send options
+	_ = json.NewEncoder(conn).Encode(geerpc.DefaultOption)
+	cc := codec.NewGobCodec(conn)
+	// send request &amp; receive response
+	for i := 0; i &lt; 5; i++ {
+		h := &amp;codec.Header{
+			ServiceMethod: &quot;Foo.Sum&quot;,
+			Seq:           uint64(i),
+		}
+		_ = cc.Write(h, fmt.Sprintf(&quot;geerpc req %d&quot;, h.Seq))
+		_ = cc.ReadHeader(h)
+		var reply string
+		_ = cc.ReadBody(&amp;reply)
+		log.Println(&quot;reply:&quot;, reply)
+	}
+}
+</code></pre>
+<ul>
+<li>在 <code>startServer</code> 中使用了信道 <code>addr</code>，确保服务端端口监听成功，客户端再发起请求。</li>
+<li>客户端首先发送 <code>Option</code> 进行协议交换，接下来发送消息头 <code>h := &amp;codec.Header{}</code>，和消息体 <code>geerpc req ${h.Seq}</code>。</li>
+<li>最后解析服务端的响应 <code>reply</code>，并打印出来。</li>
+</ul>
+<p>执行结果如下：</p>
+<pre><code class="language-bash">start rpc server on [::]:63662
+&amp;{Foo.Sum 0 } geerpc req 0
+reply: geerpc resp 0
+&amp;{Foo.Sum 1 } geerpc req 1
+reply: geerpc resp 1
+&amp;{Foo.Sum 2 } geerpc req 2
+reply: geerpc resp 2
+&amp;{Foo.Sum 3 } geerpc req 3
+reply: geerpc resp 3
+&amp;{Foo.Sum 4 } geerpc req 4
+reply: geerpc resp 4
+</code></pre>
+<h2 id="-">附 推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
+<li><a href="https://geektutu.com/post/qa-golang.html">Go 语言笔试面试题</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="geerpc.html"><span>上一篇</span><strong>系列总览</strong></a>
+          <a class="page-nav-item next" href="geerpc-day2.html"><span>下一篇</span><strong>Day2 高性能客户端</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">消息的序列化与反序列化</a><a class="toc-level-2" href="#heading-1">通信过程</a><a class="toc-level-2" href="#heading-2">服务端的实现</a><a class="toc-level-2" href="#main-">main 函数(一个简易的客户端)</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

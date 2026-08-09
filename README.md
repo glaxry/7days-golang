@@ -26,6 +26,20 @@ bash scripts/test-all.sh
 
 升级依据、兼容性取舍和容易踩坑的地方见 [现代 Go 迁移说明](MODERNIZATION.md)。
 
+### HTML 教程站点
+
+升级后的 37 篇教程同时提供静态 HTML 版本，入口是 [docs/index.html](docs/index.html)。站点支持系列导航、页面目录、标题筛选、深浅色主题、代码复制与移动端布局，所有页面都可以离线浏览。
+
+HTML 由同一份 Markdown 自动生成。修改教程后可重新构建：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-docs.ps1
+```
+
+```bash
+bash scripts/build-docs.sh
+```
+
 <details>
 <summary><strong>README 中文版本</strong></summary>
 <div>

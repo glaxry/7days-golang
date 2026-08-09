@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了一致性哈希(consistent hashing)的原理、实现以及相关…">
+  <meta name="color-scheme" content="light dark">
+  <title>动手写分布式缓存 - GeeCache第四天 一致性哈希(hash) · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="../../gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="../../gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="../../gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="../../gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="../../gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="../../gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="../../gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="../../gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../../gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item is-current" href="geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache" aria-current="page">Day4 一致性哈希</a><a class="nav-item" href="geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>GeeCache</span><span>16 / 37</span></div>
+          <h1>动手写分布式缓存 - GeeCache第四天 一致性哈希(hash)</h1>
+          <p>7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了一致性哈希(consistent hashing)的原理、实现以及相关…</p>
+        </header>
+        <div class="prose"><p><img src="geecache-day4/hash.jpg" alt="一致性哈希 consistent hashing"></p>
+<p>本文是<a href="https://geektutu.com/post/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第四篇。</p>
+<ul>
+<li>一致性哈希(consistent hashing)的原理以及为什么要使用一致性哈希。</li>
+<li>实现一致性哈希代码，添加相应的测试用例，<strong>代码约60行</strong></li>
+</ul>
+<h2 id="1-">1 为什么使用一致性哈希</h2>
+<p>今天我们要实现的是一致性哈希算法，一致性哈希算法是 GeeCache 从单节点走向分布式节点的一个重要的环节。那你可能要问了，</p>
+<blockquote>
+<p>童鞋，一致性哈希算法是啥？为什么要使用一致性哈希算法？这和分布式有什么关系？</p>
+</blockquote>
+<h3 id="11-">1.1 我该访问谁？</h3>
+<p>对于分布式缓存来说，当一个节点接收到请求，如果该节点并没有存储缓存值，那么它面临的难题是，从谁那获取数据？自己，还是节点1, 2, 3, 4... 。假设包括自己在内一共有 10 个节点，当一个节点接收到请求时，随机选择一个节点，由该节点从数据源获取数据。</p>
+<p>假设第一次随机选取了节点 1 ，节点 1 从数据源获取到数据的同时缓存该数据；那第二次，只有 1/10 的可能性再次选择节点 1, 有 9/10 的概率选择了其他节点，如果选择了其他节点，就意味着需要再一次从数据源获取数据，一般来说，这个操作是很耗时的。这样做，一是缓存效率低，二是各个节点上存储着相同的数据，浪费了大量的存储空间。</p>
+<p>那有什么办法，对于给定的 key，每一次都选择同一个节点呢？使用 hash 算法也能够做到这一点。那把 key 的每一个字符的 ASCII 码加起来，再除以 10 取余数可以吗？当然可以，这可以认为是自定义的 hash 算法。</p>
+<p><img src="geecache-day4/hash_select.jpg" alt="hash select peer"></p>
+<p>从上面的图可以看到，任意一个节点任意时刻请求查找键 <code>Tom</code> 对应的值，都会分配给节点 2，有效地解决了上述的问题。</p>
+<h3 id="12-">1.2 节点数量变化了怎么办？</h3>
+<p>简单求取 Hash 值解决了缓存性能的问题，但是没有考虑节点数量变化的场景。假设，移除了其中一台节点，只剩下 9 个，那么之前 <code>hash(key) % 10</code> 变成了 <code>hash(key) % 9</code>，也就意味着几乎缓存值对应的节点都发生了改变。即几乎所有的缓存值都失效了。节点在接收到对应的请求时，均需要重新去数据源获取数据，容易引起 <code>缓存雪崩</code>。</p>
+<blockquote>
+<p>缓存雪崩：缓存在同一时刻全部失效，造成瞬时DB请求量大、压力骤增，引起雪崩。常因为缓存服务器宕机，或缓存设置了相同的过期时间引起。</p>
+</blockquote>
+<p>那如何解决这个问题呢？一致性哈希算法可以。</p>
+<h2 id="2-">2 算法原理</h2>
+<h3 id="21-">2.1 步骤</h3>
+<p>一致性哈希算法将 key 映射到 2^32 的空间中，将这个数字首尾相连，形成一个环。</p>
+<ul>
+<li>计算节点/机器(通常使用节点的名称、编号和 IP 地址)的哈希值，放置在环上。</li>
+<li>计算 key 的哈希值，放置在环上，顺时针寻找到的第一个节点，就是应选取的节点/机器。</li>
+</ul>
+<p><img src="geecache-day4/add_peer.jpg" alt="一致性哈希添加节点 consistent hashing add peer"></p>
+<p>环上有 peer2，peer4，peer6 三个节点，<code>key11</code>，<code>key2</code>，<code>key27</code> 均映射到 peer2，<code>key23</code> 映射到 peer4。此时，如果新增节点/机器 peer8，假设它新增位置如图所示，那么只有 <code>key27</code> 从  peer2 调整到  peer8，其余的映射均没有发生改变。</p>
+<p>也就是说，一致性哈希算法，在新增/删除节点时，只需要重新定位该节点附近的一小部分数据，而不需要重新定位所有的节点，这就解决了上述的问题。</p>
+<h3 id="22-">2.2 数据倾斜问题</h3>
+<p>如果服务器的节点过少，容易引起 key 的倾斜。例如上面例子中的 peer2，peer4，peer6 分布在环的上半部分，下半部分是空的。那么映射到环下半部分的 key 都会被分配给 peer2，key 过度向 peer2 倾斜，缓存节点间负载不均。</p>
+<p>为了解决这个问题，引入了虚拟节点的概念，一个真实节点对应多个虚拟节点。</p>
+<p>假设 1 个真实节点对应 3 个虚拟节点，那么 peer1 对应的虚拟节点是  peer1-1、 peer1-2、 peer1-3（通常以添加编号的方式实现），其余节点也以相同的方式操作。</p>
+<ul>
+<li>第一步，计算虚拟节点的 Hash 值，放置在环上。</li>
+<li>第二步，计算 key 的 Hash 值，在环上顺时针寻找到应选取的虚拟节点，例如是 peer2-1，那么就对应真实节点 peer2。</li>
+</ul>
+<p>虚拟节点扩充了节点的数量，解决了节点较少的情况下数据容易倾斜的问题。而且代价非常小，只需要增加一个字典(map)维护真实节点与虚拟节点的映射关系即可。</p>
+<h2 id="3-go">3 Go语言实现</h2>
+<p>我们在 geecache 目录下新建 package <code>consistenthash</code>，用来实现一致性哈希算法。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day4-consistent-hash/geecache/consistenthash">day4-consistent-hash/geecache/consistenthash/consistenthash.go</a></p>
+<pre><code class="language-go">package consistenthash
+
+import (
+	&quot;hash/crc32&quot;
+	&quot;sort&quot;
+	&quot;strconv&quot;
+)
+
+// Hash maps bytes to uint32
+type Hash func(data []byte) uint32
+
+// Map constains all hashed keys
+type Map struct {
+	hash     Hash
+	replicas int
+	keys     []int // Sorted
+	hashMap  map[int]string
+}
+
+// New creates a Map instance
+func New(replicas int, fn Hash) *Map {
+	m := &amp;Map{
+		replicas: replicas,
+		hash:     fn,
+		hashMap:  make(map[int]string),
+	}
+	if m.hash == nil {
+		m.hash = crc32.ChecksumIEEE
+	}
+	return m
+}
+</code></pre>
+<ul>
+<li>定义了函数类型 <code>Hash</code>，采取依赖注入的方式，允许用于替换成自定义的 Hash 函数，也方便测试时替换，默认为 <code>crc32.ChecksumIEEE</code> 算法。</li>
+<li><code>Map</code> 是一致性哈希算法的主数据结构，包含 4 个成员变量：Hash 函数 <code>hash</code>；虚拟节点倍数 <code>replicas</code>；哈希环 <code>keys</code>；虚拟节点与真实节点的映射表 <code>hashMap</code>，键是虚拟节点的哈希值，值是真实节点的名称。</li>
+<li>构造函数 <code>New()</code> 允许自定义虚拟节点倍数和 Hash 函数。</li>
+</ul>
+<p>接下来，实现添加真实节点/机器的 <code>Add()</code> 方法。</p>
+<pre><code class="language-go">// Add adds some keys to the hash.
+func (m *Map) Add(keys ...string) {
+	for _, key := range keys {
+		for i := 0; i &lt; m.replicas; i++ {
+			hash := int(m.hash([]byte(strconv.Itoa(i) + key)))
+			m.keys = append(m.keys, hash)
+			m.hashMap[hash] = key
+		}
+	}
+	sort.Ints(m.keys)
+}
+</code></pre>
+<ul>
+<li><code>Add</code> 函数允许传入 0 或 多个真实节点的名称。</li>
+<li>对每一个真实节点 <code>key</code>，对应创建 <code>m.replicas</code> 个虚拟节点，虚拟节点的名称是：<code>strconv.Itoa(i) + key</code>，即通过添加编号的方式区分不同虚拟节点。</li>
+<li>使用 <code>m.hash()</code> 计算虚拟节点的哈希值，使用 <code>append(m.keys, hash)</code> 添加到环上。</li>
+<li>在 <code>hashMap</code> 中增加虚拟节点和真实节点的映射关系。</li>
+<li>最后一步，环上的哈希值排序。</li>
+</ul>
+<p>最后一步，实现选择节点的 <code>Get()</code> 方法。</p>
+<pre><code class="language-go">// Get gets the closest item in the hash to the provided key.
+func (m *Map) Get(key string) string {
+	if len(m.keys) == 0 {
+		return &quot;&quot;
+	}
+
+	hash := int(m.hash([]byte(key)))
+	// Binary search for appropriate replica.
+	idx := sort.Search(len(m.keys), func(i int) bool {
+		return m.keys[i] &gt;= hash
+	})
+
+	return m.hashMap[m.keys[idx%len(m.keys)]]
+}
+</code></pre>
+<ul>
+<li>选择节点就非常简单了，第一步，计算 key 的哈希值。</li>
+<li>第二步，顺时针找到第一个匹配的虚拟节点的下标 <code>idx</code>，从 m.keys 中获取到对应的哈希值。如果 <code>idx == len(m.keys)</code>，说明应选择 <code>m.keys[0]</code>，因为 <code>m.keys</code> 是一个环状结构，所以用取余数的方式来处理这种情况。</li>
+<li>第三步，通过 <code>hashMap</code> 映射得到真实的节点。</li>
+</ul>
+<p>至此，整个一致性哈希算法就实现完成了。</p>
+<h2 id="4-">4 测试</h2>
+<p>最后呢，需要测试用例来验证我们的实现是否有问题。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day4-consistent-hash/geecache/consistenthash">day4-consistent-hash/geecache/consistenthash/consistenthash_test.go</a></p>
+<pre><code class="language-go">package consistenthash
+
+import (
+	&quot;strconv&quot;
+	&quot;testing&quot;
+)
+
+func TestHashing(t *testing.T) {
+	hash := New(3, func(key []byte) uint32 {
+		i, _ := strconv.Atoi(string(key))
+		return uint32(i)
+	})
+
+	// Given the above hash function, this will give replicas with &quot;hashes&quot;:
+	// 2, 4, 6, 12, 14, 16, 22, 24, 26
+	hash.Add(&quot;6&quot;, &quot;4&quot;, &quot;2&quot;)
+
+	testCases := map[string]string{
+		&quot;2&quot;:  &quot;2&quot;,
+		&quot;11&quot;: &quot;2&quot;,
+		&quot;23&quot;: &quot;4&quot;,
+		&quot;27&quot;: &quot;2&quot;,
+	}
+
+	for k, v := range testCases {
+		if hash.Get(k) != v {
+			t.Errorf(&quot;Asking for %s, should have yielded %s&quot;, k, v)
+		}
+	}
+
+	// Adds 8, 18, 28
+	hash.Add(&quot;8&quot;)
+
+	// 27 should now map to 8.
+	testCases[&quot;27&quot;] = &quot;8&quot;
+
+	for k, v := range testCases {
+		if hash.Get(k) != v {
+			t.Errorf(&quot;Asking for %s, should have yielded %s&quot;, k, v)
+		}
+	}
+
+}
+</code></pre>
+<p>如果要进行测试，那么我们需要明确地知道每一个传入的 key 的哈希值，那使用默认的 <code>crc32.ChecksumIEEE</code> 算法显然达不到目的。所以在这里使用了自定义的 Hash 算法。自定义的 Hash 算法只处理数字，传入字符串表示的数字，返回对应的数字即可。</p>
+<ul>
+<li>一开始，有 2/4/6 三个真实节点，对应的虚拟节点的哈希值是 02/12/22、04/14/24、06/16/26。</li>
+<li>那么用例 2/11/23/27 选择的虚拟节点分别是 02/12/24/02，也就是真实节点 2/2/4/2。</li>
+<li>添加一个真实节点 8，对应虚拟节点的哈希值是 08/18/28，此时，用例 27 对应的虚拟节点从 <code>02</code> 变更为 <code>28</code>，即真实节点 8。</li>
+</ul>
+<h2 id="-">附 推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
+<li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="geecache-day3.html"><span>上一篇</span><strong>Day3 HTTP 服务端</strong></a>
+          <a class="page-nav-item next" href="geecache-day5.html"><span>下一篇</span><strong>Day5 分布式节点</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-">1 为什么使用一致性哈希</a><a class="toc-level-3" href="#11-">1.1 我该访问谁？</a><a class="toc-level-3" href="#12-">1.2 节点数量变化了怎么办？</a><a class="toc-level-2" href="#2-">2 算法原理</a><a class="toc-level-3" href="#21-">2.1 步骤</a><a class="toc-level-3" href="#22-">2.2 数据倾斜问题</a><a class="toc-level-2" href="#3-go">3 Go语言实现</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

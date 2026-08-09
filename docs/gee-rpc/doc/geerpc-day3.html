@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…">
+  <meta name="color-scheme" content="light dark">
+  <title>动手写RPC框架 - GeeRPC第三天 服务注册(service register) · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="../../gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="../../gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="../../gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="../../gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="../../gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="../../gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="../../gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="../../gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../../gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item is-current" href="geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc" aria-current="page">Day3 服务注册</a><a class="nav-item" href="geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>GeeRPC</span><span>31 / 37</span></div>
+          <h1>动手写RPC框架 - GeeRPC第三天 服务注册(service register)</h1>
+          <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
+        </header>
+        <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
+<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第三篇。</p>
+<ul>
+<li>通过反射实现服务注册功能</li>
+<li>在服务端实现服务调用，代码约 150 行</li>
+</ul>
+<h2 id="heading">结构体映射为服务</h2>
+<p>RPC 框架的一个基础能力是：像调用本地程序一样调用远程服务。那如何将程序映射为服务呢？那么对 Go 来说，这个问题就变成了如何将结构体的方法映射为服务。</p>
+<p>对 <code>net/rpc</code> 而言，一个函数需要能够被远程调用，需要满足如下五个条件：</p>
+<ul>
+<li>the method's type is exported. -- 方法所属类型是导出的。</li>
+<li>the method is exported. -- 方式是导出的。</li>
+<li>the method has two arguments, both exported (or builtin) types. -- 两个入参，均为导出或内置类型。</li>
+<li>the method's second argument is a pointer. -- 第二个入参必须是一个指针。</li>
+<li>the method has return type error. -- 返回值为 error 类型。</li>
+</ul>
+<p>更直观一些：</p>
+<pre><code class="language-go">func (t *T) MethodName(argType T1, replyType *T2) error
+</code></pre>
+<p>假设客户端发过来一个请求，包含 ServiceMethod 和 Argv。</p>
+<pre><code class="language-json">{
+    &quot;ServiceMethod&quot;： &quot;T.MethodName&quot;
+    &quot;Argv&quot;：&quot;0101110101...&quot; // 序列化之后的字节流
+}
+</code></pre>
+<p>通过 &quot;T.MethodName&quot; 可以确定调用的是类型 T 的 MethodName，如果硬编码实现这个功能，很可能是这样：</p>
+<pre><code class="language-go">switch req.ServiceMethod {
+    case &quot;T.MethodName&quot;:
+        t := new(t)
+        reply := new(T2)
+        var argv T1
+        gob.NewDecoder(conn).Decode(&amp;argv)
+        err := t.MethodName(argv, reply)
+        server.sendMessage(reply, err)
+    case &quot;Foo.Sum&quot;:
+        f := new(Foo)
+        ...
+}
+</code></pre>
+<p>也就是说，如果使用硬编码的方式来实现结构体与服务的映射，那么每暴露一个方法，就需要编写等量的代码。那有没有什么方式，能够将这个映射过程自动化呢？可以借助反射。</p>
+<p>通过反射，我们能够非常容易地获取某个结构体的所有方法，并且能够通过方法，获取到该方法所有的参数类型与返回值。例如：</p>
+<pre><code class="language-go">func main() {
+	var wg sync.WaitGroup
+	typ := reflect.TypeOf(&amp;wg)
+	for method := range typ.Methods() {
+		argv := make([]string, 0, method.Type.NumIn())
+		returns := make([]string, 0, method.Type.NumOut())
+		// j 从 1 开始，第 0 个入参是 wg 自己。
+		for j := 1; j &lt; method.Type.NumIn(); j++ {
+			argv = append(argv, method.Type.In(j).Name())
+		}
+		for j := 0; j &lt; method.Type.NumOut(); j++ {
+			returns = append(returns, method.Type.Out(j).Name())
+		}
+		log.Printf(&quot;func (w *%s) %s(%s) %s&quot;,
+			typ.Elem().Name(),
+			method.Name,
+			strings.Join(argv, &quot;,&quot;),
+			strings.Join(returns, &quot;,&quot;))
+    }
+}
+</code></pre>
+<p>运行的结果是：</p>
+<pre><code class="language-go">func (w *WaitGroup) Add(int)
+func (w *WaitGroup) Done()
+func (w *WaitGroup) Wait()
+</code></pre>
+<h2 id="-service">通过反射实现 service</h2>
+<p>前面两天我们完成了客户端和服务端，客户端相对来说功能是比较完整的，但是服务端的功能并不完整，仅仅将请求的 header 打印了出来，并没有真正地处理。那今天的主要目的是补全这部分功能。首先通过反射实现结构体与服务的映射关系，代码独立放置在 <code>service.go</code> 中。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service">day3-service/service.go</a></p>
+<p>第一步，定义结构体 methodType：</p>
+<pre><code class="language-go">type methodType struct {
+	method    reflect.Method
+	ArgType   reflect.Type
+	ReplyType reflect.Type
+	numCalls  uint64
+}
+
+func (m *methodType) NumCalls() uint64 {
+	return atomic.LoadUint64(&amp;m.numCalls)
+}
+
+func (m *methodType) newArgv() reflect.Value {
+	var argv reflect.Value
+	// arg may be a pointer type, or a value type
+	if m.ArgType.Kind() == reflect.Pointer {
+		argv = reflect.New(m.ArgType.Elem())
+	} else {
+		argv = reflect.New(m.ArgType).Elem()
+	}
+	return argv
+}
+
+func (m *methodType) newReplyv() reflect.Value {
+	// reply must be a pointer type
+	replyv := reflect.New(m.ReplyType.Elem())
+	switch m.ReplyType.Elem().Kind() {
+	case reflect.Map:
+		replyv.Elem().Set(reflect.MakeMap(m.ReplyType.Elem()))
+	case reflect.Slice:
+		replyv.Elem().Set(reflect.MakeSlice(m.ReplyType.Elem(), 0, 0))
+	}
+	return replyv
+}
+</code></pre>
+<p>每一个 methodType 实例包含了一个方法的完整信息。包括</p>
+<ul>
+<li>method：方法本身</li>
+<li>ArgType：第一个参数的类型</li>
+<li>ReplyType：第二个参数的类型</li>
+<li>numCalls：后续统计方法调用次数时会用到</li>
+</ul>
+<p>另外，我们还实现了 2 个方法 <code>newArgv</code> 和 <code>newReplyv</code>，用于创建对应类型的实例。<code>newArgv</code> 方法有一个小细节，指针类型和值类型创建实例的方式有细微区别。</p>
+<p>第二步，定义结构体 service：</p>
+<pre><code class="language-go">type service struct {
+	name   string
+	typ    reflect.Type
+	rcvr   reflect.Value
+	method map[string]*methodType
+}
+</code></pre>
+<p>service 的定义也是非常简洁的，name 即映射的结构体的名称，比如 <code>T</code>，比如 <code>WaitGroup</code>；typ 是结构体的类型；rcvr 即结构体的实例本身，保留 rcvr 是因为在调用时需要 rcvr 作为第 0 个参数；method 是 map 类型，存储映射的结构体的所有符合条件的方法。</p>
+<p>接下来，完成构造函数 <code>newService</code>，入参是任意需要映射为服务的结构体实例。</p>
+<pre><code class="language-go">func newService(rcvr any) *service {
+	s := new(service)
+	s.rcvr = reflect.ValueOf(rcvr)
+	s.name = reflect.Indirect(s.rcvr).Type().Name()
+	s.typ = reflect.TypeOf(rcvr)
+	if !ast.IsExported(s.name) {
+		log.Fatalf(&quot;rpc server: %s is not a valid service name&quot;, s.name)
+	}
+	s.registerMethods()
+	return s
+}
+
+func (s *service) registerMethods() {
+	s.method = make(map[string]*methodType)
+	for method := range s.typ.Methods() {
+		mType := method.Type
+		if mType.NumIn() != 3 || mType.NumOut() != 1 {
+			continue
+		}
+		if mType.Out(0) != reflect.TypeFor[error]() {
+			continue
+		}
+		argType, replyType := mType.In(1), mType.In(2)
+		if !isExportedOrBuiltinType(argType) || !isExportedOrBuiltinType(replyType) {
+			continue
+		}
+		s.method[method.Name] = &amp;methodType{
+			method:    method,
+			ArgType:   argType,
+			ReplyType: replyType,
+		}
+		log.Printf(&quot;rpc server: register %s.%s\n&quot;, s.name, method.Name)
+	}
+}
+
+func isExportedOrBuiltinType(t reflect.Type) bool {
+	return ast.IsExported(t.Name()) || t.PkgPath() == &quot;&quot;
+}
+</code></pre>
+<p><code>registerMethods</code> 过滤出了符合条件的方法：</p>
+<ul>
+<li>两个导出或内置类型的入参（反射时为 3 个，第 0 个是自身，类似于 python 的 self，java 中的 this）</li>
+<li>返回值有且只有 1 个，类型为 error</li>
+</ul>
+<p>最后，我们还需要实现 <code>call</code> 方法，即能够通过反射值调用方法。</p>
+<pre><code class="language-go">func (s *service) call(m *methodType, argv, replyv reflect.Value) error {
+	atomic.AddUint64(&amp;m.numCalls, 1)
+	f := m.method.Func
+	returnValues := f.Call([]reflect.Value{s.rcvr, argv, replyv})
+	if errInter := returnValues[0].Interface(); errInter != nil {
+		return errInter.(error)
+	}
+	return nil
+}
+</code></pre>
+<h2 id="service-">service 的测试用例</h2>
+<p>为了保证 service 实现的正确性，我们为 service.go 写了几个测试用例。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service">day3-service/service_test.go</a></p>
+<p>定义结构体 Foo，实现 2 个方法，导出方法 Sum 和 非导出方法 sum。</p>
+<pre><code class="language-go">type Foo int
+
+type Args struct{ Num1, Num2 int }
+
+func (f Foo) Sum(args Args, reply *int) error {
+	*reply = args.Num1 + args.Num2
+	return nil
+}
+
+// it's not a exported Method
+func (f Foo) sum(args Args, reply *int) error {
+	*reply = args.Num1 + args.Num2
+	return nil
+}
+
+func _assert(condition bool, msg string, v ...any) {
+	if !condition {
+		panic(fmt.Sprintf(&quot;assertion failed: &quot;+msg, v...))
+	}
+}
+</code></pre>
+<p>测试 newService 和 call 方法。</p>
+<pre><code class="language-go">func TestNewService(t *testing.T) {
+	var foo Foo
+	s := newService(&amp;foo)
+	_assert(len(s.method) == 1, &quot;wrong service Method, expect 1, but got %d&quot;, len(s.method))
+	mType := s.method[&quot;Sum&quot;]
+	_assert(mType != nil, &quot;wrong Method, Sum shouldn't nil&quot;)
+}
+
+func TestMethodType_Call(t *testing.T) {
+	var foo Foo
+	s := newService(&amp;foo)
+	mType := s.method[&quot;Sum&quot;]
+
+	argv := mType.newArgv()
+	replyv := mType.newReplyv()
+	argv.Set(reflect.ValueOf(Args{Num1: 1, Num2: 3}))
+	err := s.call(mType, argv, replyv)
+	_assert(err == nil &amp;&amp; *replyv.Interface().(*int) == 4 &amp;&amp; mType.NumCalls() == 1, &quot;failed to call Foo.Sum&quot;)
+}
+</code></pre>
+<h2 id="heading-1">集成到服务端</h2>
+<p>通过反射结构体已经映射为服务，但请求的处理过程还没有完成。从接收到请求到回复还差以下几个步骤：第一步，根据入参类型，将请求的 body 反序列化；第二步，调用 <code>service.call</code>，完成方法调用；第三步，将 reply 序列化为字节流，构造响应报文，返回。</p>
+<p>回到代码本身，补全之前在 <code>server.go</code> 中遗留的 2 个 TODO 任务 <code>readRequest</code> 和 <code>handleRequest</code> 即可。</p>
+<p>在这之前，我们还需要为 Server 实现一个方法 <code>Register</code>。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service">day3-service/server.go</a></p>
+<pre><code class="language-go">// Server represents an RPC Server.
+type Server struct {
+	serviceMap sync.Map
+}
+
+// Register publishes in the server the set of methods of the
+func (server *Server) Register(rcvr any) error {
+	s := newService(rcvr)
+	if _, dup := server.serviceMap.LoadOrStore(s.name, s); dup {
+		return errors.New(&quot;rpc: service already defined: &quot; + s.name)
+	}
+	return nil
+}
+
+// Register publishes the receiver's methods in the DefaultServer.
+func Register(rcvr any) error { return DefaultServer.Register(rcvr) }
+</code></pre>
+<p>配套实现 <code>findService</code> 方法，即通过 <code>ServiceMethod</code> 从 serviceMap 中找到对应的 service</p>
+<pre><code class="language-go">func (server *Server) findService(serviceMethod string) (svc *service, mtype *methodType, err error) {
+	dot := strings.LastIndex(serviceMethod, &quot;.&quot;)
+	if dot &lt; 0 {
+		err = errors.New(&quot;rpc server: service/method request ill-formed: &quot; + serviceMethod)
+		return
+	}
+	serviceName, methodName := serviceMethod[:dot], serviceMethod[dot+1:]
+	svci, ok := server.serviceMap.Load(serviceName)
+	if !ok {
+		err = errors.New(&quot;rpc server: can't find service &quot; + serviceName)
+		return
+	}
+	svc = svci.(*service)
+	mtype = svc.method[methodName]
+	if mtype == nil {
+		err = errors.New(&quot;rpc server: can't find method &quot; + methodName)
+	}
+	return
+}
+</code></pre>
+<p><code>findService</code> 的实现看似比较繁琐，但是逻辑还是非常清晰的。因为 ServiceMethod 的构成是 &quot;Service.Method&quot;，因此先将其分割成 2 部分，第一部分是 Service 的名称，第二部分即方法名。现在 serviceMap 中找到对应的 service 实例，再从 service 实例的 method 中，找到对应的 methodType。</p>
+<p>准备工具已经就绪，我们首先补全 readRequest 方法：</p>
+<pre><code class="language-go">// request stores all information of a call
+type request struct {
+	h            *codec.Header // header of request
+	argv, replyv reflect.Value // argv and replyv of request
+	mtype        *methodType
+	svc          *service
+}
+
+func (server *Server) readRequest(cc codec.Codec) (*request, error) {
+	h, err := server.readRequestHeader(cc)
+	if err != nil {
+		return nil, err
+	}
+	req := &amp;request{h: h}
+	req.svc, req.mtype, err = server.findService(h.ServiceMethod)
+	if err != nil {
+		return req, err
+	}
+	req.argv = req.mtype.newArgv()
+	req.replyv = req.mtype.newReplyv()
+
+	// make sure that argvi is a pointer, ReadBody need a pointer as parameter
+	argvi := req.argv.Interface()
+	if req.argv.Type().Kind() != reflect.Pointer {
+		argvi = req.argv.Addr().Interface()
+	}
+	if err = cc.ReadBody(argvi); err != nil {
+		log.Println(&quot;rpc server: read body err:&quot;, err)
+		return req, err
+	}
+	return req, nil
+}
+</code></pre>
+<p>readRequest 方法中最重要的部分，即通过 <code>newArgv()</code> 和 <code>newReplyv()</code> 两个方法创建出两个入参实例，然后通过 <code>cc.ReadBody()</code> 将请求报文反序列化为第一个入参 argv，在这里同样需要注意 argv 可能是值类型，也可能是指针类型，所以处理方式有点差异。</p>
+<p>接下来补全 handleRequest 方法：</p>
+<pre><code class="language-go">func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.Mutex, wg *sync.WaitGroup) {
+	defer wg.Done()
+	err := req.svc.call(req.mtype, req.argv, req.replyv)
+	if err != nil {
+		req.h.Error = err.Error()
+		server.sendResponse(cc, req.h, invalidRequest, sending)
+		return
+	}
+	server.sendResponse(cc, req.h, req.replyv.Interface(), sending)
+}
+</code></pre>
+<p>相对于 readRequest，handleRequest 的实现非常简单，通过 <code>req.svc.call</code> 完成方法调用，将 replyv 传递给 sendResponse 完成序列化即可。</p>
+<p>到这里，今天的所有内容已经实现完成，成功在服务端实现了服务注册与调用。</p>
+<h2 id="demo">Demo</h2>
+<p>最后，还是需要写一个可执行程序(main)验证今天的成果。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service">day3-service/main/main.go</a></p>
+<p>第一步，定义结构体 Foo 和方法 Sum</p>
+<pre><code class="language-go">package main
+
+import (
+	&quot;geerpc&quot;
+	&quot;log&quot;
+	&quot;net&quot;
+	&quot;sync&quot;
+	&quot;time&quot;
+)
+
+type Foo int
+
+type Args struct{ Num1, Num2 int }
+
+func (f Foo) Sum(args Args, reply *int) error {
+	*reply = args.Num1 + args.Num2
+	return nil
+}
+</code></pre>
+<p>第二步，注册 Foo 到 Server 中，并启动 RPC 服务</p>
+<pre><code class="language-go">func startServer(addr chan string) {
+	var foo Foo
+	if err := geerpc.Register(&amp;foo); err != nil {
+		log.Fatal(&quot;register error:&quot;, err)
+	}
+	// pick a free port
+	l, err := net.Listen(&quot;tcp&quot;, &quot;:0&quot;)
+	if err != nil {
+		log.Fatal(&quot;network error:&quot;, err)
+	}
+	log.Println(&quot;start rpc server on&quot;, l.Addr())
+	addr &lt;- l.Addr().String()
+	geerpc.Accept(l)
+}
+</code></pre>
+<p>第三步，构造参数，发送 RPC 请求，并打印结果。</p>
+<pre><code class="language-go">func main() {
+	log.SetFlags(0)
+	addr := make(chan string)
+	go startServer(addr)
+	client, _ := geerpc.Dial(&quot;tcp&quot;, &lt;-addr)
+	defer func() { _ = client.Close() }()
+
+	time.Sleep(time.Second)
+	// send request &amp; receive response
+	var wg sync.WaitGroup
+	for i := 0; i &lt; 5; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			args := &amp;Args{Num1: i, Num2: i * i}
+			var reply int
+			if err := client.Call(&quot;Foo.Sum&quot;, args, &amp;reply); err != nil {
+				log.Fatal(&quot;call Foo.Sum error:&quot;, err)
+			}
+			log.Printf(&quot;%d + %d = %d&quot;, args.Num1, args.Num2, reply)
+		}(i)
+	}
+	wg.Wait()
+}
+</code></pre>
+<p>运行结果如下：</p>
+<pre><code class="language-bash">rpc server: register Foo.Sum
+start rpc server on [::]:57509
+1 + 1 = 2
+2 + 4 = 6
+3 + 9 = 12
+0 + 0 = 0
+4 + 16 = 20
+</code></pre>
+<h2 id="-">附 推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
+<li><a href="https://geektutu.com/post/qa-golang.html">Go 语言笔试面试题</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="geerpc-day2.html"><span>上一篇</span><strong>Day2 高性能客户端</strong></a>
+          <a class="page-nav-item next" href="geerpc-day4.html"><span>下一篇</span><strong>Day4 超时处理</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">结构体映射为服务</a><a class="toc-level-2" href="#-service">通过反射实现 service</a><a class="toc-level-2" href="#service-">service 的测试用例</a><a class="toc-level-2" href="#heading-1">集成到服务端</a><a class="toc-level-2" href="#demo">Demo</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

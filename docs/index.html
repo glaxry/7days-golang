@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go 从零实现系列，基于 Go 1.26 更新的七天从零实现教程。">
+  <meta name="color-scheme" content="light dark">
+  <title>7天用 Go 从零实现系列 · 7天用 Go</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="index.html">教程首页</a>
+        <a href="MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item is-current" href="index.html" data-search="7天用 go 从零实现系列 首页 开始" aria-current="page">首页</a><a class="nav-item" href="MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+      <section class="hero" aria-labelledby="hero-title">
+  <div class="hero-orbit hero-orbit-one"></div>
+  <div class="hero-orbit hero-orbit-two"></div>
+  <div class="hero-content">
+    <span class="hero-kicker">GO 1.26 · 2026 现代化版本</span>
+    <h1 id="hero-title">七天用 Go，<br><span>从原理到实现</span></h1>
+    <p>四套从零实现教程，保留循序渐进的 Day 结构，并同步到当前语言、标准库与依赖版本。</p>
+    <div class="hero-actions">
+	    <a class="button button-primary" href="#article-start">开始阅读</a>
+      <a class="button button-secondary" href="MODERNIZATION.html">查看迁移说明</a>
+    </div>
+  </div>
+  <dl class="hero-stats" aria-label="教程规模">
+    <div><dt>37</dt><dd>篇教程</dd></div>
+    <div><dt>45</dt><dd>个 Go 模块</dd></div>
+    <div><dt>4</dt><dd>套核心项目</dd></div>
+  </dl>
+</section>
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>开始</span><span>1 / 37</span></div>
+          <h1>7天用 Go 从零实现系列</h1>
+          <p>7天用 Go 从零实现系列，基于 Go 1.26 更新的七天从零实现教程。</p>
+        </header>
+        <div class="prose"><p><a href="https://github.com/geektutu/7days-golang"><img src="https://img.shields.io/github/languages/code-size/geektutu/7days-golang" alt="CodeSize"></a>
+<a href="https://mit-license.org/"><img src="https://img.shields.io/badge/license-MIT-green" alt="LICENSE"></a></p>
+<h2 id="2026-">2026 现代化版本说明</h2>
+<p>本分支以 <strong>Go 1.26</strong> 为语言基线（当前稳定补丁版为 Go 1.26.5），保留“每天一个可独立运行快照”的教学结构，并同步更新了所有 Day 的代码与文中代码片段。</p>
+<ul>
+<li>模块声明从 Go 1.13 升级到 Go 1.26，采用 <code>any</code>、整数 <code>range</code>、<code>reflect.TypeFor</code>、反射迭代器和 <code>fmt.Appendf</code> 等当前写法。</li>
+<li>GeeORM 改用无 CGO 的 <code>modernc.org/sqlite v1.56.0</code>，Windows、macOS 和 Linux 不再需要额外安装 GCC。</li>
+<li>GeeCache 使用 <code>google.golang.org/protobuf v1.36.11</code>，补充 <code>.proto</code> 源文件，并用当前生成器重建代码。</li>
+<li>GeeRPC 修复握手预读丢包、连接超时 goroutine 泄漏、服务端超时 goroutine 泄漏和重复响应风险。</li>
+<li>GeeBolt 的 mmap 草稿已补成 Windows/Unix 均可运行的示例，并增加持久化测试。</li>
+<li>GitHub Actions 会在 Windows 和 Linux 上测试全部 45 个 Go 模块，并编译 4 个 WebAssembly 示例。</li>
+</ul>
+<p>每个 Day 都是独立模块，请进入对应目录运行 <code>go test ./...</code>。也可以在仓库根目录一次验证全部内容：</p>
+<pre><code class="language-powershell">powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test-all.ps1
+</code></pre>
+<pre><code class="language-bash">bash scripts/test-all.sh
+</code></pre>
+<p>升级依据、兼容性取舍和容易踩坑的地方见 <a href="MODERNIZATION.html">现代 Go 迁移说明</a>。</p>
+<h3 id="html-">HTML 教程站点</h3>
+<p>升级后的 37 篇教程同时提供静态 HTML 版本，入口是 <a href="index.html">docs/index.html</a>。站点支持系列导航、页面目录、标题筛选、深浅色主题、代码复制与移动端布局，所有页面都可以离线浏览。</p>
+<p>HTML 由同一份 Markdown 自动生成。修改教程后可重新构建：</p>
+<pre><code class="language-powershell">powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-docs.ps1
+</code></pre>
+<pre><code class="language-bash">bash scripts/build-docs.sh
+</code></pre>
+<details>
+<summary><strong>README 中文版本</strong></summary>
+<div>
+<h2 id="7go">7天用Go从零实现系列</h2>
+<p>7天能写什么呢？类似 gin 的 web 框架？类似 groupcache 的分布式缓存？或者一个简单的 Python 解释器？希望这个仓库能给你答案。</p>
+<p>推荐先阅读 <strong><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></strong>，一篇文章了解Go的基本语法、并发编程，依赖管理等内容。</p>
+<p>推荐 <strong><a href="https://geektutu.com/post/qa-golang.html">Go 语言笔试面试题</a></strong>，加深对 Go 语言的理解。</p>
+<p>推荐 <strong><a href="https://geektutu.com/post/high-performance-go.html">Go 语言高性能编程</a></strong>(<a href="https://github.com/geektutu/high-performance-go">项目地址</a>)，写出高性能的 Go 代码。</p>
+<p>期待关注我的「<a href="https://zhuanlan.zhihu.com/geekgo">知乎专栏</a>」和「<a href="http://weibo.com/geektutu">微博</a>」，查看最近的文章和动态。</p>
+<h3 id="7goweb---gee">7天用Go从零实现Web框架 - Gee</h3>
+<p><a href="https://geektutu.com/post/gee.html">Gee</a> 是一个模仿 <a href="https://github.com/gin-gonic/gin">gin</a> 实现的 Web 框架，<a href="https://geektutu.com/post/quick-go-gin.html">Go Gin简明教程</a>可以快速入门。</p>
+<ul>
+<li>第一天：<a href="https://geektutu.com/post/gee-day1.html">前置知识(http.Handler接口)</a> | <a href="gee-web/day1-http-base">Code</a></li>
+<li>第二天：<a href="https://geektutu.com/post/gee-day2.html">上下文设计(Context)</a> | <a href="gee-web/day2-context">Code</a></li>
+<li>第三天：<a href="https://geektutu.com/post/gee-day3.html">Trie树路由(Router)</a> | <a href="gee-web/day3-router">Code</a></li>
+<li>第四天：<a href="https://geektutu.com/post/gee-day4.html">分组控制(Group)</a> | <a href="gee-web/day4-group">Code</a></li>
+<li>第五天：<a href="https://geektutu.com/post/gee-day5.html">中间件(Middleware)</a> | <a href="gee-web/day5-middleware">Code</a></li>
+<li>第六天：<a href="https://geektutu.com/post/gee-day6.html">HTML模板(Template)</a> | <a href="gee-web/day6-template">Code</a></li>
+<li>第七天：<a href="https://geektutu.com/post/gee-day7.html">错误恢复(Panic Recover)</a> | <a href="gee-web/day7-panic-recover">Code</a></li>
+</ul>
+<h3 id="7go-geecache">7天用Go从零实现分布式缓存 GeeCache</h3>
+<p><a href="https://geektutu.com/post/geecache.html">GeeCache</a> 是一个模仿 <a href="https://github.com/golang/groupcache">groupcache</a> 实现的分布式缓存系统</p>
+<ul>
+<li>第一天：<a href="https://geektutu.com/post/geecache-day1.html">LRU 缓存淘汰策略</a> | <a href="gee-cache/day1-lru">Code</a></li>
+<li>第二天：<a href="https://geektutu.com/post/geecache-day2.html">单机并发缓存</a> | <a href="gee-cache/day2-single-node">Code</a></li>
+<li>第三天：<a href="https://geektutu.com/post/geecache-day3.html">HTTP 服务端</a> | <a href="gee-cache/day3-http-server">Code</a></li>
+<li>第四天：<a href="https://geektutu.com/post/geecache-day4.html">一致性哈希(Hash)</a> | <a href="gee-cache/day4-consistent-hash">Code</a></li>
+<li>第五天：<a href="https://geektutu.com/post/geecache-day5.html">分布式节点</a> | <a href="gee-cache/day5-multi-nodes">Code</a></li>
+<li>第六天：<a href="https://geektutu.com/post/geecache-day6.html">防止缓存击穿</a> | <a href="gee-cache/day6-single-flight">Code</a></li>
+<li>第七天：<a href="https://geektutu.com/post/geecache-day7.html">使用 Protobuf 通信</a> | <a href="gee-cache/day7-proto-buf">Code</a></li>
+</ul>
+<h3 id="7goorm-geeorm">7天用Go从零实现ORM框架 GeeORM</h3>
+<p><a href="https://geektutu.com/post/geeorm.html">GeeORM</a> 是一个参考 <a href="https://github.com/go-gorm/gorm">GORM</a> 和 <a href="https://gitea.com/xorm/xorm">XORM</a> 设计的教学型 ORM 框架。</p>
+<p>原教程写作时 GORM v2 尚在开发；现在 GORM v2 已是主版本。本教程仍保留更适合从零讲解的简化接口，不以复刻任何框架的当前完整 API 为目标。</p>
+<ul>
+<li>第一天：<a href="https://geektutu.com/post/geeorm-day1.html">database/sql 基础</a> | <a href="gee-orm/day1-database-sql">Code</a></li>
+<li>第二天：<a href="https://geektutu.com/post/geeorm-day2.html">对象表结构映射</a> | <a href="gee-orm/day2-reflect-schema">Code</a></li>
+<li>第三天：<a href="https://geektutu.com/post/geeorm-day3.html">记录新增和查询</a> | <a href="gee-orm/day3-save-query">Code</a></li>
+<li>第四天：<a href="https://geektutu.com/post/geeorm-day4.html">链式操作与更新删除</a> | <a href="gee-orm/day4-chain-operation">Code</a></li>
+<li>第五天：<a href="https://geektutu.com/post/geeorm-day5.html">实现钩子(Hooks)</a> | <a href="gee-orm/day5-hooks">Code</a></li>
+<li>第六天：<a href="https://geektutu.com/post/geeorm-day6.html">支持事务(Transaction)</a> | <a href="gee-orm/day6-transaction">Code</a></li>
+<li>第七天：<a href="https://geektutu.com/post/geeorm-day7.html">数据库迁移(Migrate)</a> | <a href="gee-orm/day7-migrate">Code</a></li>
+</ul>
+<h3 id="7gorpc-geerpc">7天用Go从零实现RPC框架 GeeRPC</h3>
+<p><a href="https://geektutu.com/post/geerpc.html">GeeRPC</a> 是一个基于 <a href="https://github.com/golang/go/tree/master/src/net/rpc">net/rpc</a> 开发的 RPC 框架
+GeeRPC 是基于 Go 语言标准库 <code>net/rpc</code> 实现的，添加了协议交换、服务注册与发现、负载均衡等功能，代码约 1k。</p>
+<ul>
+<li>第一天 - <a href="https://geektutu.com/post/geerpc-day1.html">服务端与消息编码</a> | <a href="gee-rpc/day1-codec">Code</a></li>
+<li>第二天 - <a href="https://geektutu.com/post/geerpc-day2.html">支持并发与异步的客户端</a> | <a href="gee-rpc/day2-client">Code</a></li>
+<li>第三天 - <a href="https://geektutu.com/post/geerpc-day3.html">服务注册(service register)</a> | <a href="gee-rpc/day3-service">Code</a></li>
+<li>第四天 - <a href="https://geektutu.com/post/geerpc-day4.html">超时处理(timeout)</a> | <a href="gee-rpc/day4-timeout">Code</a></li>
+<li>第五天 - <a href="https://geektutu.com/post/geerpc-day5.html">支持HTTP协议</a> | <a href="gee-rpc/day5-http-debug">Code</a></li>
+<li>第六天 - <a href="https://geektutu.com/post/geerpc-day6.html">负载均衡(load balance)</a> | <a href="gee-rpc/day6-load-balance">Code</a></li>
+<li>第七天 - <a href="https://geektutu.com/post/geerpc-day7.html">服务发现与注册中心(registry)</a> | <a href="gee-rpc/day7-registry">Code</a></li>
+</ul>
+<h3 id="webassembly-">WebAssembly 使用示例</h3>
+<p>具体的实践过程记录在 <a href="https://geektutu.com/post/quick-go-wasm.html">Go WebAssembly 简明教程</a>。</p>
+<ul>
+<li>示例一：Hello World | <a href="demo-wasm/hello-world">Code</a></li>
+<li>示例二：注册函数 | <a href="demo-wasm/register-functions">Code</a></li>
+<li>示例三：操作 DOM | <a href="demo-wasm/manipulate-dom">Code</a></li>
+<li>示例四：回调函数 | <a href="demo-wasm/callback">Code</a></li>
+</ul>
+</div>
+</details>
+<p>What can be accomplished in 7 days? A gin-like web framework? A distributed cache like groupcache? Or a simple Python interpreter? Hope this repo can give you the answer.</p>
+<h2 id="web-framework---gee">Web Framework - Gee</h2>
+<p><a href="https://geektutu.com/post/gee.html">Gee</a> is a <a href="https://github.com/gin-gonic/gin">gin</a>-like framework</p>
+<ul>
+<li>Day 1 - http.Handler Interface Basic <a href="gee-web/day1-http-base">Code</a></li>
+<li>Day 2 - Design a Flexiable Context <a href="gee-web/day2-context">Code</a></li>
+<li>Day 3 - Router with Trie-Tree Algorithm <a href="gee-web/day3-router">Code</a></li>
+<li>Day 4 - Group Control <a href="gee-web/day4-group">Code</a></li>
+<li>Day 5 - Middleware Mechanism <a href="gee-web/day5-middleware">Code</a></li>
+<li>Day 6 - Embeded Template Support <a href="gee-web/day6-template">Code</a></li>
+<li>Day 7 - Panic Recover &amp; Make it Robust <a href="gee-web/day7-panic-recover">Code</a></li>
+</ul>
+<h2 id="distributed-cache---geecache">Distributed Cache - GeeCache</h2>
+<p><a href="https://geektutu.com/post/geecache.html">GeeCache</a> is a <a href="https://github.com/golang/groupcache">groupcache</a>-like distributed cache</p>
+<ul>
+<li>Day 1 - LRU (Least Recently Used) Caching Strategy <a href="gee-cache/day1-lru">Code</a></li>
+<li>Day 2 - Single Machine Concurrent Cache <a href="gee-cache/day2-single-node">Code</a></li>
+<li>Day 3 - Launch a HTTP Server <a href="gee-cache/day3-http-server">Code</a></li>
+<li>Day 4 - Consistent Hash Algorithm <a href="gee-cache/day4-consistent-hash">Code</a></li>
+<li>Day 5 - Communication between Distributed Nodes <a href="gee-cache/day5-multi-nodes">Code</a></li>
+<li>Day 6 - Cache Breakdown &amp; Single Flight  | <a href="gee-cache/day6-single-flight">Code</a></li>
+<li>Day 7 - Use Protobuf as RPC Data Exchange Type | <a href="gee-cache/day7-proto-buf">Code</a></li>
+</ul>
+<h2 id="object-relational-mapping---geeorm">Object Relational Mapping - GeeORM</h2>
+<p><a href="https://geektutu.com/post/geeorm.html">GeeORM</a> is an educational ORM inspired by <a href="https://github.com/go-gorm/gorm">GORM</a> and <a href="https://gitea.com/xorm/xorm">XORM</a>.</p>
+<p>Xorm's desgin is easier to understand than gorm-v1, so the main designs references xorm and some detailed implementions references gorm-v1.</p>
+<ul>
+<li>Day 1 - database/sql Basic | <a href="gee-orm/day1-database-sql">Code</a></li>
+<li>Day 2 - Object Schame Mapping | <a href="gee-orm/day2-reflect-schema">Code</a></li>
+<li>Day 3 - Insert and Query | <a href="gee-orm/day3-save-query">Code</a></li>
+<li>Day 4 - Chain, Delete and Update | <a href="gee-orm/day4-chain-operation">Code</a></li>
+<li>Day 5 - Support Hooks | <a href="gee-orm/day5-hooks">Code</a></li>
+<li>Day 6 - Support Transaction | <a href="gee-orm/day6-transaction">Code</a></li>
+<li>Day 7 - Migrate Database | <a href="gee-orm/day7-migrate">Code</a></li>
+</ul>
+<h2 id="rpc-framework---geerpc">RPC Framework - GeeRPC</h2>
+<p><a href="https://geektutu.com/post/geerpc.html">GeeRPC</a> is a <a href="https://github.com/golang/go/tree/master/src/net/rpc">net/rpc</a>-like RPC framework</p>
+<p>Based on golang standard library <code>net/rpc</code>, GeeRPC implements more features. eg, protocol exchange, service registration and discovery, load balance, etc.</p>
+<ul>
+<li>Day 1 - Server Message Codec | <a href="gee-rpc/day1-codec">Code</a></li>
+<li>Day 2 - Concurrent Client | <a href="gee-rpc/day2-client">Code</a></li>
+<li>Day 3 - Service Register | <a href="gee-rpc/day3-service">Code</a></li>
+<li>Day 4 - Timeout Processing | <a href="gee-rpc/day4-timeout">Code</a></li>
+<li>Day 5 - Support HTTP Protocol | <a href="gee-rpc/day5-http-debug">Code</a></li>
+<li>Day 6 - Load Balance | <a href="gee-rpc/day6-load-balance">Code</a></li>
+<li>Day 7 - Discovery and Registry | <a href="gee-rpc/day7-registry">Code</a></li>
+</ul>
+<h2 id="golang-webassembly-demo">Golang WebAssembly Demo</h2>
+<ul>
+<li>Demo 1 - Hello World <a href="demo-wasm/hello-world">Code</a></li>
+<li>Demo 2 - Register Functions <a href="demo-wasm/register-functions">Code</a></li>
+<li>Demo 3 - Manipulate DOM <a href="demo-wasm/manipulate-dom">Code</a></li>
+<li>Demo 4 - Callback <a href="demo-wasm/callback">Code</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <span></span>
+          <a class="page-nav-item next" href="MODERNIZATION.html"><span>下一篇</span><strong>现代化迁移</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#2026-">2026 现代化版本说明</a><a class="toc-level-3" href="#html-">HTML 教程站点</a><a class="toc-level-2" href="#7go">7天用Go从零实现系列</a><a class="toc-level-3" href="#7goweb---gee">7天用Go从零实现Web框架 - Gee</a><a class="toc-level-3" href="#7go-geecache">7天用Go从零实现分布式缓存 GeeCache</a><a class="toc-level-3" href="#7goorm-geeorm">7天用Go从零实现ORM框架 GeeORM</a><a class="toc-level-3" href="#7gorpc-geerpc">7天用Go从零实现RPC框架 GeeRPC</a><a class="toc-level-3" href="#webassembly-">WebAssembly 使用示例</a><a class="toc-level-2" href="#web-framework---gee">Web Framework - Gee</a><a class="toc-level-2" href="#distributed-cache---geecache">Distributed Cache - GeeCache</a><a class="toc-level-2" href="#object-relational-mapping---geeorm">Object Relational Mapping - GeeORM</a><a class="toc-level-2" href="#rpc-framework---geerpc">RPC Framework - GeeRPC</a><a class="toc-level-2" href="#golang-webassembly-demo">Golang WebAssembly Demo</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

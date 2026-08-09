@@ -121,6 +121,18 @@ bash scripts/test-all.sh
 
 GitHub Actions 同时覆盖 Windows 与 Linux。
 
+## HTML 文档
+
+仓库同时提交了位于 `docs/` 的静态 HTML 教程站点。`tools/docsite` 使用 Go 1.26 和 Goldmark 从当前 Markdown 生成 37 个页面，并复制教程中的本地图片资源。导航、文章目录、主题切换和代码复制均使用本地 CSS/JavaScript，因此不依赖 CDN，离线也能阅读。
+
+生成命令：
+
+```bash
+bash scripts/build-docs.sh
+```
+
+全仓库测试会使用 `-check` 模式重新生成到临时目录并逐文件比较，确保提交的 HTML 没有落后于 Markdown 源文档。
+
 ## 教学边界
 
 这些项目用于解释框架核心机制，不应直接当作生产库。特别是：GeeWeb 没有完整的安全响应头和优雅停机；GeeCache 没有节点认证、传输加密和响应大小限制；GeeORM 没有完整的标识符转义、参数校验和关联模型；GeeRPC 没有身份认证、TLS、真正取消远端执行或协议版本协商。教程中会指出这些边界，避免把“能说明原理”误解为“已具备生产保证”。

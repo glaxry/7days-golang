@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。使用反射(reflect)获取任意 st…">
+  <meta name="color-scheme" content="light dark">
+  <title>动手写ORM框架 - GeeORM第二天 对象表结构映射 · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="../../gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="../../gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="../../gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="../../gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="../../gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="../../gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="../../gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="../../gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../../gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="../../gee-cache/doc/geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item" href="../../gee-cache/doc/geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="../../gee-cache/doc/geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="../../gee-cache/doc/geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="../../gee-cache/doc/geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="../../gee-cache/doc/geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="../../gee-cache/doc/geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="../../gee-cache/doc/geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item is-current" href="geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm" aria-current="page">Day2 对象表结构映射</a><a class="nav-item" href="geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>GeeORM</span><span>22 / 37</span></div>
+          <h1>动手写ORM框架 - GeeORM第二天 对象表结构映射</h1>
+          <p>7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。使用反射(reflect)获取任意 st…</p>
+        </header>
+        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第二篇。</p>
+<ul>
+<li>使用 dialect 隔离不同数据库之间的差异，便于扩展。</li>
+<li>使用反射(reflect)获取任意 struct 对象的名称和字段，映射为数据中的表。</li>
+<li>数据库表的创建(create)、删除(drop)。<strong>代码约150行</strong></li>
+</ul>
+<h2 id="1-dialect">1 Dialect</h2>
+<p>SQL 语句中的类型和 Go 语言中的类型是不同的，例如Go 语言中的 <code>int</code>、<code>int8</code>、<code>int16</code> 等类型均对应 SQLite 中的 <code>integer</code> 类型。因此实现 ORM 映射的第一步，需要思考如何将 Go 语言的类型映射为数据库中的类型。</p>
+<p>同时，不同数据库支持的数据类型也是有差异的，即使功能相同，在 SQL 语句的表达上也可能有差异。ORM 框架往往需要兼容多种数据库，因此我们需要将差异的这一部分提取出来，每一种数据库分别实现，实现最大程度的复用和解耦。这部分代码称之为 <code>dialect</code>。</p>
+<p>在根目录下新建文件夹 dialect，并在 dialect 文件夹下新建文件 <code>dialect.go</code>，抽象出各个数据库差异的部分。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/dialect">day2-reflect-schema/dialect/dialect.go</a></p>
+<pre><code class="language-go">package dialect
+
+import &quot;reflect&quot;
+
+var dialectsMap = map[string]Dialect{}
+
+type Dialect interface {
+	DataTypeOf(typ reflect.Value) string
+	TableExistSQL(tableName string) (string, []any)
+}
+
+func RegisterDialect(name string, dialect Dialect) {
+	dialectsMap[name] = dialect
+}
+
+func GetDialect(name string) (dialect Dialect, ok bool) {
+	dialect, ok = dialectsMap[name]
+	return
+}
+</code></pre>
+<p><code>Dialect</code> 接口包含 2 个方法：</p>
+<ul>
+<li><code>DataTypeOf</code> 用于将 Go 语言的类型转换为该数据库的数据类型。</li>
+<li><code>TableExistSQL</code> 返回某个表是否存在的 SQL 语句，参数是表名(table)。</li>
+</ul>
+<p>当然，不同数据库之间的差异远远不止这两个地方，随着 ORM 框架功能的增多，dialect 的实现也会逐渐丰富起来，同时框架的其他部分不会受到影响。</p>
+<p>同时，声明了 <code>RegisterDialect</code> 和 <code>GetDialect</code> 两个方法用于注册和获取 dialect 实例。如果新增加对某个数据库的支持，那么调用 <code>RegisterDialect</code> 即可注册到全局。</p>
+<p>接下来，在<code>dialect</code> 目录下新建文件 <code>sqlite3.go</code> 增加对 SQLite 的支持。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/dialect">day2-reflect-schema/dialect/sqlite3.go</a></p>
+<pre><code class="language-go">package dialect
+
+import (
+	&quot;fmt&quot;
+	&quot;reflect&quot;
+	&quot;time&quot;
+)
+
+type sqlite3 struct{}
+
+var _ Dialect = (*sqlite3)(nil)
+
+func init() {
+	RegisterDialect(&quot;sqlite&quot;, &amp;sqlite3{})
+}
+
+func (s *sqlite3) DataTypeOf(typ reflect.Value) string {
+	switch typ.Kind() {
+	case reflect.Bool:
+		return &quot;bool&quot;
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uintptr:
+		return &quot;integer&quot;
+	case reflect.Int64, reflect.Uint64:
+		return &quot;bigint&quot;
+	case reflect.Float32, reflect.Float64:
+		return &quot;real&quot;
+	case reflect.String:
+		return &quot;text&quot;
+	case reflect.Array, reflect.Slice:
+		return &quot;blob&quot;
+	case reflect.Struct:
+		if _, ok := typ.Interface().(time.Time); ok {
+			return &quot;datetime&quot;
+		}
+	}
+	panic(fmt.Sprintf(&quot;invalid sql type %s (%s)&quot;, typ.Type().Name(), typ.Kind()))
+}
+
+func (s *sqlite3) TableExistSQL(tableName string) (string, []any) {
+	args := []any{tableName}
+	return &quot;SELECT name FROM sqlite_master WHERE type='table' and name = ?&quot;, args
+}
+</code></pre>
+<ul>
+<li><code>sqlite3.go</code> 的实现虽然比较繁琐，但是整体逻辑还是非常清晰的。<code>DataTypeOf</code> 将 Go 语言的类型映射为 SQLite 的数据类型。<code>TableExistSQL</code> 返回了在 SQLite 中判断表 <code>tableName</code> 是否存在的 SQL 语句。</li>
+<li>实现了 <code>init()</code> 函数，包在第一次加载时，会将 sqlite3 的 dialect 自动注册到全局。</li>
+</ul>
+<h2 id="2-schema">2 Schema</h2>
+<p>Dialect 实现了一些特定的 SQL 语句的转换，接下来我们将要实现 ORM 框架中最为核心的转换——对象(object)和表(table)的转换。给定一个任意的对象，转换为关系型数据库中的表结构。</p>
+<p>在数据库中创建一张表需要哪些要素呢？</p>
+<ul>
+<li>表名(table name) —— 结构体名(struct name)</li>
+<li>字段名和字段类型 —— 成员变量和类型。</li>
+<li>额外的约束条件(例如非空、主键等) —— 成员变量的Tag（Go 语言通过 Tag 实现，Java、Python 等语言通过注解实现）</li>
+</ul>
+<p>举一个实际的例子：</p>
+<pre><code class="language-go">type User struct {
+    Name string `geeorm:&quot;PRIMARY KEY&quot;`
+    Age  int
+}
+</code></pre>
+<p>期望对应的 schema 语句：</p>
+<pre><code class="language-sql">CREATE TABLE `User` (`Name` text PRIMARY KEY, `Age` integer);
+</code></pre>
+<p>我们将这部分代码的实现放置在一个子包 <code>schema/schema.go</code> 中。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/schema">day2-reflect-schema/schema/schema.go</a></p>
+<pre><code class="language-go">package schema
+
+import (
+	&quot;geeorm/dialect&quot;
+	&quot;go/ast&quot;
+	&quot;reflect&quot;
+)
+
+// Field represents a column of database
+type Field struct {
+	Name string
+	Type string
+	Tag  string
+}
+
+// Schema represents a table of database
+type Schema struct {
+	Model      any
+	Name       string
+	Fields     []*Field
+	FieldNames []string
+	fieldMap   map[string]*Field
+}
+
+func (schema *Schema) GetField(name string) *Field {
+	return schema.fieldMap[name]
+}
+</code></pre>
+<ul>
+<li>Field 包含 3 个成员变量，字段名 Name、类型 Type、和约束条件 Tag</li>
+<li>Schema 主要包含被映射的对象 Model、表名 Name 和字段 Fields。</li>
+<li>FieldNames 包含所有的字段名(列名)，fieldMap 记录字段名和 Field 的映射关系，方便之后直接使用，无需遍历 Fields。</li>
+</ul>
+<p>接下来实现 Parse 函数，将任意的对象解析为 Schema 实例。</p>
+<pre><code class="language-go">func Parse(dest any, d dialect.Dialect) *Schema {
+	modelType := reflect.Indirect(reflect.ValueOf(dest)).Type()
+	schema := &amp;Schema{
+		Model:    dest,
+		Name:     modelType.Name(),
+		fieldMap: make(map[string]*Field),
+	}
+
+	for p := range modelType.Fields() {
+		if !p.Anonymous &amp;&amp; ast.IsExported(p.Name) {
+			field := &amp;Field{
+				Name: p.Name,
+				Type: d.DataTypeOf(reflect.Indirect(reflect.New(p.Type))),
+			}
+			if v, ok := p.Tag.Lookup(&quot;geeorm&quot;); ok {
+				field.Tag = v
+			}
+			schema.Fields = append(schema.Fields, field)
+			schema.FieldNames = append(schema.FieldNames, p.Name)
+			schema.fieldMap[p.Name] = field
+		}
+	}
+	return schema
+}
+</code></pre>
+<ul>
+<li><code>TypeOf()</code> 和 <code>ValueOf()</code> 是 reflect 包最为基本也是最重要的 2 个方法，分别用来返回入参的类型和值。因为设计的入参是一个对象的指针，因此需要 <code>reflect.Indirect()</code> 获取指针指向的实例。</li>
+<li><code>modelType.Name()</code> 获取到结构体的名称作为表名。</li>
+<li>Go 1.26 的 <code>modelType.Fields()</code> 返回字段迭代器，可以直接遍历所有字段，不再手动维护下标；每次得到的 <code>p</code> 都是一个 <code>reflect.StructField</code>。</li>
+<li><code>p.Name</code> 即字段名，<code>p.Type</code> 即字段类型，通过 <code>(Dialect).DataTypeOf()</code> 转换为数据库的字段类型，<code>p.Tag</code> 即额外的约束条件。</li>
+</ul>
+<p>写一个测试用例来验证 Parse 函数。</p>
+<pre><code class="language-go">// schema_test.go
+type User struct {
+	Name string `geeorm:&quot;PRIMARY KEY&quot;`
+	Age  int
+}
+
+var TestDial, _ = dialect.GetDialect(&quot;sqlite&quot;)
+
+func TestParse(t *testing.T) {
+	schema := Parse(&amp;User{}, TestDial)
+	if schema.Name != &quot;User&quot; || len(schema.Fields) != 2 {
+		t.Fatal(&quot;failed to parse User struct&quot;)
+	}
+	if schema.GetField(&quot;Name&quot;).Tag != &quot;PRIMARY KEY&quot; {
+		t.Fatal(&quot;failed to parse primary key&quot;)
+	}
+}
+</code></pre>
+<h2 id="3-session">3 Session</h2>
+<p>Session 的核心功能是与数据库进行交互。因此，我们将数据库表的增/删操作实现在子包 session 中。在此之前，Session 的结构需要做一些调整。</p>
+<pre><code class="language-go">type Session struct {
+	db       *sql.DB
+	dialect  dialect.Dialect
+	refTable *schema.Schema
+	sql      strings.Builder
+	sqlVars  []any
+}
+
+func New(db *sql.DB, dialect dialect.Dialect) *Session {
+	return &amp;Session{
+		db:      db,
+		dialect: dialect,
+	}
+}
+</code></pre>
+<ul>
+<li><code>Session</code> 成员变量新增 dialect 和 refTable</li>
+<li>构造函数 <code>New</code> 的参数改为 2 个，db 和 dialect。</li>
+</ul>
+<p>在文件夹 <code>session</code> 下新建 <code>table.go</code> 用于放置操作数据库表相关的代码。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/session">day2-reflect-schema/session/table.go</a></p>
+<pre><code class="language-go">func (s *Session) Model(value any) *Session {
+	// nil or different model, update refTable
+	if s.refTable == nil || reflect.TypeOf(value) != reflect.TypeOf(s.refTable.Model) {
+		s.refTable = schema.Parse(value, s.dialect)
+	}
+	return s
+}
+
+func (s *Session) RefTable() *schema.Schema {
+	if s.refTable == nil {
+		log.Error(&quot;Model is not set&quot;)
+	}
+	return s.refTable
+}
+</code></pre>
+<ul>
+<li><code>Model()</code> 方法用于给 refTable 赋值。解析操作是比较耗时的，因此将解析的结果保存在成员变量 refTable 中，即使 <code>Model()</code> 被调用多次，如果传入的结构体名称不发生变化，则不会更新 refTable 的值。</li>
+<li><code>RefTable()</code> 方法返回 refTable 的值，如果 refTable 未被赋值，则打印错误日志。</li>
+</ul>
+<p>接下来实现数据库表的创建、删除和判断是否存在的功能。三个方法的实现逻辑是相似的，利用 <code>RefTable()</code> 返回的数据库表和字段的信息，拼接出 SQL 语句，调用原生 SQL 接口执行。</p>
+<pre><code class="language-go">func (s *Session) CreateTable() error {
+	table := s.RefTable()
+	var columns []string
+	for _, field := range table.Fields {
+		columns = append(columns, fmt.Sprintf(&quot;%s %s %s&quot;, field.Name, field.Type, field.Tag))
+	}
+	desc := strings.Join(columns, &quot;,&quot;)
+	_, err := s.Raw(fmt.Sprintf(&quot;CREATE TABLE %s (%s);&quot;, table.Name, desc)).Exec()
+	return err
+}
+
+func (s *Session) DropTable() error {
+	_, err := s.Raw(fmt.Sprintf(&quot;DROP TABLE IF EXISTS %s&quot;, s.RefTable().Name)).Exec()
+	return err
+}
+
+func (s *Session) HasTable() bool {
+	sql, values := s.dialect.TableExistSQL(s.RefTable().Name)
+	row := s.Raw(sql, values...).QueryRow()
+	var tmp string
+	_ = row.Scan(&amp;tmp)
+	return tmp == s.RefTable().Name
+}
+</code></pre>
+<p>在 <code>table_test.go</code> 中实现对应的测试用例：</p>
+<pre><code class="language-go">type User struct {
+	Name string `geeorm:&quot;PRIMARY KEY&quot;`
+	Age  int
+}
+
+func TestSession_CreateTable(t *testing.T) {
+	s := NewSession().Model(&amp;User{})
+	_ = s.DropTable()
+	_ = s.CreateTable()
+	if !s.HasTable() {
+		t.Fatal(&quot;Failed to create table User&quot;)
+	}
+}
+</code></pre>
+<h2 id="4-engine">4 Engine</h2>
+<p>因为 Session 构造函数增加了对 dialect 的依赖，Engine 需要作一些细微的调整。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema">day2-reflect-schema/geeorm.go</a></p>
+<pre><code class="language-go">type Engine struct {
+	db      *sql.DB
+	dialect dialect.Dialect
+}
+
+func NewEngine(driver, source string) (e *Engine, err error) {
+	db, err := sql.Open(driver, source)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	// Send a ping to make sure the database connection is alive.
+	if err = db.Ping(); err != nil {
+		log.Error(err)
+		return
+	}
+	// make sure the specific dialect exists
+	dial, ok := dialect.GetDialect(driver)
+	if !ok {
+		log.Errorf(&quot;dialect %s Not Found&quot;, driver)
+		return
+	}
+	e = &amp;Engine{db: db, dialect: dial}
+	log.Info(&quot;Connect database success&quot;)
+	return
+}
+
+func (engine *Engine) NewSession() *session.Session {
+	return session.New(engine.db, engine.dialect)
+}
+</code></pre>
+<ul>
+<li><code>NewEngine</code> 创建 Engine 实例时，获取 driver 对应的 dialect。</li>
+<li><code>NewSession</code> 创建 Session 实例时，传递 dialect 给构造函数 New。</li>
+</ul>
+<p>至此，第二天的内容已经完成了，总结一下今天的成果：</p>
+<ul>
+<li>1）为适配不同的数据库，映射数据类型和特定的 SQL 语句，创建 Dialect 层屏蔽数据库差异。</li>
+<li>2）设计 Schema，利用反射(reflect)完成结构体和数据库表结构的映射，包括表名、字段名、字段类型、字段 tag 等。</li>
+<li>3）构造创建(create)、删除(drop)、存在性(table exists) 的 SQL 语句完成数据库表的基本操作。</li>
+</ul>
+<h2 id="-">附 推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
+<li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
+<li><a href="https://geektutu.com/post/hpg-reflect.html">Go Reflect 提高反射性能</a></li>
+<li><a href="https://geektutu.com/post/cheat-sheet-sqlite.html">SQLite 常用命令速查表</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="geeorm-day1.html"><span>上一篇</span><strong>Day1 database/sql 基础</strong></a>
+          <a class="page-nav-item next" href="geeorm-day3.html"><span>下一篇</span><strong>Day3 记录新增和查询</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-dialect">1 Dialect</a><a class="toc-level-2" href="#2-schema">2 Schema</a><a class="toc-level-2" href="#3-session">3 Session</a><a class="toc-level-2" href="#4-engine">4 Engine</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

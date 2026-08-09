@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了常用的三种缓存淘汰(失效)算法：先进先出(FIFO)，最少使用(LFU…">
+  <meta name="color-scheme" content="light dark">
+  <title>动手写分布式缓存 - GeeCache第一天 LRU 缓存淘汰策略 · 7天用 Go</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+  <script defer src="../../assets/app.js"></script>
+</head>
+<body>
+  <div class="reading-progress" aria-hidden="true"><span></span></div>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="icon-button menu-button" type="button" aria-label="打开教程导航" aria-controls="sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand" href="../../index.html" aria-label="7天用 Go 首页"><span class="brand-mark">7</span><span><strong>7days</strong><small>golang</small></span></a>
+      <nav class="top-links" aria-label="顶部导航">
+        <a href="../../index.html">教程首页</a>
+        <a href="../../MODERNIZATION.html">迁移说明</a>
+        <span class="version-pill">Go 1.26</span>
+      </nav>
+      <button class="icon-button theme-button" type="button" aria-label="切换深浅色主题"><span class="theme-icon" aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="doc-shell">
+    <aside class="sidebar" id="sidebar" aria-label="教程目录">
+      <div class="sidebar-search"><label for="nav-search">查找教程</label><div><span aria-hidden="true">⌕</span><input id="nav-search" type="search" placeholder="标题或系列…" autocomplete="off"></div></div>
+      <nav class="sidebar-nav">
+        <section class="nav-group"><h2>开始</h2><a class="nav-item" href="../../index.html" data-search="7天用 go 从零实现系列 首页 开始">首页</a><a class="nav-item" href="../../MODERNIZATION.html" data-search="现代 go 迁移说明 现代化迁移 开始">现代化迁移</a></section><section class="nav-group"><h2>Gee Web</h2><a class="nav-item" href="../../gee-web/doc/gee.html" data-search="7天用go从零实现web框架gee教程 系列总览 gee web">系列总览</a><a class="nav-item" href="../../gee-web/doc/gee-day1.html" data-search="go语言动手写web框架 - gee第一天 http.handler day1 http 基础 gee web">Day1 HTTP 基础</a><a class="nav-item" href="../../gee-web/doc/gee-day2.html" data-search="go语言动手写web框架 - gee第二天 上下文context day2 上下文 gee web">Day2 上下文</a><a class="nav-item" href="../../gee-web/doc/gee-day3.html" data-search="go语言动手写web框架 - gee第三天 前缀树路由router day3 前缀树路由 gee web">Day3 前缀树路由</a><a class="nav-item" href="../../gee-web/doc/gee-day4.html" data-search="go语言动手写web框架 - gee第四天 分组控制group day4 分组控制 gee web">Day4 分组控制</a><a class="nav-item" href="../../gee-web/doc/gee-day5.html" data-search="go语言动手写web框架 - gee第五天 中间件middleware day5 中间件 gee web">Day5 中间件</a><a class="nav-item" href="../../gee-web/doc/gee-day6.html" data-search="go语言动手写web框架 - gee第六天 模板(html template) day6 模板 template gee web">Day6 模板 Template</a><a class="nav-item" href="../../gee-web/doc/gee-day7.html" data-search="go语言动手写web框架 - gee第七天 错误恢复(panic recover) day7 错误恢复 gee web">Day7 错误恢复</a><a class="nav-item" href="../../gee-web/README.html" data-search="7 days go web framework gee from scratch 项目 readme gee web">项目 README</a></section><section class="nav-group"><h2>GeeCache</h2><a class="nav-item" href="geecache.html" data-search="7天用go从零实现分布式缓存geecache 系列总览 geecache">系列总览</a><a class="nav-item is-current" href="geecache-day1.html" data-search="动手写分布式缓存 - geecache第一天 lru 缓存淘汰策略 day1 lru 缓存淘汰策略 geecache" aria-current="page">Day1 LRU 缓存淘汰策略</a><a class="nav-item" href="geecache-day2.html" data-search="动手写分布式缓存 - geecache第二天 单机并发缓存 day2 单机并发缓存 geecache">Day2 单机并发缓存</a><a class="nav-item" href="geecache-day3.html" data-search="动手写分布式缓存 - geecache第三天 http 服务端 day3 http 服务端 geecache">Day3 HTTP 服务端</a><a class="nav-item" href="geecache-day4.html" data-search="动手写分布式缓存 - geecache第四天 一致性哈希(hash) day4 一致性哈希 geecache">Day4 一致性哈希</a><a class="nav-item" href="geecache-day5.html" data-search="动手写分布式缓存 - geecache第五天 分布式节点 day5 分布式节点 geecache">Day5 分布式节点</a><a class="nav-item" href="geecache-day6.html" data-search="动手写分布式缓存 - geecache第六天 防止缓存击穿 day6 防止缓存击穿 geecache">Day6 防止缓存击穿</a><a class="nav-item" href="geecache-day7.html" data-search="动手写分布式缓存 - geecache第七天 使用 protobuf 通信 day7 使用 protobuf 通信 geecache">Day7 使用 Protobuf 通信</a></section><section class="nav-group"><h2>GeeORM</h2><a class="nav-item" href="../../gee-orm/doc/geeorm.html" data-search="7天用go从零实现orm框架geeorm 系列总览 geeorm">系列总览</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day1.html" data-search="动手写orm框架 - geeorm第一天 database/sql 基础 day1 database/sql 基础 geeorm">Day1 database/sql 基础</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day2.html" data-search="动手写orm框架 - geeorm第二天 对象表结构映射 day2 对象表结构映射 geeorm">Day2 对象表结构映射</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day3.html" data-search="动手写orm框架 - geeorm第三天 记录新增和查询 day3 记录新增和查询 geeorm">Day3 记录新增和查询</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day4.html" data-search="动手写orm框架 - geeorm第四天 链式操作与更新删除 day4 链式操作与更新删除 geeorm">Day4 链式操作与更新删除</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day5.html" data-search="动手写orm框架 - geeorm第五天 实现钩子(hooks) day5 实现钩子 geeorm">Day5 实现钩子</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day6.html" data-search="动手写orm框架 - geeorm第六天 支持事务(transaction) day6 支持事务 geeorm">Day6 支持事务</a><a class="nav-item" href="../../gee-orm/doc/geeorm-day7.html" data-search="动手写orm框架 - geeorm第七天 数据库迁移(migrate) day7 数据库迁移 geeorm">Day7 数据库迁移</a></section><section class="nav-group"><h2>GeeRPC</h2><a class="nav-item" href="../../gee-rpc/doc/geerpc.html" data-search="7天用go从零实现rpc框架geerpc 系列总览 geerpc">系列总览</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day1.html" data-search="动手写rpc框架 - geerpc第一天 服务端与消息编码 day1 服务端与消息编码 geerpc">Day1 服务端与消息编码</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day2.html" data-search="动手写rpc框架 - geerpc第二天 支持并发与异步的客户端 day2 高性能客户端 geerpc">Day2 高性能客户端</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day3.html" data-search="动手写rpc框架 - geerpc第三天 服务注册(service register) day3 服务注册 geerpc">Day3 服务注册</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day4.html" data-search="动手写rpc框架 - geerpc第四天 超时处理(timeout) day4 超时处理 geerpc">Day4 超时处理</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day5.html" data-search="动手写rpc框架 - geerpc第五天 支持http协议 day5 支持http协议 geerpc">Day5 支持HTTP协议</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day6.html" data-search="动手写rpc框架 - geerpc第六天 负载均衡(load balance) day6 负载均衡 geerpc">Day6 负载均衡</a><a class="nav-item" href="../../gee-rpc/doc/geerpc-day7.html" data-search="动手写rpc框架 - geerpc第七天 服务发现与注册中心(registry) day7 服务发现与注册中心 geerpc">Day7 服务发现与注册中心</a></section><section class="nav-group"><h2>其他</h2><a class="nav-item" href="../../demo-wasm/README.html" data-search="webassembly 示例（go 1.26） webassembly 示例 其他">WebAssembly 示例</a><a class="nav-item" href="../../questions/7days-golang-q1.html" data-search="go 接口型函数的使用场景 接口型函数 其他">接口型函数</a></section>
+        <p class="search-empty" hidden>没有匹配的教程</p>
+      </nav>
+    </aside>
+    <main id="main-content" class="main-column">
+
+      <article class="article-card" id="article-start">
+        <header class="article-header">
+          <div class="article-kicker"><span>GeeCache</span><span>13 / 37</span></div>
+          <h1>动手写分布式缓存 - GeeCache第一天 LRU 缓存淘汰策略</h1>
+          <p>7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了常用的三种缓存淘汰(失效)算法：先进先出(FIFO)，最少使用(LFU…</p>
+        </header>
+        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geecache.html">7天用Go从零实现分布式缓存GeeCache教程系列</a>的第一篇。</p>
+<ul>
+<li>介绍常用的三种缓存淘汰(失效)算法：FIFO，LFU 和 LRU</li>
+<li>实现 LRU 缓存淘汰算法，<strong>代码约80行</strong></li>
+</ul>
+<h2 id="1-fifolfulru-">1 FIFO/LFU/LRU 算法简介</h2>
+<p>GeeCache 的缓存全部存储在内存中，内存是有限的，因此不可能无限制地添加数据。假定我们设置缓存能够使用的内存大小为 N，那么在某一个时间点，添加了某一条缓存记录之后，占用内存超过了 N，这个时候就需要从缓存中移除一条或多条数据了。那移除谁呢？我们肯定希望尽可能移除“没用”的数据，那如何判定数据“有用”还是“没用”呢？</p>
+<h3 id="11-fifofirst-in-first-out">1.1 FIFO(First In First Out)</h3>
+<p>先进先出，也就是淘汰缓存中最老(最早添加)的记录。FIFO 认为，最早添加的记录，其不再被使用的可能性比刚添加的可能性大。这种算法的实现也非常简单，创建一个队列，新增记录添加到队尾，每次内存不够时，淘汰队首。但是很多场景下，部分记录虽然是最早添加但也最常被访问，而不得不因为呆的时间太长而被淘汰。这类数据会被频繁地添加进缓存，又被淘汰出去，导致缓存命中率降低。</p>
+<h3 id="12-lfuleast-frequently-used">1.2 LFU(Least Frequently Used)</h3>
+<p>最少使用，也就是淘汰缓存中访问频率最低的记录。LFU 认为，如果数据过去被访问多次，那么将来被访问的频率也更高。LFU 的实现需要维护一个按照访问次数排序的队列，每次访问，访问次数加1，队列重新排序，淘汰时选择访问次数最少的即可。LFU 算法的命中率是比较高的，但缺点也非常明显，维护每个记录的访问次数，对内存的消耗是很高的；另外，如果数据的访问模式发生变化，LFU 需要较长的时间去适应，也就是说 LFU 算法受历史数据的影响比较大。例如某个数据历史上访问次数奇高，但在某个时间点之后几乎不再被访问，但因为历史访问次数过高，而迟迟不能被淘汰。</p>
+<h3 id="13-lruleast-recently-used">1.3 LRU(Least Recently Used)</h3>
+<p>最近最少使用，相对于仅考虑时间因素的 FIFO 和仅考虑访问频率的 LFU，LRU 算法可以认为是相对平衡的一种淘汰算法。LRU 认为，如果数据最近被访问过，那么将来被访问的概率也会更高。LRU 算法的实现非常简单，维护一个队列，如果某条记录被访问了，则移动到队尾，那么队首则是最近最少访问的数据，淘汰该条记录即可。</p>
+<h2 id="2-lru-">2 LRU 算法实现</h2>
+<h3 id="21-">2.1 核心数据结构</h3>
+<p><img src="geecache-day1/lru.jpg" alt="implement lru algorithm with golang"></p>
+<p>这张图很好地表示了 LRU 算法最核心的 2 个数据结构</p>
+<ul>
+<li>绿色的是字典(map)，存储键和值的映射关系。这样根据某个键(key)查找对应的值(value)的复杂是<code>O(1)</code>，在字典中插入一条记录的复杂度也是<code>O(1)</code>。</li>
+<li>红色的是双向链表(double linked list)实现的队列。将所有的值放到双向链表中，这样，当访问到某个值时，将其移动到队尾的复杂度是<code>O(1)</code>，在队尾新增一条记录以及删除一条记录的复杂度均为<code>O(1)</code>。</li>
+</ul>
+<p>接下来我们创建一个包含字典和双向链表的结构体类型 Cache，方便实现后续的增删查改操作。</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day1-lru/geecache/lru">day1-lru/geecache/lru/lru.go - github</a></p>
+<pre><code class="language-go">package lru
+
+import &quot;container/list&quot;
+
+// Cache is a LRU cache. It is not safe for concurrent access.
+type Cache struct {
+	maxBytes int64
+	nbytes   int64
+	ll       *list.List
+	cache    map[string]*list.Element
+	// optional and executed when an entry is purged.
+	OnEvicted func(key string, value Value)
+}
+
+type entry struct {
+	key   string
+	value Value
+}
+
+// Value use Len to count how many bytes it takes
+type Value interface {
+	Len() int
+}
+</code></pre>
+<ul>
+<li>在这里我们直接使用 Go 语言标准库实现的双向链表<code>list.List</code>。</li>
+<li>字典的定义是 <code>map[string]*list.Element</code>，键是字符串，值是双向链表中对应节点的指针。</li>
+<li><code>maxBytes</code> 是允许使用的最大内存，<code>nbytes</code> 是当前已使用的内存，<code>OnEvicted</code> 是某条记录被移除时的回调函数，可以为 nil。</li>
+<li>键值对 <code>entry</code> 是双向链表节点的数据类型，在链表中仍保存每个值对应的 key 的好处在于，淘汰队首节点时，需要用 key 从字典中删除对应的映射。</li>
+<li>为了通用性，我们允许值是实现了 <code>Value</code> 接口的任意类型，该接口只包含了一个方法 <code>Len() int</code>，用于返回值所占用的内存大小。</li>
+</ul>
+<p>方便实例化 <code>Cache</code>，实现 <code>New()</code> 函数：</p>
+<pre><code class="language-go">// New is the Constructor of Cache
+func New(maxBytes int64, onEvicted func(string, Value)) *Cache {
+	return &amp;Cache{
+		maxBytes:  maxBytes,
+		ll:        list.New(),
+		cache:     make(map[string]*list.Element),
+		OnEvicted: onEvicted,
+	}
+}
+</code></pre>
+<h3 id="22-">2.2 查找功能</h3>
+<p>查找主要有 2 个步骤，第一步是从字典中找到对应的双向链表的节点，第二步，将该节点移动到队尾。</p>
+<pre><code class="language-go">// Get look ups a key's value
+func (c *Cache) Get(key string) (value Value, ok bool) {
+	if ele, ok := c.cache[key]; ok {
+		c.ll.MoveToFront(ele)
+		kv := ele.Value.(*entry)
+		return kv.value, true
+	}
+	return
+}
+</code></pre>
+<ul>
+<li>如果键对应的链表节点存在，则将对应节点移动到队尾，并返回查找到的值。</li>
+<li><code>c.ll.MoveToFront(ele)</code>，即将链表中的节点 <code>ele</code> 移动到队尾（双向链表作为队列，队首队尾是相对的，在这里约定 front 为队尾）</li>
+</ul>
+<h3 id="23-">2.3 删除</h3>
+<p>这里的删除，实际上是缓存淘汰。即移除最近最少访问的节点（队首）</p>
+<pre><code class="language-go">// RemoveOldest removes the oldest item
+func (c *Cache) RemoveOldest() {
+	ele := c.ll.Back()
+	if ele != nil {
+		c.ll.Remove(ele)
+		kv := ele.Value.(*entry)
+		delete(c.cache, kv.key)
+		c.nbytes -= int64(len(kv.key)) + int64(kv.value.Len())
+		if c.OnEvicted != nil {
+			c.OnEvicted(kv.key, kv.value)
+		}
+	}
+}
+</code></pre>
+<ul>
+<li><code>c.ll.Back()</code> 取到队首节点，从链表中删除。</li>
+<li><code>delete(c.cache, kv.key)</code>，从字典中 <code>c.cache</code> 删除该节点的映射关系。</li>
+<li>更新当前所用的内存 <code>c.nbytes</code>。</li>
+<li>如果回调函数 <code>OnEvicted</code> 不为 nil，则调用回调函数。</li>
+</ul>
+<h3 id="24-">2.4 新增/修改</h3>
+<pre><code class="language-go">// Add adds a value to the cache.
+func (c *Cache) Add(key string, value Value) {
+	if ele, ok := c.cache[key]; ok {
+		c.ll.MoveToFront(ele)
+		kv := ele.Value.(*entry)
+		c.nbytes += int64(value.Len()) - int64(kv.value.Len())
+		kv.value = value
+	} else {
+		ele := c.ll.PushFront(&amp;entry{key, value})
+		c.cache[key] = ele
+		c.nbytes += int64(len(key)) + int64(value.Len())
+	}
+	for c.maxBytes != 0 &amp;&amp; c.maxBytes &lt; c.nbytes {
+		c.RemoveOldest()
+	}
+}
+</code></pre>
+<ul>
+<li>如果键存在，则更新对应节点的值，并将该节点移到队尾。</li>
+<li>不存在则是新增场景，首先队尾添加新节点 <code>&amp;entry{key, value}</code>, 并字典中添加 key 和节点的映射关系。</li>
+<li>更新 <code>c.nbytes</code>，如果超过了设定的最大值 <code>c.maxBytes</code>，则移除最少访问的节点。</li>
+</ul>
+<p>最后，为了方便测试，我们实现 <code>Len()</code> 用来获取添加了多少条数据。</p>
+<pre><code class="language-go">// Len the number of cache entries
+func (c *Cache) Len() int {
+	return c.ll.Len()
+}
+</code></pre>
+<h2 id="3-">3 测试</h2>
+<p>例如，我们可以尝试添加几条数据，测试 <code>Get</code> 方法</p>
+<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day1-lru/geecache/lru">day1-lru/geecache/lru/lru_test.go - github</a></p>
+<pre><code class="language-go">type String string
+
+func (d String) Len() int {
+	return len(d)
+}
+
+func TestGet(t *testing.T) {
+	lru := New(int64(0), nil)
+	lru.Add(&quot;key1&quot;, String(&quot;1234&quot;))
+	if v, ok := lru.Get(&quot;key1&quot;); !ok || string(v.(String)) != &quot;1234&quot; {
+		t.Fatalf(&quot;cache hit key1=1234 failed&quot;)
+	}
+	if _, ok := lru.Get(&quot;key2&quot;); ok {
+		t.Fatalf(&quot;cache miss key2 failed&quot;)
+	}
+}
+</code></pre>
+<p>测试，当使用内存超过了设定值时，是否会触发“无用”节点的移除：</p>
+<pre><code class="language-go">func TestRemoveoldest(t *testing.T) {
+	k1, k2, k3 := &quot;key1&quot;, &quot;key2&quot;, &quot;k3&quot;
+	v1, v2, v3 := &quot;value1&quot;, &quot;value2&quot;, &quot;v3&quot;
+	cap := len(k1 + k2 + v1 + v2)
+	lru := New(int64(cap), nil)
+	lru.Add(k1, String(v1))
+	lru.Add(k2, String(v2))
+	lru.Add(k3, String(v3))
+
+	if _, ok := lru.Get(&quot;key1&quot;); ok || lru.Len() != 2 {
+		t.Fatalf(&quot;Removeoldest key1 failed&quot;)
+	}
+}
+</code></pre>
+<p>测试回调函数能否被调用：</p>
+<pre><code class="language-go">func TestOnEvicted(t *testing.T) {
+	keys := make([]string, 0)
+	callback := func(key string, value Value) {
+		keys = append(keys, key)
+	}
+	lru := New(int64(10), callback)
+	lru.Add(&quot;key1&quot;, String(&quot;123456&quot;))
+	lru.Add(&quot;k2&quot;, String(&quot;k2&quot;))
+	lru.Add(&quot;k3&quot;, String(&quot;k3&quot;))
+	lru.Add(&quot;k4&quot;, String(&quot;k4&quot;))
+
+	expect := []string{&quot;key1&quot;, &quot;k2&quot;}
+
+	if !reflect.DeepEqual(expect, keys) {
+		t.Fatalf(&quot;Call OnEvicted failed, expect keys equals to %s&quot;, expect)
+	}
+}
+</code></pre>
+<h2 id="-">附 推荐阅读</h2>
+<ul>
+<li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
+<li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
+<li><a href="https://golang.org/pkg/container/list/">list 官方文档 - golang.org</a></li>
+</ul>
+</div>
+        <nav class="page-nav" aria-label="上一篇和下一篇">
+          <a class="page-nav-item previous" href="geecache.html"><span>上一篇</span><strong>系列总览</strong></a>
+          <a class="page-nav-item next" href="geecache-day2.html"><span>下一篇</span><strong>Day2 单机并发缓存</strong></a>
+        </nav>
+      </article>
+      <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
+    </main>
+    <aside class="toc" aria-label="本页目录">
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-fifolfulru-">1 FIFO/LFU/LRU 算法简介</a><a class="toc-level-3" href="#11-fifofirst-in-first-out">1.1 FIFO(First In First Out)</a><a class="toc-level-3" href="#12-lfuleast-frequently-used">1.2 LFU(Least Frequently Used)</a><a class="toc-level-3" href="#13-lruleast-recently-used">1.3 LRU(Least Recently Used)</a><a class="toc-level-2" href="#2-lru-">2 LRU 算法实现</a><a class="toc-level-3" href="#21-">2.1 核心数据结构</a><a class="toc-level-3" href="#22-">2.2 查找功能</a><a class="toc-level-3" href="#23-">2.3 删除</a><a class="toc-level-3" href="#24-">2.4 新增/修改</a><a class="toc-level-2" href="#3-">3 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+    </aside>
+  </div>
+</body>
+</html>

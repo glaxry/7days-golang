@@ -19,6 +19,18 @@ foreach ($module in $modules) {
     }
 }
 
+Write-Host "==> verify generated HTML documentation"
+Push-Location (Join-Path $repoRoot "tools\docsite")
+try {
+    & go run . -root $repoRoot -check
+    if ($LASTEXITCODE -ne 0) {
+        throw "HTML documentation is out of date"
+    }
+}
+finally {
+    Pop-Location
+}
+
 $wasmOutput = Join-Path ([System.IO.Path]::GetTempPath()) ("7days-golang-wasm-" + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $wasmOutput | Out-Null
 try {
