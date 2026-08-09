@@ -290,3 +290,26 @@ Traceback:
 - [Package runtime - golang.org](https://golang.org/pkg/runtime/)
 - [Is it possible get information about caller function in Golang? - StackOverflow](https://stackoverflow.com/questions/35212985/is-it-possible-get-information-about-caller-function-in-golang)
 
+## 白话复盘：Recovery 是单次请求的安全网
+
+### `panic`、`defer`、`recover` 怎样配合
+
+普通错误应该通过 `error` 返回并由调用者处理；`panic` 表示当前调用链无法按正常方式继续。发生 `panic` 后，Go 会沿调用栈向外退出，同时执行已经注册的 `defer`。只有在同一 goroutine 的延迟函数中调用 `recover`，才能接住这次 `panic`。
+
+Recovery 中间件正好处在业务处理链外层：进入时先注册 `defer`，再调用 `Next`。如果后续路由或中间件崩溃，控制权会回到这个延迟函数，框架记录错误和调用栈，并尽量返回 `500 Internal Server Error`。服务器进程仍可继续处理其他请求。
+
+### 为什么还要打印调用栈
+
+只记录 `panic: index out of range` 往往不够，因为同类错误可能出现在很多地方。调用栈会列出函数和源码位置，帮助定位是哪条请求路径、哪一层业务触发。为了让日志可读，教程过滤了部分无关帧；生产系统还应带上请求 ID、方法、路径等上下文，并避免把内部栈信息直接返回给客户端。
+
+### Recovery 的边界
+
+- `recover` 只能捕获同一 goroutine 中的 `panic`。处理函数自行启动的新 goroutine 若发生 `panic`，必须在那个 goroutine 内单独恢复。
+- 如果业务在崩溃前已经写出 `200` 和部分响应体，Recovery 不能把发送出去的字节收回。需要更强保证时，应先缓冲响应。
+- Recovery 不能替代正常错误处理。数据库查询失败、参数错误等可预期情况仍应返回 `error` 或明确的 4xx/5xx 响应。
+- 捕获后必须留下足够日志；静默吞掉 `panic` 会把明显故障变成难排查的数据错误。
+
+### 动手检查
+
+添加一个必然越界的路由和一个正常路由。先请求异常路由，确认得到 `500` 且日志有栈；再请求正常路由，确认服务器仍然存活。随后把 `panic` 放进新 goroutine，观察为什么外层 Recovery 捕获不到它。
+

@@ -256,6 +256,21 @@ Traceback:
 <li><a href="https://golang.org/pkg/runtime/">Package runtime - golang.org</a></li>
 <li><a href="https://stackoverflow.com/questions/35212985/is-it-possible-get-information-about-caller-function-in-golang">Is it possible get information about caller function in Golang? - StackOverflow</a></li>
 </ul>
+<h2 id="recovery-">白话复盘：Recovery 是单次请求的安全网</h2>
+<h3 id="panicdeferrecover-"><code>panic</code>、<code>defer</code>、<code>recover</code> 怎样配合</h3>
+<p>普通错误应该通过 <code>error</code> 返回并由调用者处理；<code>panic</code> 表示当前调用链无法按正常方式继续。发生 <code>panic</code> 后，Go 会沿调用栈向外退出，同时执行已经注册的 <code>defer</code>。只有在同一 goroutine 的延迟函数中调用 <code>recover</code>，才能接住这次 <code>panic</code>。</p>
+<p>Recovery 中间件正好处在业务处理链外层：进入时先注册 <code>defer</code>，再调用 <code>Next</code>。如果后续路由或中间件崩溃，控制权会回到这个延迟函数，框架记录错误和调用栈，并尽量返回 <code>500 Internal Server Error</code>。服务器进程仍可继续处理其他请求。</p>
+<h3 id="heading-1">为什么还要打印调用栈</h3>
+<p>只记录 <code>panic: index out of range</code> 往往不够，因为同类错误可能出现在很多地方。调用栈会列出函数和源码位置，帮助定位是哪条请求路径、哪一层业务触发。为了让日志可读，教程过滤了部分无关帧；生产系统还应带上请求 ID、方法、路径等上下文，并避免把内部栈信息直接返回给客户端。</p>
+<h3 id="recovery--1">Recovery 的边界</h3>
+<ul>
+<li><code>recover</code> 只能捕获同一 goroutine 中的 <code>panic</code>。处理函数自行启动的新 goroutine 若发生 <code>panic</code>，必须在那个 goroutine 内单独恢复。</li>
+<li>如果业务在崩溃前已经写出 <code>200</code> 和部分响应体，Recovery 不能把发送出去的字节收回。需要更强保证时，应先缓冲响应。</li>
+<li>Recovery 不能替代正常错误处理。数据库查询失败、参数错误等可预期情况仍应返回 <code>error</code> 或明确的 4xx/5xx 响应。</li>
+<li>捕获后必须留下足够日志；静默吞掉 <code>panic</code> 会把明显故障变成难排查的数据错误。</li>
+</ul>
+<h3 id="heading-2">动手检查</h3>
+<p>添加一个必然越界的路由和一个正常路由。先请求异常路由，确认得到 <code>500</code> 且日志有栈；再请求正常路由，确认服务器仍然存活。随后把 <code>panic</code> 放进新 goroutine，观察为什么外层 Recovery 捕获不到它。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="gee-day6.html"><span>上一篇</span><strong>Day6 模板 Template</strong></a>
@@ -265,7 +280,7 @@ Traceback:
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#panic">panic</a><a class="toc-level-2" href="#defer">defer</a><a class="toc-level-2" href="#recover">recover</a><a class="toc-level-2" href="#gee-">Gee 的错误处理机制</a><a class="toc-level-2" href="#-demo">使用 Demo</a><a class="toc-level-2" href="#heading">参考</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#panic">panic</a><a class="toc-level-2" href="#defer">defer</a><a class="toc-level-2" href="#recover">recover</a><a class="toc-level-2" href="#gee-">Gee 的错误处理机制</a><a class="toc-level-2" href="#-demo">使用 Demo</a><a class="toc-level-2" href="#heading">参考</a><a class="toc-level-2" href="#recovery-">白话复盘：Recovery 是单次请求的安全网</a><a class="toc-level-3" href="#panicdeferrecover-">panic、defer、recover 怎样配合</a><a class="toc-level-3" href="#heading-1">为什么还要打印调用栈</a><a class="toc-level-3" href="#recovery--1">Recovery 的边界</a><a class="toc-level-3" href="#heading-2">动手检查</a></nav>
     </aside>
   </div>
 </body>

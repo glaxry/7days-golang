@@ -262,6 +262,24 @@ func TestSession_DeleteAndCount(t *testing.T) {
 <li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
 <li><a href="https://geektutu.com/post/cheat-sheet-sqlite.html">SQLite 常用命令速查表</a></li>
 </ul>
+<h2 id="-sql-">白话复盘：链式调用是在逐步填写一张 SQL 表单</h2>
+<h3 id="session-">Session 为什么能一路点下去</h3>
+<p><code>Where</code>、<code>Limit</code>、<code>OrderBy</code> 并没有立刻访问数据库，它们只是把对应 Clause 写进当前 Session，并返回同一个 Session 指针。直到调用 <code>Find</code>、<code>Update</code>、<code>Delete</code> 或 <code>Count</code>，框架才按 SQL 语法规定的顺序把片段拼起来并执行。</p>
+<p>因此 <code>s.Where(...).OrderBy(...).Limit(1).Find(&amp;users)</code> 可以理解为先填条件、排序、数量三栏，最后按下“执行”按钮。方法在代码里的调用顺序不一定就是 SQL 片段的输出顺序，最终顺序由生成器明确控制。</p>
+<h3 id="-clear">为什么执行后要 <code>Clear</code></h3>
+<p>Session 保存的是可变构建状态。如果上一条语句的 WHERE 残留到下一条 DELETE，就可能误删或漏删数据。执行结束后清空 SQL、变量与 Clause，能让同一个 Session 开始下一次构建时回到干净状态。</p>
+<p>不过这也说明 Session 不适合被多个 goroutine 同时链式使用。即使底层 <code>*sql.DB</code> 可以并发共享，同一个可变 Session 仍会互相覆盖条件和参数；并发任务应分别创建 Session。</p>
+<h3 id="update-">Update 的两种输入</h3>
+<p>教程允许传 map，或按 <code>key, value</code> 成对传参。无论入口形式如何，最终都要生成 <code>SET field=?, ...</code> 与同序参数。Go 的 map 遍历顺序不固定不是问题，只要列名和变量在同一次遍历中成对追加；但测试不要死板依赖 map 生成字段的固定排列。</p>
+<h3 id="heading">容易踩坑</h3>
+<ul>
+<li>没有 WHERE 的 Update/Delete 可能影响整张表。生产 ORM 常提供显式保护或要求调用者确认全表操作。</li>
+<li><code>First</code> 往往通过 <code>LIMIT 1</code> 实现，但没有 ORDER BY 时“第一条”并没有稳定业务含义。</li>
+<li>链式 API 看起来像不可变值，实际却在修改 Session；保留中间变量并交叉复用会产生意外状态。</li>
+<li>参数仍必须使用占位符，<code>OrderBy</code> 等结构片段若接收用户输入则要使用白名单，参数化不能保护列名或关键字。</li>
+</ul>
+<h3 id="heading-1">动手检查</h3>
+<p>连续用同一 Session 执行两条条件完全不同的查询，并打印最终 SQL，确认第二条没有继承第一条 WHERE。再尝试无 WHERE 的 Delete，在测试数据库中观察风险，理解生产保护为何必要。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geeorm-day3.html"><span>上一篇</span><strong>Day3 记录新增和查询</strong></a>
@@ -271,7 +289,7 @@ func TestSession_DeleteAndCount(t *testing.T) {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--updatedelete--count">1 支持 Update、Delete 和 Count</a><a class="toc-level-3" href="#11-">1.1 子句生成器</a><a class="toc-level-3" href="#12-update-">1.2 Update 方法</a><a class="toc-level-3" href="#13-delete-">1.3 Delete 方法</a><a class="toc-level-3" href="#14-count-">1.4 Count 方法</a><a class="toc-level-2" href="#2-chain">2 链式调用(chain)</a><a class="toc-level-2" href="#3-first-">3 First 只返回一条记录</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--updatedelete--count">1 支持 Update、Delete 和 Count</a><a class="toc-level-3" href="#11-">1.1 子句生成器</a><a class="toc-level-3" href="#12-update-">1.2 Update 方法</a><a class="toc-level-3" href="#13-delete-">1.3 Delete 方法</a><a class="toc-level-3" href="#14-count-">1.4 Count 方法</a><a class="toc-level-2" href="#2-chain">2 链式调用(chain)</a><a class="toc-level-2" href="#3-first-">3 First 只返回一条记录</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#-sql-">白话复盘：链式调用是在逐步填写一张 SQL 表单</a><a class="toc-level-3" href="#session-">Session 为什么能一路点下去</a><a class="toc-level-3" href="#-clear">为什么执行后要 Clear</a><a class="toc-level-3" href="#update-">Update 的两种输入</a><a class="toc-level-3" href="#heading">容易踩坑</a><a class="toc-level-3" href="#heading-1">动手检查</a></nav>
     </aside>
   </div>
 </body>

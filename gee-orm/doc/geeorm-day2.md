@@ -387,3 +387,30 @@ func (engine *Engine) NewSession() *session.Session {
 - [Go Test 单元测试简明教程](https://geektutu.com/post/quick-go-test.html)
 - [Go Reflect 提高反射性能](https://geektutu.com/post/hpg-reflect.html)
 - [SQLite 常用命令速查表](https://geektutu.com/post/cheat-sheet-sqlite.html)
+
+## 白话复盘：Schema 是结构体的“数据库说明书”
+
+### 反射到底在做什么
+
+使用 ORM 时，我们只传入 `User{Name: "Tom"}`，框架却需要知道表名、字段列表、字段类型和每个字段当前的值。反射让程序在运行时查看一个值的类型结构：`reflect.Type` 回答“它是什么类型、有哪些字段”，`reflect.Value` 回答“这个具体对象里装了什么值”。
+
+解析时通常先用 `reflect.Indirect` 去掉指针层，再遍历导出的结构体字段。每个字段被整理为 `Field{Name, Type}`，全部字段与模型类型一起形成 `Schema`。后续 INSERT、SELECT 和迁移都复用这份元数据，而不是各自重新猜结构体布局。
+
+### 方言为什么放在接口后面
+
+Go 的 `string` 在 SQLite 中可以映射为 `text`，但其他数据库对自增主键、布尔值、时间类型的写法可能不同。Dialect 接口把“Go 类型如何变成数据库类型”“表是否存在”等差异隔离起来，让 Session 的主体流程不依赖某一种数据库。
+
+### 从模型到字段值
+
+`Schema.RecordValues` 按 Schema 中固定的字段顺序，从一条记录中取出值。顺序非常关键：生成 SQL 时列名是 `(Name, Age)`，参数也必须按 `[nameValue, ageValue]` 排列，否则 SQL 能执行却会把数据放错列。
+
+### 容易踩坑
+
+- 未导出字段不能被其他包安全读写，通常应忽略；嵌入字段、标签重命名和匿名结构体需要额外规则。
+- 必须清楚传入的是结构体、结构体指针、切片还是指针切片；盲目 `Elem` 可能在 nil 指针上 panic。
+- 并非所有 Go 类型都能直接映射。map、channel、函数或复杂自定义类型应明确拒绝或要求实现转换接口。
+- 反射有运行时成本，Schema 应按模型类型缓存；但缓存的是类型元数据，不应把某条记录的值也缓存进去。
+
+### 动手检查
+
+定义一个带 `Name string`、`Age int` 和未导出字段的结构体，打印解析出的表名、字段顺序和数据库类型。再传入值与指针各一次，确认得到同一份 Schema，这能帮助你区分 Type 与 Value。

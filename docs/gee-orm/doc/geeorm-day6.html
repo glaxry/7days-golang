@@ -263,6 +263,30 @@ func TestEngine_Transaction(t *testing.T) {
 <li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
 <li><a href="https://geektutu.com/post/cheat-sheet-sqlite.html">SQLite 常用命令速查表</a></li>
 </ul>
+<h2 id="heading">白话复盘：事务保证一组操作一起成功或一起撤销</h2>
+<h3 id="-sqltx">为什么必须使用同一个 <code>*sql.Tx</code></h3>
+<p>转账通常包含“账户 A 减钱”和“账户 B 加钱”。如果第一条成功、第二条失败，数据就不再守恒。事务把多条操作放进同一个数据库执行上下文：全部成功才 <code>Commit</code>，任何一步失败则 <code>Rollback</code>。</p>
+<p>仅仅先调用 <code>Begin</code> 还不够。事务中的每条 SQL 都必须通过这个 <code>*sql.Tx</code> 执行；如果中途误用原来的 <code>*sql.DB</code>，那条语句就在事务之外，回滚也撤不掉。GeeORM 让事务 Session 的底层执行对象统一指向 Tx，业务闭包只使用收到的 Session。</p>
+<h3 id="-api-">闭包式 API 的控制流程</h3>
+<ol>
+<li><code>Engine.Transaction</code> 创建 Session 并开始事务。</li>
+<li>调用用户闭包，把事务 Session 传进去。</li>
+<li>闭包返回 nil 错误，延迟逻辑提交事务。</li>
+<li>闭包返回错误，延迟逻辑回滚，并保留原错误。</li>
+<li>闭包发生 panic，先回滚，再重新抛出 panic，让上层仍能感知严重故障。</li>
+<li>即使业务成功，<code>Commit</code> 自己也可能失败，因此提交错误要成为最终返回错误。</li>
+</ol>
+<p>命名返回值让 defer 能看到最终 <code>err</code>，这也是代码看起来略绕的原因。关键不是记写法，而是确保每条退出路径都有唯一明确的提交或回滚结果。</p>
+<h3 id="heading-1">容易踩坑</h3>
+<ul>
+<li>事务打开时间越长，占用连接和锁越久；不要在事务中做无关网络请求或等待用户输入。</li>
+<li>回滚本身也可能返回错误，生产日志应记录，但通常不能覆盖最初的业务错误。</li>
+<li>SQLite 与其他数据库的隔离、并发写入特性不同，不要把本地测试表现直接当作所有数据库的保证。</li>
+<li>教学版未支持嵌套事务；在已有事务中再次调用 <code>Engine.Transaction</code> 不会自动变成保存点。</li>
+<li>事务只保证数据库内操作，不能自动撤销已经发送的邮件或外部 HTTP 请求。</li>
+</ul>
+<h3 id="heading-2">动手检查</h3>
+<p>在事务中插入两条记录，第二条后主动返回错误，确认两条都不存在；再测试正常提交和 panic 回滚。最后故意在闭包里用普通 Engine 新建 Session 执行一条 SQL，观察它为何不受当前事务控制。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geeorm-day5.html"><span>上一篇</span><strong>Day5 实现钩子</strong></a>
@@ -272,7 +296,7 @@ func TestEngine_Transaction(t *testing.T) {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--acid-">1 事务的 ACID 属性</a><a class="toc-level-2" href="#2-sqlite--go-">2 SQLite 和 Go 标准库中的事务</a><a class="toc-level-2" href="#3-geeorm-">3 GeeORM 支持事务</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--acid-">1 事务的 ACID 属性</a><a class="toc-level-2" href="#2-sqlite--go-">2 SQLite 和 Go 标准库中的事务</a><a class="toc-level-2" href="#3-geeorm-">3 GeeORM 支持事务</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#heading">白话复盘：事务保证一组操作一起成功或一起撤销</a><a class="toc-level-3" href="#-sqltx">为什么必须使用同一个 *sql.Tx</a><a class="toc-level-3" href="#-api-">闭包式 API 的控制流程</a><a class="toc-level-3" href="#heading-1">容易踩坑</a><a class="toc-level-3" href="#heading-2">动手检查</a></nav>
     </aside>
   </div>
 </body>

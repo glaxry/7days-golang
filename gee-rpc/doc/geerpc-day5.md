@@ -374,3 +374,32 @@ rpc server debug path: /debug/geerpc
 
 - [Go 语言简明教程](https://geektutu.com/post/quick-golang.html)
 - [Go 语言笔试面试题](https://geektutu.com/post/qa-golang.html)
+
+## 白话复盘：HTTP CONNECT 是先握手，再把连接交给 RPC
+
+### 这不是把 RPC 改成 REST
+
+客户端先向固定路径发送 HTTP `CONNECT`。服务端确认后返回成功状态，并通过 `Hijack` 从 HTTP 服务器手中接管底层 TCP 连接。此后连接上跑的仍是 GeeRPC 自己的 Option、Header 和 Body 协议，不再是一问一答的普通 HTTP 请求。
+
+这样做的好处是可以复用常见 HTTP 端口、代理或服务入口，同时保留长连接 RPC 的编码方式。它更像“借 HTTP 敲门并建立隧道”，而不是让每个 RPC 方法变成一个 URL。
+
+### 握手边界为什么仍要谨慎
+
+CONNECT 响应文本与后续 RPC 字节共用一条流。客户端必须完整读完 HTTP 响应头，再把同一个带缓冲 Reader 留给 RPC 解码；如果重新从裸连接读取，缓冲区中已经预读的字节可能丢失。这个问题与第一天 JSON Option 的流边界本质相同。
+
+`http.Hijacker` 主要面向 HTTP/1.x，某些 ResponseWriter（尤其 HTTP/2 场景）并不支持。生产系统必须检测接口是否可用并返回明确错误，不能直接类型断言后假设成功。
+
+### 调试页面是什么
+
+服务端把已注册服务、方法签名和调用次数渲染成 HTML，方便开发时确认服务是否注册成功。它读取的是运行中的服务元数据，不参与 RPC 数据通道。
+
+### 容易踩坑
+
+- 调试页面会暴露内部服务名、方法和流量信息，线上应鉴权、限制网络范围或关闭。
+- Hijack 后连接生命周期完全由 RPC 层负责，必须在错误和退出时关闭。
+- HTTP 代理不一定允许 CONNECT 到任意路径或端口，部署前需验证实际链路。
+- CONNECT 成功只表示隧道建立，后续 RPC 魔数、Codec 和认证仍需分别校验。
+
+### 动手检查
+
+分别用普通 TCP Dial 和 HTTP Dial 调同一个服务，比较握手阶段的字节，然后访问调试页查看调用计数。再用一个不支持 Hijacker 的测试 ResponseWriter，确认服务端能优雅报错而不是 panic。

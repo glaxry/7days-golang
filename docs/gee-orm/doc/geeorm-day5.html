@@ -162,6 +162,23 @@ func TestSession_CallMethod(t *testing.T) {
 <li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
 <li><a href="https://geektutu.com/post/cheat-sheet-sqlite.html">SQLite 常用命令速查表</a></li>
 </ul>
+<h2 id="hook-">白话复盘：Hook 是模型生命周期中的插槽</h2>
+<h3 id="-hook">什么时候需要 Hook</h3>
+<p>有些逻辑与某个模型紧密相关，并且应在每次增删改查时自动发生，例如插入前补默认时间、查询后计算派生字段、删除前写审计记录。Hook 让模型通过约定名称的方法，在 ORM 操作前后获得执行机会，而不用修改 ORM 的核心代码。</p>
+<p>教程定义了 <code>BeforeInsert</code>、<code>AfterInsert</code>、<code>BeforeQuery</code>、<code>AfterQuery</code> 等阶段。Session 在对应位置调用 <code>CallMethod</code>，后者用反射查看当前模型或具体记录是否实现同名方法；没有实现就直接跳过，因此 Hook 是可选扩展。</p>
+<h3 id="-model-">为什么有时对 Model 调用，有时对记录调用</h3>
+<p>查询前还没有具体结果，可以在 Session 当前模型上执行 <code>BeforeQuery</code>；每行数据扫描完成后，<code>AfterQuery</code> 更适合对刚得到的记录指针调用，这样 Hook 能修改该记录。理解“此刻有没有具体对象”就能理解 value 参数的选择。</p>
+<p>指针接收者与值接收者的方法集合不同。需要在 Hook 中修改字段时通常应使用指针接收者，并确保反射拿到的是可寻址指针。</p>
+<h3 id="heading">容易踩坑</h3>
+<ul>
+<li>教学实现会记录 Hook 返回的错误，但不会把它传回 Insert/Query 并中止操作；生产设计应明确错误是否阻止 SQL、是否触发回滚。</li>
+<li>Hook 中再次调用同类 ORM 操作可能递归触发自己，造成无限循环或重复副作用。</li>
+<li>隐式逻辑越多，代码越难追踪。只把真正跨调用点且属于模型生命周期的规则放进 Hook。</li>
+<li><code>AfterInsert</code> 执行时 SQL 已经发生；若它失败但不在事务里，前面的写入不会自动撤销。</li>
+<li>反射按方法名约定工作，拼写或签名不匹配时不会自动得到编译期提示，应有测试覆盖。</li>
+</ul>
+<h3 id="heading-1">动手检查</h3>
+<p>给模型添加 <code>BeforeInsert</code> 自动补字段，再在 <code>AfterQuery</code> 中记录一次调用。分别传值和指针，观察哪些方法能被找到；再让 Hook 返回错误，确认当前教学实现只是记录错误，由此思考你希望生产 API 怎样传播失败。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geeorm-day4.html"><span>上一篇</span><strong>Day4 链式操作与更新删除</strong></a>
@@ -171,7 +188,7 @@ func TestSession_CallMethod(t *testing.T) {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-hook-">1 Hook 机制</a><a class="toc-level-2" href="#2-">2 实现钩子</a><a class="toc-level-2" href="#3-">3 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-hook-">1 Hook 机制</a><a class="toc-level-2" href="#2-">2 实现钩子</a><a class="toc-level-2" href="#3-">3 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#hook-">白话复盘：Hook 是模型生命周期中的插槽</a><a class="toc-level-3" href="#-hook">什么时候需要 Hook</a><a class="toc-level-3" href="#-model-">为什么有时对 Model 调用，有时对记录调用</a><a class="toc-level-3" href="#heading">容易踩坑</a><a class="toc-level-3" href="#heading-1">动手检查</a></nav>
     </aside>
   </div>
 </body>

@@ -437,6 +437,32 @@ start rpc server on [::]:57509
 <li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
 <li><a href="https://geektutu.com/post/qa-golang.html">Go 语言笔试面试题</a></li>
 </ul>
+<h2 id="heading-2">白话复盘：服务注册是在运行时建立“方法目录”</h2>
+<h3 id="heading-3">为什么需要反射</h3>
+<p>服务端收到的只有字符串 <code>Foo.Sum</code>，它需要找到名为 Foo 的接收者，再找到 Sum 方法，创建正确类型的参数和回复对象，最后执行。若为每个方法手写 switch，框架无法通用扩展；反射让注册阶段可以检查并保存方法元数据。</p>
+<p>教程把接收者类型整理成 <code>service</code>，把符合规则的方法整理成 <code>methodType</code>。服务名通常取导出类型名，也可由显式名称指定；方法表按方法名索引。现代 Go 中可以用 <code>reflect.TypeFor[error]()</code> 清楚表达 error 接口类型，而无需构造一个容易误解的 nil 指针样例。</p>
+<h3 id="heading-4">可注册方法为什么有严格签名</h3>
+<p>一个典型方法形如：</p>
+<pre><code class="language-go">func (f *Foo) Sum(args Args, reply *int) error
+</code></pre>
+<p>它必须是导出方法，包含两个参数，第二个通常是可写的指针，并返回一个 <code>error</code>。统一约定让框架知道怎样创建 argv、replyv，怎样判断调用成功，也避免在线上协议中额外描述任意 Go 函数签名。</p>
+<h3 id="heading-5">一次方法调用怎样发生</h3>
+<ol>
+<li>按最后一个点把 <code>Foo.Sum</code> 拆为服务名和方法名。</li>
+<li>从服务表与方法表中查找元数据；不存在时返回业务错误，而不是让服务端 panic。</li>
+<li>根据保存的类型创建 argv 和 replyv，Codec 把请求体解码进 argv。</li>
+<li>用 <code>reflect.Call</code> 传入接收者、参数、回复指针。</li>
+<li>方法把结果写入 reply，并返回 error；框架记录调用次数并构造响应。</li>
+</ol>
+<h3 id="heading-6">容易踩坑</h3>
+<ul>
+<li>指针接收者与值接收者的方法集合不同，注册时传值还是指针会影响可见方法。</li>
+<li>未导出类型或方法不能作为公开 RPC 契约，参数内未导出字段也无法正常编码。</li>
+<li>反射错误常在运行时才暴露，因此注册阶段应尽量严格校验并提供清楚错误信息。</li>
+<li>RPC 方法应避免依赖进程内指针身份；网络传递的是编码后的值，不是原对象地址。</li>
+</ul>
+<h3 id="heading-7">动手检查</h3>
+<p>分别写一个合法方法、返回值不是 error 的方法、reply 不是指针的方法，观察注册结果。再打印 argv/reply 的反射类型，确认框架为何能在不知道具体业务类型的情况下创建参数。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geerpc-day2.html"><span>上一篇</span><strong>Day2 高性能客户端</strong></a>
@@ -446,7 +472,7 @@ start rpc server on [::]:57509
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">结构体映射为服务</a><a class="toc-level-2" href="#-service">通过反射实现 service</a><a class="toc-level-2" href="#service-">service 的测试用例</a><a class="toc-level-2" href="#heading-1">集成到服务端</a><a class="toc-level-2" href="#demo">Demo</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">结构体映射为服务</a><a class="toc-level-2" href="#-service">通过反射实现 service</a><a class="toc-level-2" href="#service-">service 的测试用例</a><a class="toc-level-2" href="#heading-1">集成到服务端</a><a class="toc-level-2" href="#demo">Demo</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#heading-2">白话复盘：服务注册是在运行时建立“方法目录”</a><a class="toc-level-3" href="#heading-3">为什么需要反射</a><a class="toc-level-3" href="#heading-4">可注册方法为什么有严格签名</a><a class="toc-level-3" href="#heading-5">一次方法调用怎样发生</a><a class="toc-level-3" href="#heading-6">容易踩坑</a><a class="toc-level-3" href="#heading-7">动手检查</a></nav>
     </aside>
   </div>
 </body>

@@ -378,6 +378,29 @@ func TestSession_Find(t *testing.T) {
 <li><a href="https://geektutu.com/post/cheat-sheet-sqlite.html">SQLite 常用命令速查表</a></li>
 <li><a href="https://blog.golang.org/laws-of-reflection">Laws Of Reflection - golang.org</a></li>
 </ul>
+<h2 id="clause--sql-">白话复盘：Clause 是 SQL 的积木盒</h2>
+<h3 id="heading">为什么不在每个方法里直接拼字符串</h3>
+<p>INSERT、SELECT、UPDATE 虽然语法不同，但都由若干固定片段组成，例如表名、字段列表、占位符和条件。Clause 把每种片段的 SQL 模板与参数列表分开保存，最后按指定顺序合并。这样既避免四处重复字符串逻辑，也能始终通过占位符传值。</p>
+<p>需要牢牢记住：最终产物有两部分——SQL 文本和变量切片。<code>INSERT INTO user (Name, Age) VALUES (?, ?)</code> 只是模板，<code>[Tom, 18]</code> 才是对应数据。两者的数量与顺序必须完全一致。</p>
+<h3 id="heading-1">新增记录怎样走</h3>
+<ol>
+<li><code>Model</code> 解析或取得 Schema，确定表名和字段顺序。</li>
+<li><code>Insert</code> 接受一条或多条记录，用 <code>RecordValues</code> 取出每条记录的字段值。</li>
+<li>Clause 生成 INSERT 语句及全部占位参数。</li>
+<li><code>Raw(...).Exec()</code> 交给 <code>database/sql</code> 执行，并返回受影响行数。</li>
+</ol>
+<h3 id="heading-2">查询结果怎样回到结构体</h3>
+<p>查询时先从 <code>Rows.Columns()</code> 得到列顺序，再为每一列找到对应结构体字段地址，组成传给 <code>Scan</code> 的参数列表。<code>Scan</code> 写入这些地址后，一条新的结构体记录才算完成，随后追加到目标切片。</p>
+<p>这就是查询通常要求传入“切片指针”的原因：ORM 必须既能创建元素，又能修改调用者持有的切片。传普通切片值无法把追加后的新切片头写回调用者。</p>
+<h3 id="heading-3">容易踩坑</h3>
+<ul>
+<li><code>rows.Close()</code> 和 <code>rows.Err()</code> 都不能省略；前者释放连接资源，后者报告迭代过程中才出现的错误。</li>
+<li>数据库 NULL 不能直接扫描进某些基础类型，需要 <code>sql.NullString</code>、指针或自定义扫描类型。</li>
+<li>SELECT 列与模型字段不完全相同时要明确映射策略，不能假定所有查询永远返回完整表结构。</li>
+<li>多条插入要保证每条记录属于同一模型，并拥有相同字段顺序。</li>
+</ul>
+<h3 id="heading-4">动手检查</h3>
+<p>打印一次 Insert 和 Find 最终生成的 SQL 与参数，逐个对齐列名和参数位置；再只查询部分列，观察当前实现如何表现。这个实验会暴露一个 ORM 在字段映射上必须处理的边界。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geeorm-day2.html"><span>上一篇</span><strong>Day2 对象表结构映射</strong></a>
@@ -387,7 +410,7 @@ func TestSession_Find(t *testing.T) {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-clause--sql-">1 Clause 构造 SQL 语句</a><a class="toc-level-2" href="#2--insert-">2 实现 Insert 功能</a><a class="toc-level-2" href="#3--find-">3 实现 Find 功能</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-clause--sql-">1 Clause 构造 SQL 语句</a><a class="toc-level-2" href="#2--insert-">2 实现 Insert 功能</a><a class="toc-level-2" href="#3--find-">3 实现 Find 功能</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#clause--sql-">白话复盘：Clause 是 SQL 的积木盒</a><a class="toc-level-3" href="#heading">为什么不在每个方法里直接拼字符串</a><a class="toc-level-3" href="#heading-1">新增记录怎样走</a><a class="toc-level-3" href="#heading-2">查询结果怎样回到结构体</a><a class="toc-level-3" href="#heading-3">容易踩坑</a><a class="toc-level-3" href="#heading-4">动手检查</a></nav>
     </aside>
   </div>
 </body>

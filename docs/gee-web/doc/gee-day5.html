@@ -217,6 +217,29 @@ $ curl http://localhost:9999/v2/hello/geektutu
 2019/08/17 01:38:48 [200] /v2/hello/geektutu in 61.467µs for group v2
 2019/08/17 01:38:48 [200] /v2/hello/geektutu in 281µs
 </code></pre>
+<h2 id="heading-3">白话复盘：中间件就是可组合的请求处理链</h2>
+<h3 id="heading-4">用“洋葱”理解执行顺序</h3>
+<p>路由函数只应关心具体业务，但记录耗时、捕获异常、校验身份等逻辑几乎每个路由都需要。中间件把这些通用逻辑放在业务函数外层，并允许多个中间件组合。</p>
+<p>假设顺序是 <code>Logger -&gt; Auth -&gt; Handler</code>，执行并不是简单地把三个函数从头跑到尾，而是：</p>
+<pre><code class="language-text">Logger 前半段
+  Auth 前半段
+    Handler
+  Auth 后半段
+Logger 后半段
+</code></pre>
+<p>每个中间件在调用 <code>c.Next()</code> 前写“进入逻辑”，在它返回后写“退出逻辑”。这就是所谓洋葱模型，也是计时中间件能在业务完成后读取状态码和耗时的原因。</p>
+<h3 id="next-"><code>Next</code> 为什么能继续执行</h3>
+<p>框架先根据请求路径收集所有适用分组的中间件，再把最终路由处理函数放到链尾。<code>Context</code> 保存 <code>handlers</code> 和当前下标 <code>index</code>。<code>Next</code> 递增下标并执行后续函数；后续函数全部返回后，控制权又逐层回到前面的中间件。</p>
+<p>顺序非常重要。恢复中间件通常应放在外层，才能捕获后续代码的 <code>panic</code>；日志中间件放在它的内外侧，记录到的信息也可能不同。中间件不是“注册了就行”，还要明确它包住了谁。</p>
+<h3 id="heading-5">容易踩坑</h3>
+<ul>
+<li>在同一个中间件里多次调用 <code>Next</code>，可能导致后续处理器重复执行或流程难以推断。</li>
+<li>把请求级数据放在包级变量中会产生并发竞争，应放在 <code>Context</code> 或由它引用的请求级对象中。</li>
+<li>当前教学版没有完整的 <code>Abort</code> 机制。鉴权失败时应写出响应并确保后续业务不再执行，生产框架会提供更明确的中止 API。</li>
+<li>中间件范围来自路由分组；注册到根组会影响所有请求，注册前先确认作用域。</li>
+</ul>
+<h3 id="heading-6">动手检查</h3>
+<p>写两个中间件，分别在 <code>Next</code> 前后打印 A/a 和 B/b。请求一次后，预期顺序应为 <code>A B handler b a</code>。如果能解释为什么小写部分倒序出现，就真正理解了处理链。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="gee-day4.html"><span>上一篇</span><strong>Day4 分组控制</strong></a>
@@ -226,7 +249,7 @@ $ curl http://localhost:9999/v2/hello/geektutu
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">中间件是什么</a><a class="toc-level-2" href="#heading-1">中间件设计</a><a class="toc-level-2" href="#heading-2">代码实现</a><a class="toc-level-2" href="#-demo">使用 Demo</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">中间件是什么</a><a class="toc-level-2" href="#heading-1">中间件设计</a><a class="toc-level-2" href="#heading-2">代码实现</a><a class="toc-level-2" href="#-demo">使用 Demo</a><a class="toc-level-2" href="#heading-3">白话复盘：中间件就是可组合的请求处理链</a><a class="toc-level-3" href="#heading-4">用“洋葱”理解执行顺序</a><a class="toc-level-3" href="#next-">Next 为什么能继续执行</a><a class="toc-level-3" href="#heading-5">容易踩坑</a><a class="toc-level-3" href="#heading-6">动手检查</a></nav>
     </aside>
   </div>
 </body>

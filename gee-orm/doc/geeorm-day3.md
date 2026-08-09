@@ -400,3 +400,35 @@ func TestSession_Find(t *testing.T) {
 - [Go Test 单元测试简明教程](https://geektutu.com/post/quick-go-test.html)
 - [SQLite 常用命令速查表](https://geektutu.com/post/cheat-sheet-sqlite.html)
 - [Laws Of Reflection - golang.org](https://blog.golang.org/laws-of-reflection)
+
+## 白话复盘：Clause 是 SQL 的积木盒
+
+### 为什么不在每个方法里直接拼字符串
+
+INSERT、SELECT、UPDATE 虽然语法不同，但都由若干固定片段组成，例如表名、字段列表、占位符和条件。Clause 把每种片段的 SQL 模板与参数列表分开保存，最后按指定顺序合并。这样既避免四处重复字符串逻辑，也能始终通过占位符传值。
+
+需要牢牢记住：最终产物有两部分——SQL 文本和变量切片。`INSERT INTO user (Name, Age) VALUES (?, ?)` 只是模板，`[Tom, 18]` 才是对应数据。两者的数量与顺序必须完全一致。
+
+### 新增记录怎样走
+
+1. `Model` 解析或取得 Schema，确定表名和字段顺序。
+2. `Insert` 接受一条或多条记录，用 `RecordValues` 取出每条记录的字段值。
+3. Clause 生成 INSERT 语句及全部占位参数。
+4. `Raw(...).Exec()` 交给 `database/sql` 执行，并返回受影响行数。
+
+### 查询结果怎样回到结构体
+
+查询时先从 `Rows.Columns()` 得到列顺序，再为每一列找到对应结构体字段地址，组成传给 `Scan` 的参数列表。`Scan` 写入这些地址后，一条新的结构体记录才算完成，随后追加到目标切片。
+
+这就是查询通常要求传入“切片指针”的原因：ORM 必须既能创建元素，又能修改调用者持有的切片。传普通切片值无法把追加后的新切片头写回调用者。
+
+### 容易踩坑
+
+- `rows.Close()` 和 `rows.Err()` 都不能省略；前者释放连接资源，后者报告迭代过程中才出现的错误。
+- 数据库 NULL 不能直接扫描进某些基础类型，需要 `sql.NullString`、指针或自定义扫描类型。
+- SELECT 列与模型字段不完全相同时要明确映射策略，不能假定所有查询永远返回完整表结构。
+- 多条插入要保证每条记录属于同一模型，并拥有相同字段顺序。
+
+### 动手检查
+
+打印一次 Insert 和 Find 最终生成的 SQL 与参数，逐个对齐列名和参数位置；再只查询部分列，观察当前实现如何表现。这个实验会暴露一个 ORM 在字段映射上必须处理的边界。

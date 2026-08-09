@@ -203,6 +203,27 @@ func (g *Group) load(key string) (value ByteView, err error) {
 <li><a href="https://geektutu.com/post/quick-golang.html#7-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B-goroutine">Go 语言简明教程#并发编程</a></li>
 <li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
 </ul>
+<h2 id="singleflight-">白话复盘：singleflight 合并的是“正在进行的同一件事”</h2>
+<h3 id="heading">缓存击穿是怎样发生的</h3>
+<p>一个热门 key 刚好不在缓存中时，可能有几百个请求同时到达。它们几乎同时发现 miss，又几乎同时查询数据库。即使第一个查询很快会把结果写入缓存，其他查询已经发出，源站仍会遭受突发压力。</p>
+<p>singleflight 的思路是：同一进程内，同一个 key 在同一时刻只允许一个执行者真正调用加载函数；后来者不重复工作，而是在旁边等待。执行者完成后，所有等待者共享同一个结果和错误。</p>
+<h3 id="groupdo-"><code>Group.Do</code> 怎样协调</h3>
+<ol>
+<li>用互斥锁检查 <code>map[key]*call</code>。</li>
+<li>如果已有 call，说明有人正在加载，释放锁后等待它的 <code>WaitGroup</code>。</li>
+<li>如果没有，就创建 call、把计数设为 1 并放入 map，然后释放锁执行真正的函数。</li>
+<li>执行完成后保存结果，唤醒等待者，再从 map 删除该 call，让未来的新请求可以重新执行。</li>
+</ol>
+<p>锁只用于保护 call 表，绝不能覆盖慢速加载过程；否则不同 key 也会被无谓地串行化。<code>WaitGroup</code> 则只让相同 key 的跟随者等待对应任务。</p>
+<h3 id="heading-1">能解决什么，不能解决什么</h3>
+<ul>
+<li>它减少并发重复回源，但不会让失败结果自动重试；同一批等待者会一起收到相同错误。</li>
+<li>它只在当前进程内生效。三个缓存节点同时 miss，最多仍可能各自回源一次；跨节点合并需要额外的分布式协调。</li>
+<li>执行者非常慢时，所有跟随者都会一起等待，因此仍需要超时、取消和源站保护。</li>
+<li>singleflight 不是普通结果缓存。call 完成后会从表中删除，长期复用结果仍由 LRU 负责。</li>
+</ul>
+<h3 id="heading-2">动手检查</h3>
+<p>让加载函数休眠并递增计数，启动十个 goroutine 同时对同一个 key 调用 <code>Do</code>。最终计数应为 1，十个调用结果相同；再同时请求两个不同 key，确认它们能并行执行而不是互相阻塞。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geecache-day5.html"><span>上一篇</span><strong>Day5 分布式节点</strong></a>
@@ -212,7 +233,7 @@ func (g *Group) load(key string) (value ByteView, err error) {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-">1 缓存雪崩、缓存击穿与缓存穿透</a><a class="toc-level-2" href="#2-singleflight-">2 singleflight 的实现</a><a class="toc-level-2" href="#3-singleflight-">3 singleflight 的使用</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-">1 缓存雪崩、缓存击穿与缓存穿透</a><a class="toc-level-2" href="#2-singleflight-">2 singleflight 的实现</a><a class="toc-level-2" href="#3-singleflight-">3 singleflight 的使用</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐</a><a class="toc-level-2" href="#singleflight-">白话复盘：singleflight 合并的是“正在进行的同一件事”</a><a class="toc-level-3" href="#heading">缓存击穿是怎样发生的</a><a class="toc-level-3" href="#groupdo-">Group.Do 怎样协调</a><a class="toc-level-3" href="#heading-1">能解决什么，不能解决什么</a><a class="toc-level-3" href="#heading-2">动手检查</a></nav>
     </aside>
   </div>
 </body>

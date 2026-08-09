@@ -257,6 +257,28 @@ $ curl &quot;http://localhost:9999/login&quot; -X POST -d 'username=geektutu&amp
 $ curl &quot;http://localhost:9999/xxx&quot;
 404 NOT FOUND: /xxx
 </code></pre>
+<h2 id="context-">白话复盘：Context 是一次请求的工作台</h2>
+<h3 id="heading-4">为什么需要它</h3>
+<p>第一天的处理函数直接接收 <code>http.ResponseWriter</code> 和 <code>*http.Request</code>。功能一多，业务代码还会需要路径参数、查询参数、状态码、响应格式以及中间件共享的数据。如果继续逐个传参，函数签名会越来越长，而且每个处理函数都要重复设置响应头、序列化 JSON。</p>
+<p><code>Context</code> 的作用就是给每次请求准备一张独立工作台：输入信息和输出工具都放在上面。它不是全局对象，也不要和标准库中用于取消、超时和值传递的 <code>context.Context</code> 混淆；Gee 的 <code>Context</code> 是 Web 框架自己的请求包装器。</p>
+<h3 id="heading-5">一次请求怎样走</h3>
+<ol>
+<li><code>ServeHTTP</code> 收到标准库提供的 <code>Writer</code> 和 <code>Request</code>。</li>
+<li>框架立即创建新的 <code>Context</code>，因此并发请求不会共享 <code>Path</code>、<code>StatusCode</code> 等可变字段。</li>
+<li><code>Router</code> 根据 <code>c.Method</code> 和 <code>c.Path</code> 查找处理函数。</li>
+<li>业务函数通过 <code>c.Query()</code> 读取参数，通过 <code>c.String()</code>、<code>c.JSON()</code> 或 <code>c.Data()</code> 生成响应。</li>
+<li>响应辅助方法统一设置 <code>Content-Type</code>、状态码并写入响应体。</li>
+</ol>
+<p>这种设计的关键收益不是少写几个字符，而是建立稳定的扩展位置。后续动态路由会把 <code>Params</code> 放进来，中间件会通过它控制处理链，模板渲染也会复用同一套响应出口。</p>
+<h3 id="heading-6">容易踩坑</h3>
+<ul>
+<li>一个请求必须创建一个 <code>Context</code>，不能为了省分配而随意把同一个对象交给并发请求使用。</li>
+<li>HTTP 响应头必须在写响应体之前确定；封装响应方法就是为了集中保证这个顺序。</li>
+<li><code>Query(&quot;name&quot;)</code> 读的是 <code>?name=tom</code>，不是 <code>/hello/tom</code> 中的路径参数。路径参数会在下一天由路由器解析。</li>
+<li>JSON 编码也可能失败。教学代码较简洁，生产代码还应统一处理编码错误和“响应已经写出”的情况。</li>
+</ul>
+<h3 id="heading-7">动手检查</h3>
+<p>新增一个 <code>/inspect?name=gee</code> 路由，同时返回请求方法、路径和查询参数。再并发请求不同的 <code>name</code>，确认每个响应都只包含自己的数据，这能直观看出 <code>Context</code> 的请求级生命周期。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="gee-day1.html"><span>上一篇</span><strong>Day1 HTTP 基础</strong></a>
@@ -266,7 +288,7 @@ $ curl &quot;http://localhost:9999/xxx&quot;
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">使用效果</a><a class="toc-level-2" href="#context">设计Context</a><a class="toc-level-3" href="#heading-1">必要性</a><a class="toc-level-3" href="#heading-2">具体实现</a><a class="toc-level-2" href="#router">路由(Router)</a><a class="toc-level-2" href="#heading-3">框架入口</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">使用效果</a><a class="toc-level-2" href="#context">设计Context</a><a class="toc-level-3" href="#heading-1">必要性</a><a class="toc-level-3" href="#heading-2">具体实现</a><a class="toc-level-2" href="#router">路由(Router)</a><a class="toc-level-2" href="#heading-3">框架入口</a><a class="toc-level-2" href="#context-">白话复盘：Context 是一次请求的工作台</a><a class="toc-level-3" href="#heading-4">为什么需要它</a><a class="toc-level-3" href="#heading-5">一次请求怎样走</a><a class="toc-level-3" href="#heading-6">容易踩坑</a><a class="toc-level-3" href="#heading-7">动手检查</a></nav>
     </aside>
   </div>
 </body>

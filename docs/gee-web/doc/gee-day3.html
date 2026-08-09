@@ -315,6 +315,28 @@ hello geektutu, you're at /hello/geektutu
 $ curl &quot;http://localhost:9999/assets/css/geektutu.css&quot;
 {&quot;filepath&quot;:&quot;css/geektutu.css&quot;}
 </code></pre>
+<h2 id="heading-1">白话复盘：前缀树为什么适合动态路由</h2>
+<h3 id="-map-">先看普通 map 的局限</h3>
+<p>静态路由可以直接用完整路径查表，但 <code>/hello/tom</code> 和 <code>/hello/jack</code> 是两个不同字符串，无法直接命中注册时的 <code>/hello/:name</code>。如果每次都遍历所有路由逐个比较，路由越多就越慢，也难以表达通配符优先级。</p>
+<p>前缀树把路径按 <code>/</code> 切成片段。例如 <code>/hello/:name</code> 会变成 <code>hello</code>、<code>:name</code> 两层节点。很多路由拥有共同前缀时，它们会共享树的上半部分；匹配请求时只需沿路径逐层向下，而不是扫描整张路由表。</p>
+<h3 id="heading-2">匹配过程拆开看</h3>
+<p>以 <code>/assets/css/main.css</code> 为例：</p>
+<ol>
+<li>先把请求路径切成 <code>assets</code>、<code>css</code>、<code>main.css</code>。</li>
+<li>根节点找到静态子节点 <code>assets</code>。</li>
+<li>如果路由注册为 <code>/assets/*filepath</code>，<code>*filepath</code> 会吞掉余下所有片段。</li>
+<li>路由器把 <code>filepath=css/main.css</code> 写入 <code>Context.Params</code>。</li>
+<li>最终仍用匹配到的完整路由模式和请求方法，从 handlers 表中取出处理函数。</li>
+</ol>
+<p><code>:name</code> 只匹配一个片段，<code>*filepath</code> 匹配剩余全部片段，并且只能出现在路径末尾。静态节点通常应比通配节点更具体；如果同一层存在可能冲突的模式，成熟框架会在注册阶段检查并报错，本教程只实现了核心规则。</p>
+<h3 id="heading-3">为什么树中不直接保存处理函数</h3>
+<p>教程把“路径匹配”和“方法到处理函数的映射”分开：树负责找出路由模式，handlers map 负责区分 GET、POST 等方法。这样同一个路径结构可以被多个 HTTP 方法复用，也让两个职责更清晰。</p>
+<h3 id="heading-4">容易踩坑与自测</h3>
+<ul>
+<li><code>/p/:lang/doc</code> 中 <code>:lang</code> 不会跨越 <code>/</code>；请求 <code>/p/go/intro/doc</code> 不应命中。</li>
+<li>通配符捕获到的是原始路径片段，拿去访问本地文件前仍要做清理和目录边界检查。</li>
+<li>给 <code>/hello/:name</code>、<code>/hello/static</code>、<code>/assets/*filepath</code> 各写测试，特别检查静态路径和动态路径同时存在时的选择是否符合预期。</li>
+</ul>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="gee-day2.html"><span>上一篇</span><strong>Day2 上下文</strong></a>
@@ -324,7 +346,7 @@ $ curl &quot;http://localhost:9999/assets/css/geektutu.css&quot;
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#trie-">Trie 树简介</a><a class="toc-level-2" href="#trie--1">Trie 树实现</a><a class="toc-level-2" href="#router">Router</a><a class="toc-level-2" href="#contexthandle">Context与handle的变化</a><a class="toc-level-2" href="#heading">单元测试</a><a class="toc-level-2" href="#demo">使用Demo</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#trie-">Trie 树简介</a><a class="toc-level-2" href="#trie--1">Trie 树实现</a><a class="toc-level-2" href="#router">Router</a><a class="toc-level-2" href="#contexthandle">Context与handle的变化</a><a class="toc-level-2" href="#heading">单元测试</a><a class="toc-level-2" href="#demo">使用Demo</a><a class="toc-level-2" href="#heading-1">白话复盘：前缀树为什么适合动态路由</a><a class="toc-level-3" href="#-map-">先看普通 map 的局限</a><a class="toc-level-3" href="#heading-2">匹配过程拆开看</a><a class="toc-level-3" href="#heading-3">为什么树中不直接保存处理函数</a><a class="toc-level-3" href="#heading-4">容易踩坑与自测</a></nav>
     </aside>
   </div>
 </body>

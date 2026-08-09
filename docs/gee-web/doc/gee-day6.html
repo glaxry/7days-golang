@@ -195,6 +195,28 @@ func main() {
 </code></pre>
 <p>访问下主页，模板正常渲染，CSS 静态文件加载成功。</p>
 <p><img src="gee-day6/static.jpg" alt="day6-template"></p>
+<h2 id="heading-1">白话复盘：模板负责拼页面，静态服务负责送文件</h2>
+<h3 id="heading-2">两类内容不要混在一起</h3>
+<p>HTML 模板是“带占位符的页面配方”。服务器把用户列表、标题等数据交给模板引擎，运行时得到最终 HTML。CSS、JavaScript、图片则通常不需要每次计算，它们是静态文件，浏览器请求什么，服务器就从指定目录读取并返回什么。</p>
+<p>因此一次页面展示通常包含多次 HTTP 请求：浏览器先拿到渲染后的 HTML，解析到 <code>&lt;link&gt;</code> 或 <code>&lt;img&gt;</code> 后，再分别请求 CSS 和图片。看到 HTML 正常但样式丢失时，应检查静态资源 URL，而不是只盯着模板代码。</p>
+<h3 id="heading-3">模板加载与渲染流程</h3>
+<ol>
+<li>启动阶段先注册模板函数，再用 <code>ParseGlob</code> 解析模板。模板中用到的函数必须在解析前可见。</li>
+<li><code>HTMLTemplate</code> 把解析结果保存在 <code>Engine</code> 中，避免每个请求都重新读盘和解析。</li>
+<li>路由调用 <code>c.HTML</code>，指定状态码、模板名和数据。</li>
+<li><code>ExecuteTemplate</code> 把数据写入响应，<code>html/template</code> 默认会对 HTML 上下文做转义，降低直接注入脚本的风险。</li>
+<li><code>Static</code> 把一个 URL 前缀映射到本地目录，并通过通配路由取出剩余文件路径。</li>
+</ol>
+<h3 id="heading-4">容易踩坑</h3>
+<ul>
+<li><code>html/template</code> 与 <code>text/template</code> 不同；生成网页应优先使用前者提供的上下文转义。</li>
+<li>模板解析失败最好让程序在启动时明确报错，而不是等到第一个请求才发现页面不可用。</li>
+<li>静态目录映射会暴露文件。必须限定根目录并阻止 <code>..</code> 等路径逃逸，不能把项目根目录直接公开。</li>
+<li>开发时从磁盘加载很方便；部署单文件程序时可考虑 Go 的 <code>embed</code>，但仍应保持 URL 与文件边界清晰。</li>
+<li>响应开始写出后再发生模板错误，可能已经无法改成整洁的 <code>500</code> 页面，因此复杂模板可先渲染到缓冲区，成功后再写响应。</li>
+</ul>
+<h3 id="heading-5">动手检查</h3>
+<p>在模板中输出一段形如 <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> 的普通字符串，观察它是否被转义；再故意写错静态文件 URL，通过浏览器网络面板区分“HTML 渲染失败”和“资源返回 404”。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="gee-day5.html"><span>上一篇</span><strong>Day5 中间件</strong></a>
@@ -204,7 +226,7 @@ func main() {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">服务端渲染</a><a class="toc-level-2" href="#serve-static-files">静态文件(Serve Static Files)</a><a class="toc-level-2" href="#html-">HTML 模板渲染</a><a class="toc-level-2" href="#demo">使用Demo</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">服务端渲染</a><a class="toc-level-2" href="#serve-static-files">静态文件(Serve Static Files)</a><a class="toc-level-2" href="#html-">HTML 模板渲染</a><a class="toc-level-2" href="#demo">使用Demo</a><a class="toc-level-2" href="#heading-1">白话复盘：模板负责拼页面，静态服务负责送文件</a><a class="toc-level-3" href="#heading-2">两类内容不要混在一起</a><a class="toc-level-3" href="#heading-3">模板加载与渲染流程</a><a class="toc-level-3" href="#heading-4">容易踩坑</a><a class="toc-level-3" href="#heading-5">动手检查</a></nav>
     </aside>
   </div>
 </body>

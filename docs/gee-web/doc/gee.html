@@ -91,6 +91,34 @@ func handler(w http.ResponseWriter, r *http.Request) {
 <li><a href="https://geektutu.com/post/quick-golang.html">Go Test 单元测试简明教程</a></li>
 <li><a href="https://geektutu.com/post/quick-go-gin.html">Go Gin 简明教程</a></li>
 </ul>
+<h2 id="7-">通俗学习地图：7 天是在搭一条请求流水线</h2>
+<p>第一次接触 Web 框架时，很容易把路由、上下文、中间件、模板看成互不相干的功能。更好的理解方式，是始终跟着“一次 HTTP 请求”往前走：</p>
+<pre><code class="language-text">浏览器发出请求
+    ↓
+Engine 接收请求
+    ↓
+Router 根据“请求方法 + 路径”找到处理函数
+    ↓
+Context 把请求、响应、路径参数等信息装到一起
+    ↓
+Middleware 在处理函数前后执行日志、恢复、鉴权等通用逻辑
+    ↓
+Handler 生成 JSON、HTML 或文件响应
+    ↓
+浏览器收到状态码、响应头和响应体
+</code></pre>
+<p>七天的内容其实是在逐段补齐这条流水线：</p>
+<ol>
+<li>第一天先让服务器能启动，并能把固定路径交给固定函数处理。</li>
+<li>第二天用 <code>Context</code> 收拢一次请求所需的数据和输出方法，避免业务函数到处传参数。</li>
+<li>第三天把静态表升级为前缀树，让 <code>/hello/:name</code> 这类动态路径也能匹配。</li>
+<li>第四天增加路由分组，统一管理共同前缀和同一范围内的配置。</li>
+<li>第五天加入中间件，让日志、鉴权、计时等逻辑可以像洋葱一样包住业务处理。</li>
+<li>第六天支持模板和静态资源，使框架不仅能返回文本，也能组成完整网页。</li>
+<li>第七天用错误恢复兜住单次请求中的 <code>panic</code>，避免一个请求拖垮整个服务。</li>
+</ol>
+<p>学习时不要急着背接口。每读到一个结构体，先问三个问题：它替谁保存状态？它在请求流程的哪一步被创建？下一个组件为什么需要它？能顺着上面的箭头回答出来，就说明已经真正理解，而不只是把代码抄了一遍。</p>
+<p>这个教学框架刻意省略了生产框架中的许多能力，例如参数校验、路由冲突检查、优雅停机、完整的错误类型和安全策略。它的目标不是直接替代 Gin，而是把一个 Web 框架最核心的骨架展示清楚。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="../../MODERNIZATION.html"><span>上一篇</span><strong>现代化迁移</strong></a>
@@ -100,7 +128,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">设计一个框架</a><a class="toc-level-2" href="#gee-">Gee 框架</a><a class="toc-level-2" href="#heading-1">目录</a><a class="toc-level-2" href="#heading-2">推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">设计一个框架</a><a class="toc-level-2" href="#gee-">Gee 框架</a><a class="toc-level-2" href="#heading-1">目录</a><a class="toc-level-2" href="#heading-2">推荐阅读</a><a class="toc-level-2" href="#7-">通俗学习地图：7 天是在搭一条请求流水线</a></nav>
     </aside>
   </div>
 </body>

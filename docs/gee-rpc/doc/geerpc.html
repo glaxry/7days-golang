@@ -76,6 +76,30 @@
 <li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
 <li><a href="https://geektutu.com/post/qa-golang.html">Go 语言笔试面试题</a></li>
 </ul>
+<h2 id="rpc-">通俗学习地图：RPC 是把网络调用包装成方法调用</h2>
+<p>RPC 想提供的体验是 <code>client.Call(&quot;Foo.Sum&quot;, args, &amp;reply)</code>，但网络另一端并不能直接看到 Go 函数。框架必须把“想调用谁、参数是什么”编码成字节发出去，服务端再解码、找到方法、执行并把结果编码回来。</p>
+<pre><code class="language-text">客户端方法调用
+    ↓ 分配序号、登记 pending
+Header{ServiceMethod, Seq} + Args
+    ↓ Codec 编码并通过 TCP/HTTP 发送
+服务端解码 → 反射找到服务和方法 → 执行
+    ↓
+Header{Seq, Error} + Reply
+    ↓ 客户端接收循环按 Seq 找回原调用
+同步等待返回 / 异步通知完成
+</code></pre>
+<p>七天分别补齐这条链的关键部分：</p>
+<ol>
+<li>第一天定义消息头与 Codec，打通 TCP 服务端的读取、调用和响应。</li>
+<li>第二天实现并发客户端，用序号把乱序返回的响应交还给正确调用者。</li>
+<li>第三天通过反射注册服务，把 <code>Service.Method</code> 映射到真正的 Go 方法。</li>
+<li>第四天分别控制连接、服务端处理和客户端调用的超时。</li>
+<li>第五天用 HTTP CONNECT 建立 RPC 隧道，并提供服务调试页面。</li>
+<li>第六天加入服务发现、随机/轮询选择、客户端连接复用与广播调用。</li>
+<li>第七天实现一个基于 HTTP 的注册中心和心跳，让节点列表能够动态更新。</li>
+</ol>
+<p>学习 RPC 时最好分清四层：传输层负责字节怎样到达；Codec 负责字节与消息怎样转换；Client/Server 负责并发请求的生命周期；Service/Registry 负责“调用谁”和“去哪里找”。超时、错误和关闭信号必须跨越这些边界正确传播。</p>
+<p>GeeRPC 是为了讲透核心机制而缩小的实现。生产系统还需要协议版本协商、身份认证、TLS、取消传播、流控、消息大小限制、健康检查、熔断、重试幂等、可观测性和更成熟的注册中心。尤其不要把“能通过网络调用”误解为“网络与本地函数一样可靠”。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="../../gee-orm/doc/geeorm-day7.html"><span>上一篇</span><strong>Day7 数据库迁移</strong></a>
@@ -85,7 +109,7 @@
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--rpc-">1 谈谈 RPC 框架</a><a class="toc-level-2" href="#2-rpc-">2 RPC 框架需要解决什么问题</a><a class="toc-level-2" href="#3--geerpc">3 关于 GeeRPC</a><a class="toc-level-2" href="#4-">4 目录</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--rpc-">1 谈谈 RPC 框架</a><a class="toc-level-2" href="#2-rpc-">2 RPC 框架需要解决什么问题</a><a class="toc-level-2" href="#3--geerpc">3 关于 GeeRPC</a><a class="toc-level-2" href="#4-">4 目录</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#rpc-">通俗学习地图：RPC 是把网络调用包装成方法调用</a></nav>
     </aside>
   </div>
 </body>

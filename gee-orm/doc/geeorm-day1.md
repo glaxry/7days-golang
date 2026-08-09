@@ -414,3 +414,34 @@ func main() {
 - [Go 语言简明教程](https://geektutu.com/post/quick-golang.html)
 - [Go Test 单元测试简明教程](https://geektutu.com/post/quick-go-test.html)
 - [SQLite 常用命令速查表](https://geektutu.com/post/cheat-sheet-sqlite.html)
+
+## 白话复盘：先看清 `database/sql` 的职责边界
+
+### `*sql.DB` 不是一条固定连接
+
+它更像数据库访问入口和连接池管理器。`sql.Open` 主要校验驱动名称并保存连接信息，通常不会立刻建立真实连接；需要尽早确认数据库可用时，应调用 `Ping`。多个 goroutine 可以共享一个 `*sql.DB`，而不是每次操作都重新打开。
+
+GeeORM 的 `Engine` 在这一层包住 `*sql.DB` 和方言，`Session` 则代表一次逐步构造并执行 SQL 的工作区。这样后续新增反射和链式 API 时，底层仍然回到标准库的 `Exec`、`Query` 与事务能力。
+
+### 执行与查询要分清
+
+- `Exec` 用于不返回结果集的语句，例如 CREATE、INSERT、UPDATE、DELETE；结果中可以读取受影响行数等信息。
+- `Query` 返回 `*sql.Rows`，调用者必须逐行 `Next`、`Scan`，并及时 `Close`。
+- 只查一行时可以使用 `QueryRow`，但错误往往到 `Scan` 时才暴露。
+
+所有外部数据都应通过占位符作为参数传入，不要用字符串拼接用户输入。参数化不仅防 SQL 注入，也让驱动正确处理引号和二进制值。不同数据库的占位符风格可能不同，这正是方言层需要考虑的一部分。
+
+### 当前 SQLite 驱动说明
+
+升级后的教程使用纯 Go 的 `modernc.org/sqlite`，不依赖本机 C 编译器。驱动名和 DSN 必须与驱动文档一致；换成 MySQL 或 PostgreSQL 时，不只是改 import，还要考虑数据类型、占位符和建表语法差异。
+
+### 容易踩坑
+
+- 忘记关闭 `Rows` 可能长期占用连接，甚至让后续写操作等待；读取完也要检查 `rows.Err()`。
+- `DB.Close` 应在整个应用结束时调用，而不是每条 SQL 后调用。
+- 内存 SQLite 数据库与连接数有关，多连接测试可能看见不同数据库；测试应使用明确 DSN 或临时文件并控制连接策略。
+- 日志应记录 SQL 模板和必要上下文，但生产环境不要泄露密码或敏感参数。
+
+### 动手检查
+
+先执行建表和插入，再用 Query 逐行读取；故意不调用 `Scan` 与故意写错 SQL，观察错误分别在哪一步出现。理解错误出现时机，是后续封装 ORM 时不吞错的基础。

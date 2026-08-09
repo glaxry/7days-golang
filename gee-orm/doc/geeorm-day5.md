@@ -155,3 +155,29 @@ func TestSession_CallMethod(t *testing.T) {
 - [Go 语言简明教程](https://geektutu.com/post/quick-golang.html)
 - [Go Test 单元测试简明教程](https://geektutu.com/post/quick-go-test.html)
 - [SQLite 常用命令速查表](https://geektutu.com/post/cheat-sheet-sqlite.html)
+
+## 白话复盘：Hook 是模型生命周期中的插槽
+
+### 什么时候需要 Hook
+
+有些逻辑与某个模型紧密相关，并且应在每次增删改查时自动发生，例如插入前补默认时间、查询后计算派生字段、删除前写审计记录。Hook 让模型通过约定名称的方法，在 ORM 操作前后获得执行机会，而不用修改 ORM 的核心代码。
+
+教程定义了 `BeforeInsert`、`AfterInsert`、`BeforeQuery`、`AfterQuery` 等阶段。Session 在对应位置调用 `CallMethod`，后者用反射查看当前模型或具体记录是否实现同名方法；没有实现就直接跳过，因此 Hook 是可选扩展。
+
+### 为什么有时对 Model 调用，有时对记录调用
+
+查询前还没有具体结果，可以在 Session 当前模型上执行 `BeforeQuery`；每行数据扫描完成后，`AfterQuery` 更适合对刚得到的记录指针调用，这样 Hook 能修改该记录。理解“此刻有没有具体对象”就能理解 value 参数的选择。
+
+指针接收者与值接收者的方法集合不同。需要在 Hook 中修改字段时通常应使用指针接收者，并确保反射拿到的是可寻址指针。
+
+### 容易踩坑
+
+- 教学实现会记录 Hook 返回的错误，但不会把它传回 Insert/Query 并中止操作；生产设计应明确错误是否阻止 SQL、是否触发回滚。
+- Hook 中再次调用同类 ORM 操作可能递归触发自己，造成无限循环或重复副作用。
+- 隐式逻辑越多，代码越难追踪。只把真正跨调用点且属于模型生命周期的规则放进 Hook。
+- `AfterInsert` 执行时 SQL 已经发生；若它失败但不在事务里，前面的写入不会自动撤销。
+- 反射按方法名约定工作，拼写或签名不匹配时不会自动得到编译期提示，应有测试覆盖。
+
+### 动手检查
+
+给模型添加 `BeforeInsert` 自动补字段，再在 `AfterQuery` 中记录一次调用。分别传值和指针，观察哪些方法能被找到；再让 Hook 返回错误，确认当前教学实现只是记录错误，由此思考你希望生产 API 怎样传播失败。

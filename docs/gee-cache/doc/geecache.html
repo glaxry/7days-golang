@@ -84,6 +84,31 @@
 <li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
 <li><a href="https://geektutu.com/post/quick-go-protobuf.html">Go Protobuf 简明教程</a></li>
 </ul>
+<h2 id="heading">通俗学习地图：缓存系统是在缩短“找数据”的路程</h2>
+<p>缓存的本质并不神秘：把昂贵操作的结果放在更近、更快的地方，下次用同一个键查询时直接复用。真正困难的是回答四个问题：放多少、淘汰谁、多个节点怎样分工、同一份数据被同时请求时怎么办。</p>
+<pre><code class="language-text">业务请求一个 key
+    ↓
+本机缓存命中？──是──→ 直接返回 ByteView
+    │否
+    ↓
+这个 key 应由哪个节点负责？
+    ├─ 远端节点 → 通过 HTTP + Protobuf 获取
+    └─ 本机节点 → 调用 Getter 从数据库等慢速数据源加载
+                         ↓
+                    写入 LRU，再返回
+</code></pre>
+<p>七天会逐步补齐这条查找链：</p>
+<ol>
+<li>第一天用哈希表和双向链表实现 O(1) 查找、更新与 LRU 淘汰。</li>
+<li>第二天把 LRU 包成线程安全的 <code>Group</code>，并引入“缓存未命中后如何加载”的 <code>Getter</code>。</li>
+<li>第三天让缓存节点能够通过 HTTP 对外提供数据。</li>
+<li>第四天用一致性哈希决定一个键应该落到哪个节点，减少扩缩容时的数据迁移。</li>
+<li>第五天把节点选择、远程获取和本地回源串成完整分布式流程。</li>
+<li>第六天用 singleflight 合并同一进程内针对同一个键的并发回源，缓解缓存击穿。</li>
+<li>第七天把节点间消息改为 Protobuf，获得明确的数据结构和更紧凑的二进制编码。</li>
+</ol>
+<p>阅读时始终区分三层：<code>lru.Cache</code> 只管内存淘汰；<code>Group</code> 只管按键获取数据的策略；<code>HTTPPool</code> 只管节点之间如何找到并传输数据。把这些职责揉在一起也能跑，但很难测试和扩展。</p>
+<p>GeeCache 是教学系统，不等于可直接上线的分布式缓存。生产环境还需考虑节点鉴权、限流、数据过期、监控、热键、跨节点故障、传输大小限制和一致性要求。理解这些缺口，反而能帮助你看清本教程每个组件解决的边界。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="../../gee-web/README.html"><span>上一篇</span><strong>项目 README</strong></a>
@@ -93,7 +118,7 @@
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-">1 谈谈分布式缓存</a><a class="toc-level-2" href="#2--geecache">2 关于 GeeCache</a><a class="toc-level-2" href="#3-">3 目录</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-">1 谈谈分布式缓存</a><a class="toc-level-2" href="#2--geecache">2 关于 GeeCache</a><a class="toc-level-2" href="#3-">3 目录</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#heading">通俗学习地图：缓存系统是在缩短“找数据”的路程</a></nav>
     </aside>
   </div>
 </body>

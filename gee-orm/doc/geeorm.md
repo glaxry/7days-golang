@@ -138,3 +138,33 @@ gorm 正在彻底重构 v1 版本，短期内看不到发布 v2 的可能。相�
 - [Go Test 单元测试简明教程](https://geektutu.com/post/quick-go-test.html)
 - [Go Reflect 提高反射性能](https://geektutu.com/post/hpg-reflect.html)
 - [SQLite 常用命令速查表](https://geektutu.com/post/cheat-sheet-sqlite.html)
+
+## 通俗学习地图：ORM 是 Go 对象与 SQL 之间的翻译流水线
+
+ORM 不是让数据库消失，而是把重复的“读结构体、拼 SQL、绑定参数、扫描结果”集中到框架中。使用者仍然需要理解表、列、索引和事务；框架只是让常见操作能用更一致的 Go API 表达。
+
+```text
+Go 结构体值
+    ↓ 反射解析
+Schema（表名、字段名、字段类型）
+    ↓ Clause 按操作类型组装
+SQL 模板 + 参数列表
+    ↓ database/sql + SQLite 驱动
+数据库执行或返回 rows
+    ↓ Scan + 反射赋值
+Go 结构体值
+```
+
+七天围绕这条双向翻译链展开：
+
+1. 第一天先封装 `database/sql`，理解连接、执行和查询的基础边界。
+2. 第二天用反射把 Go 结构体解析成 Schema，并由不同方言把 Go 类型映射为数据库类型。
+3. 第三天通过 Clause 构造 INSERT 与 SELECT，再把查询结果扫描回结构体。
+4. 第四天补齐 WHERE、ORDER BY、LIMIT、UPDATE、DELETE 等链式操作。
+5. 第五天增加 Hooks，在增删改查前后提供模型级扩展点。
+6. 第六天让一组操作共享同一事务，并统一处理提交、回滚和 panic。
+7. 第七天比较模型字段与数据库列，演示 SQLite 下的表结构迁移。
+
+阅读时要持续区分三种状态：`Engine` 持有数据库连接池和方言，生命周期通常较长；`Session` 保存某一次 SQL 构建过程，执行后应清空；`Schema` 是模型元数据，可复用但不代表一条具体记录。很多并发或串语句问题都来自把这三层混在一起。
+
+教学版 GeeORM 展示的是骨架，不是生产级迁移和查询系统。真实项目还要处理字段标签、NULL、关系映射、预加载、上下文取消、占位符差异、索引、迁移版本、审计与更完整的错误传播。尤其不要把自动迁移当作无风险操作，任何删列或改类型都应先备份并评估数据损失。

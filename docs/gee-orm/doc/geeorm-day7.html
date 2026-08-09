@@ -183,6 +183,23 @@ func TestEngine_Migrate(t *testing.T) {
 <li><a href="https://geektutu.com/post/cheat-sheet-sqlite.html">SQLite 常用命令速查表</a></li>
 <li><a href="https://stackoverflow.com/questions/8442147/how-to-delete-or-add-column-in-sqlite">sqlite delete or add column - stackoverflow</a></li>
 </ul>
+<h2 id="heading">白话复盘：迁移是在协调“代码模型”和“已有数据”</h2>
+<h3 id="heading-1">为什么修改结构体不等于修改数据库</h3>
+<p>程序升级后，Go 模型可能新增或删除字段，但磁盘里的旧表不会自动改变。迁移要先读取数据库现有列，再与新 Schema 比较：模型有而表没有的是新增列，表有而模型没有的是待删除列。</p>
+<p>SQLite 支持的 ALTER TABLE 能力有限。教学实现采用通用的“换表法”：创建符合新结构的临时表，把两边都存在的列数据复制过去，删除旧表，再把临时表改成原名。这个过程体现了迁移的核心，但任何一步出错都可能影响数据，所以由事务统一包裹。</p>
+<h3 id="heading-2">顺序为什么特别重要</h3>
+<p>查询旧表列信息会得到 <code>Rows</code>，它可能占用连接和读锁。执行 DDL 前必须读取所需元数据并关闭 Rows；否则在 SQLite 上可能出现锁等待。迁移中的资源生命周期不是小细节，而是能否成功执行的前提。</p>
+<p>复制数据时只能选择新旧表共有的列。新增列会采用默认值或 NULL，删除列的数据则不会被复制。改名在简单差异算法看来通常是“删除旧列 + 新增新列”，因此会丢失原值，不能自动猜测业务意图。</p>
+<h3 id="heading-3">生产迁移还缺什么</h3>
+<ul>
+<li>迁移应有单调版本号和历史记录，而不是每次启动只比较当前结构。</li>
+<li>删列、改类型、改名之前必须备份，并为数据转换编写显式步骤。</li>
+<li>索引、唯一约束、外键、默认值和触发器也属于 Schema，本教程的字段比较没有完整覆盖。</li>
+<li>大表复制会长时间占锁、消耗额外磁盘，线上需要评估停机窗口或使用数据库专用在线迁移方案。</li>
+<li>DDL 的事务行为因数据库而异，不能假定所有数据库都与 SQLite 一样。</li>
+</ul>
+<h3 id="heading-4">动手检查</h3>
+<p>先用旧模型创建表并插入数据，再分别测试新增字段、删除字段和字段“改名”。迁移前后查询数据并记录差异；你会直观看到新增/删除为何能机械处理，而改名和类型转换必须由开发者表达意图。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geeorm-day6.html"><span>上一篇</span><strong>Day6 支持事务</strong></a>
@@ -192,7 +209,7 @@ func TestEngine_Migrate(t *testing.T) {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--sql--migrate">1 使用 SQL 语句 Migrate</a><a class="toc-level-3" href="#11-">1.1 新增字段</a><a class="toc-level-3" href="#12-">1.2 删除字段</a><a class="toc-level-2" href="#2-geeorm--migrate">2 GeeORM 实现 Migrate</a><a class="toc-level-2" href="#3-">3 测试</a><a class="toc-level-2" href="#4-">4 总结</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--sql--migrate">1 使用 SQL 语句 Migrate</a><a class="toc-level-3" href="#11-">1.1 新增字段</a><a class="toc-level-3" href="#12-">1.2 删除字段</a><a class="toc-level-2" href="#2-geeorm--migrate">2 GeeORM 实现 Migrate</a><a class="toc-level-2" href="#3-">3 测试</a><a class="toc-level-2" href="#4-">4 总结</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#heading">白话复盘：迁移是在协调“代码模型”和“已有数据”</a><a class="toc-level-3" href="#heading-1">为什么修改结构体不等于修改数据库</a><a class="toc-level-3" href="#heading-2">顺序为什么特别重要</a><a class="toc-level-3" href="#heading-3">生产迁移还缺什么</a><a class="toc-level-3" href="#heading-4">动手检查</a></nav>
     </aside>
   </div>
 </body>

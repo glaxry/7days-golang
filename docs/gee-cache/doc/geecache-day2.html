@@ -399,6 +399,35 @@ ok      geecache        0.008s
 <li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
 <li><a href="https://golang.org/pkg/sync/">sync 官方文档 - golang.org</a></li>
 </ul>
+<h2 id="heading">白话复盘：从一个容器升级为可回源的并发缓存</h2>
+<h3 id="heading-1">三层结构分别负责什么</h3>
+<p>第二天的重点不是简单地给 LRU 加一把锁，而是把缓存访问整理成三层：</p>
+<ul>
+<li><code>lru.Cache</code>：只处理内存中的淘汰顺序，不知道数据来自哪里。</li>
+<li><code>cache</code>：用互斥锁保护 LRU，给并发访问提供安全边界。</li>
+<li><code>Group</code>：面向使用者提供 <code>Get(key)</code>，缓存未命中时通过 <code>Getter</code> 去数据库、文件或其他慢速来源加载。</li>
+</ul>
+<p>这种流程常被称为 read-through（读穿透）缓存：调用者只问 Group 要数据，不需要自己先查缓存、再查数据库、再回填。回源规则被统一收进框架。</p>
+<h3 id="-get-">一次 <code>Get</code> 怎样走</h3>
+<ol>
+<li>先拒绝空 key，避免没有意义的缓存项。</li>
+<li>调用 <code>mainCache.get</code>，它在锁保护下查找 LRU。</li>
+<li>命中就返回 <code>ByteView</code>；未命中则调用 <code>load</code>。</li>
+<li><code>load</code> 通过用户实现的 <code>Getter</code> 获取原始字节。</li>
+<li>复制字节后写入本机缓存，再把结果交给调用者。</li>
+</ol>
+<p><code>GetterFunc</code> 与 <code>http.HandlerFunc</code> 的思路相同：它让普通函数只要签名匹配就能实现接口，调用者既可以传结构体，也可以直接传闭包。</p>
+<h3 id="byteview-"><code>ByteView</code> 为什么强调只读</h3>
+<p>Go 的 <code>[]byte</code> 是对底层数组的视图。若缓存把内部切片直接交出去，调用者修改其中一个字节就等于偷偷改了缓存，其他请求会看到被污染的数据。<code>ByteView</code> 在进入或导出边界时复制数据，用额外分配换取不可变语义，让所有读者看到稳定值。</p>
+<h3 id="heading-2">容易踩坑</h3>
+<ul>
+<li>不要在持有缓存互斥锁时执行数据库回源，否则一次慢查询会堵住所有 key；教程的锁只包住短暂的 LRU 操作。</li>
+<li>这一版虽然线程安全，但多个请求同时 miss 同一个 key 时仍会重复回源，这个“缓存击穿”问题到第六天解决。</li>
+<li><code>Group</code> 按名称放在全局表中，生产代码需要明确重复名称、生命周期和测试隔离策略。</li>
+<li>回源失败不能把空值当成成功结果写入缓存；错误应继续返回给调用者。</li>
+</ul>
+<h3 id="heading-3">动手检查</h3>
+<p>让 Getter 递增一个计数器：第一次查询某 key 应调用 Getter，第二次应直接命中且计数不变。再启动多个 goroutine 读取不同 key，并用 <code>go test -race</code> 验证没有数据竞争。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geecache-day1.html"><span>上一篇</span><strong>Day1 LRU 缓存淘汰策略</strong></a>
@@ -408,7 +437,7 @@ ok      geecache        0.008s
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-syncmutex">1 sync.Mutex</a><a class="toc-level-2" href="#2-">2 支持并发读写</a><a class="toc-level-2" href="#3--group">3 主体结构 Group</a><a class="toc-level-3" href="#31--getter">3.1 回调 Getter</a><a class="toc-level-3" href="#32-group-">3.2 Group 的定义</a><a class="toc-level-3" href="#33-group--get-">3.3 Group 的 Get 方法</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1-syncmutex">1 sync.Mutex</a><a class="toc-level-2" href="#2-">2 支持并发读写</a><a class="toc-level-2" href="#3--group">3 主体结构 Group</a><a class="toc-level-3" href="#31--getter">3.1 回调 Getter</a><a class="toc-level-3" href="#32-group-">3.2 Group 的定义</a><a class="toc-level-3" href="#33-group--get-">3.3 Group 的 Get 方法</a><a class="toc-level-2" href="#4-">4 测试</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#heading">白话复盘：从一个容器升级为可回源的并发缓存</a><a class="toc-level-3" href="#heading-1">三层结构分别负责什么</a><a class="toc-level-3" href="#-get-">一次 Get 怎样走</a><a class="toc-level-3" href="#byteview-">ByteView 为什么强调只读</a><a class="toc-level-3" href="#heading-2">容易踩坑</a><a class="toc-level-3" href="#heading-3">动手检查</a></nav>
     </aside>
   </div>
 </body>

@@ -259,6 +259,29 @@ func TestClient_Call(t *testing.T) {
 <li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
 <li><a href="https://geektutu.com/post/qa-golang.html">Go 语言笔试面试题</a></li>
 </ul>
+<h2 id="heading-4">白话复盘：三个超时保护的是三个不同阶段</h2>
+<h3 id="-rpc-">不要只说“给 RPC 加个超时”</h3>
+<p>一次 RPC 至少经历建立连接、服务端处理、客户端等待三个阶段，它们的失败含义和控制位置不同：</p>
+<ul>
+<li>连接超时：在规定时间内无法完成 Dial，客户端应放弃这个地址。</li>
+<li>服务端处理超时：方法执行太久，服务端应及时返回超时响应，避免客户端无限等待。</li>
+<li>客户端调用超时：调用者自己的等待预算耗尽，即使服务端仍在运行，也要先返回给上层。</li>
+</ul>
+<p>这些时间可以不同。例如连接预算 1 秒，调用总预算 3 秒，服务端方法上限 2 秒。把它们混成一个值会让排错和调优都很困难。</p>
+<h3 id="heading-5">服务端怎样避免重复响应</h3>
+<p>处理方法和计时器可能几乎同时完成。如果两个 goroutine 都直接写响应，就会出现一条请求返回两次、字节流损坏。正确做法是让它们只把结果发送给协调者，由一个位置通过 <code>select</code> 决定本次请求唯一的响应。</p>
+<p>完成通知通道使用容量 1，能避免超时分支已经返回后，业务 goroutine 在发送完成信号时永久阻塞。但要注意：返回超时并不会自动停止正在执行的 Go 方法，它仍可能继续消耗资源或产生副作用。</p>
+<h3 id="-context-">客户端 <code>context</code> 的真实边界</h3>
+<p>客户端可以 <code>select</code> 等待 <code>ctx.Done()</code> 或 Call 完成。Context 到期能让调用者停止等候，但若协议没有取消帧，服务端并不知道客户端已放弃。完整取消需要把取消信号传过网络，并要求业务方法配合检查。</p>
+<h3 id="heading-6">容易踩坑</h3>
+<ul>
+<li><code>time.After</code> 在热点路径会创建定时器；需要主动停止或复用时应使用 <code>time.NewTimer</code> 并正确 Stop。</li>
+<li>超时后盲目重试非幂等操作，可能让“第一次其实成功”的写操作执行两遍。</li>
+<li>测试不应依赖非常接近的毫秒边界，否则慢机器上容易偶发失败；给预期留出合理余量。</li>
+<li>超时错误要标明发生阶段，不能都只返回模糊的 <code>timeout</code>。</li>
+</ul>
+<h3 id="heading-7">动手检查</h3>
+<p>分别制造“端口不接受连接”“方法主动 sleep”“客户端 context 更短”三种情况，记录错误来源和服务端是否仍继续执行。能区分这三种现象，才算真正理解超时边界。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geerpc-day3.html"><span>上一篇</span><strong>Day3 服务注册</strong></a>
@@ -268,7 +291,7 @@ func TestClient_Call(t *testing.T) {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">为什么需要超时处理机制</a><a class="toc-level-2" href="#heading-1">创建连接超时</a><a class="toc-level-2" href="#clientcall-">Client.Call 超时</a><a class="toc-level-2" href="#heading-2">服务端处理超时</a><a class="toc-level-2" href="#heading-3">测试用例</a><a class="toc-level-2" href="#-">附 推荐阅读</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#heading">为什么需要超时处理机制</a><a class="toc-level-2" href="#heading-1">创建连接超时</a><a class="toc-level-2" href="#clientcall-">Client.Call 超时</a><a class="toc-level-2" href="#heading-2">服务端处理超时</a><a class="toc-level-2" href="#heading-3">测试用例</a><a class="toc-level-2" href="#-">附 推荐阅读</a><a class="toc-level-2" href="#heading-4">白话复盘：三个超时保护的是三个不同阶段</a><a class="toc-level-3" href="#-rpc-">不要只说“给 RPC 加个超时”</a><a class="toc-level-3" href="#heading-5">服务端怎样避免重复响应</a><a class="toc-level-3" href="#-context-">客户端 context 的真实边界</a><a class="toc-level-3" href="#heading-6">容易踩坑</a><a class="toc-level-3" href="#heading-7">动手检查</a></nav>
     </aside>
   </div>
 </body>

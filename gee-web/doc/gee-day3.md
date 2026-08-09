@@ -334,3 +334,33 @@ hello geektutu, you're at /hello/geektutu
 $ curl "http://localhost:9999/assets/css/geektutu.css"
 {"filepath":"css/geektutu.css"}
 ```
+
+## 白话复盘：前缀树为什么适合动态路由
+
+### 先看普通 map 的局限
+
+静态路由可以直接用完整路径查表，但 `/hello/tom` 和 `/hello/jack` 是两个不同字符串，无法直接命中注册时的 `/hello/:name`。如果每次都遍历所有路由逐个比较，路由越多就越慢，也难以表达通配符优先级。
+
+前缀树把路径按 `/` 切成片段。例如 `/hello/:name` 会变成 `hello`、`:name` 两层节点。很多路由拥有共同前缀时，它们会共享树的上半部分；匹配请求时只需沿路径逐层向下，而不是扫描整张路由表。
+
+### 匹配过程拆开看
+
+以 `/assets/css/main.css` 为例：
+
+1. 先把请求路径切成 `assets`、`css`、`main.css`。
+2. 根节点找到静态子节点 `assets`。
+3. 如果路由注册为 `/assets/*filepath`，`*filepath` 会吞掉余下所有片段。
+4. 路由器把 `filepath=css/main.css` 写入 `Context.Params`。
+5. 最终仍用匹配到的完整路由模式和请求方法，从 handlers 表中取出处理函数。
+
+`:name` 只匹配一个片段，`*filepath` 匹配剩余全部片段，并且只能出现在路径末尾。静态节点通常应比通配节点更具体；如果同一层存在可能冲突的模式，成熟框架会在注册阶段检查并报错，本教程只实现了核心规则。
+
+### 为什么树中不直接保存处理函数
+
+教程把“路径匹配”和“方法到处理函数的映射”分开：树负责找出路由模式，handlers map 负责区分 GET、POST 等方法。这样同一个路径结构可以被多个 HTTP 方法复用，也让两个职责更清晰。
+
+### 容易踩坑与自测
+
+- `/p/:lang/doc` 中 `:lang` 不会跨越 `/`；请求 `/p/go/intro/doc` 不应命中。
+- 通配符捕获到的是原始路径片段，拿去访问本地文件前仍要做清理和目录边界检查。
+- 给 `/hello/:name`、`/hello/static`、`/assets/*filepath` 各写测试，特别检查静态路径和动态路径同时存在时的选择是否符合预期。

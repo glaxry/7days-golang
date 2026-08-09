@@ -176,6 +176,28 @@ func (h *httpGetter) Get(in *pb.Request, out *pb.Response) error {
 <li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
 <li><a href="https://geektutu.com/post/quick-go-protobuf.html">Go Protobuf 简明教程</a></li>
 </ul>
+<h2 id="protobuf-">白话复盘：Protobuf 统一的是消息结构和线上的字节格式</h2>
+<h3 id="heading-1">为什么不再直接传裸字节</h3>
+<p>前一版 HTTP 接口只返回 value，看似简单，但协议一旦要增加状态、版本或更多字段，双方很容易靠口头约定拼装数据。Protobuf 先在 <code>.proto</code> 文件中声明请求和响应结构，再生成 Go 类型及编码代码，让客户端和服务端共享一份明确契约。</p>
+<p>当前 API v2 使用 <code>google.golang.org/protobuf</code>。生成的 <code>.pb.go</code> 是工具产物，不应手工修改；要改变消息结构，应编辑 <code>.proto</code> 后重新运行生成命令，并把源文件和生成文件一起提交。</p>
+<h3 id="heading-2">一次调用怎样变化</h3>
+<ol>
+<li>客户端创建 <code>Request{Group, Key}</code>，而不是自己猜字段顺序。</li>
+<li>HTTP 路径仍负责找到目标节点，服务端从请求中取得 group 与 key。</li>
+<li>服务端把缓存值放进 <code>Response{Value}</code>。</li>
+<li><code>proto.Marshal</code> 把响应编码为紧凑二进制，客户端用 <code>proto.Unmarshal</code> 还原。</li>
+<li>HTTP 状态码负责表达传输是否成功，Protobuf 消息负责表达业务数据；两层职责不要混淆。</li>
+</ol>
+<h3 id="heading-3">协议演进要注意什么</h3>
+<ul>
+<li>字段编号是线上身份。发布后不要随意复用或改变已有编号；删除字段时应考虑 <code>reserved</code>。</li>
+<li>proto3 的标量有默认值，空字符串、0 与“没有设置”可能需要额外字段或 <code>optional</code> 才能区分。</li>
+<li>新增未知字段通常可以被旧端忽略，但并不意味着所有语义变化都自动兼容，升级仍需双端测试。</li>
+<li><code>Content-Type</code> 应明确为 Protobuf 二进制，并限制消息大小；二进制格式不是安全机制，节点间仍需要认证和加密。</li>
+<li>Protobuf 只替换序列化层，节点选择、超时、重试和缓存一致性仍是独立问题。</li>
+</ul>
+<h3 id="heading-4">动手检查</h3>
+<p>给响应增加一个新的可选说明字段，重新生成代码，只升级服务端后用旧客户端读取，观察未知字段的兼容表现。再故意改变字段编号做本地实验，就会直观看到为什么编号需要长期稳定。</p>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">
           <a class="page-nav-item previous" href="geecache-day6.html"><span>上一篇</span><strong>Day6 防止缓存击穿</strong></a>
@@ -185,7 +207,7 @@ func (h *httpGetter) Get(in *pb.Request, out *pb.Response) error {
       <footer class="site-footer"><span>基于 Go 1.26 更新</span><span>Markdown 与 HTML 同源生成</span></footer>
     </main>
     <aside class="toc" aria-label="本页目录">
-      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--protobuf">1 为什么要使用 protobuf</a><a class="toc-level-2" href="#2--protobuf-">2 使用 protobuf 通信</a><a class="toc-level-2" href="#heading">总结</a><a class="toc-level-2" href="#-">附 推荐</a></nav>
+      <h2>本页目录</h2><nav><a class="toc-level-2" href="#1--protobuf">1 为什么要使用 protobuf</a><a class="toc-level-2" href="#2--protobuf-">2 使用 protobuf 通信</a><a class="toc-level-2" href="#heading">总结</a><a class="toc-level-2" href="#-">附 推荐</a><a class="toc-level-2" href="#protobuf-">白话复盘：Protobuf 统一的是消息结构和线上的字节格式</a><a class="toc-level-3" href="#heading-1">为什么不再直接传裸字节</a><a class="toc-level-3" href="#heading-2">一次调用怎样变化</a><a class="toc-level-3" href="#heading-3">协议演进要注意什么</a><a class="toc-level-3" href="#heading-4">动手检查</a></nav>
     </aside>
   </div>
 </body>

@@ -178,3 +178,31 @@ func (h *httpGetter) Get(in *pb.Request, out *pb.Response) error {
 - [Go 语言简明教程](https://geektutu.com/post/quick-golang.html)
 - [Go Test 单元测试简明教程](https://geektutu.com/post/quick-go-test.html)
 - [Go Protobuf 简明教程](https://geektutu.com/post/quick-go-protobuf.html)
+
+## 白话复盘：Protobuf 统一的是消息结构和线上的字节格式
+
+### 为什么不再直接传裸字节
+
+前一版 HTTP 接口只返回 value，看似简单，但协议一旦要增加状态、版本或更多字段，双方很容易靠口头约定拼装数据。Protobuf 先在 `.proto` 文件中声明请求和响应结构，再生成 Go 类型及编码代码，让客户端和服务端共享一份明确契约。
+
+当前 API v2 使用 `google.golang.org/protobuf`。生成的 `.pb.go` 是工具产物，不应手工修改；要改变消息结构，应编辑 `.proto` 后重新运行生成命令，并把源文件和生成文件一起提交。
+
+### 一次调用怎样变化
+
+1. 客户端创建 `Request{Group, Key}`，而不是自己猜字段顺序。
+2. HTTP 路径仍负责找到目标节点，服务端从请求中取得 group 与 key。
+3. 服务端把缓存值放进 `Response{Value}`。
+4. `proto.Marshal` 把响应编码为紧凑二进制，客户端用 `proto.Unmarshal` 还原。
+5. HTTP 状态码负责表达传输是否成功，Protobuf 消息负责表达业务数据；两层职责不要混淆。
+
+### 协议演进要注意什么
+
+- 字段编号是线上身份。发布后不要随意复用或改变已有编号；删除字段时应考虑 `reserved`。
+- proto3 的标量有默认值，空字符串、0 与“没有设置”可能需要额外字段或 `optional` 才能区分。
+- 新增未知字段通常可以被旧端忽略，但并不意味着所有语义变化都自动兼容，升级仍需双端测试。
+- `Content-Type` 应明确为 Protobuf 二进制，并限制消息大小；二进制格式不是安全机制，节点间仍需要认证和加密。
+- Protobuf 只替换序列化层，节点选择、超时、重试和缓存一致性仍是独立问题。
+
+### 动手检查
+
+给响应增加一个新的可选说明字段，重新生成代码，只升级服务端后用旧客户端读取，观察未知字段的兼容表现。再故意改变字段编号做本地实验，就会直观看到为什么编号需要长期稳定。

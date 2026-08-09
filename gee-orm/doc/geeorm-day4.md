@@ -283,3 +283,32 @@ func TestSession_DeleteAndCount(t *testing.T) {
 - [Go 语言简明教程](https://geektutu.com/post/quick-golang.html)
 - [Go Test 单元测试简明教程](https://geektutu.com/post/quick-go-test.html)
 - [SQLite 常用命令速查表](https://geektutu.com/post/cheat-sheet-sqlite.html)
+
+## 白话复盘：链式调用是在逐步填写一张 SQL 表单
+
+### Session 为什么能一路点下去
+
+`Where`、`Limit`、`OrderBy` 并没有立刻访问数据库，它们只是把对应 Clause 写进当前 Session，并返回同一个 Session 指针。直到调用 `Find`、`Update`、`Delete` 或 `Count`，框架才按 SQL 语法规定的顺序把片段拼起来并执行。
+
+因此 `s.Where(...).OrderBy(...).Limit(1).Find(&users)` 可以理解为先填条件、排序、数量三栏，最后按下“执行”按钮。方法在代码里的调用顺序不一定就是 SQL 片段的输出顺序，最终顺序由生成器明确控制。
+
+### 为什么执行后要 `Clear`
+
+Session 保存的是可变构建状态。如果上一条语句的 WHERE 残留到下一条 DELETE，就可能误删或漏删数据。执行结束后清空 SQL、变量与 Clause，能让同一个 Session 开始下一次构建时回到干净状态。
+
+不过这也说明 Session 不适合被多个 goroutine 同时链式使用。即使底层 `*sql.DB` 可以并发共享，同一个可变 Session 仍会互相覆盖条件和参数；并发任务应分别创建 Session。
+
+### Update 的两种输入
+
+教程允许传 map，或按 `key, value` 成对传参。无论入口形式如何，最终都要生成 `SET field=?, ...` 与同序参数。Go 的 map 遍历顺序不固定不是问题，只要列名和变量在同一次遍历中成对追加；但测试不要死板依赖 map 生成字段的固定排列。
+
+### 容易踩坑
+
+- 没有 WHERE 的 Update/Delete 可能影响整张表。生产 ORM 常提供显式保护或要求调用者确认全表操作。
+- `First` 往往通过 `LIMIT 1` 实现，但没有 ORDER BY 时“第一条”并没有稳定业务含义。
+- 链式 API 看起来像不可变值，实际却在修改 Session；保留中间变量并交叉复用会产生意外状态。
+- 参数仍必须使用占位符，`OrderBy` 等结构片段若接收用户输入则要使用白名单，参数化不能保护列名或关键字。
+
+### 动手检查
+
+连续用同一 Session 执行两条条件完全不同的查询，并打印最终 SQL，确认第二条没有继承第一条 WHERE。再尝试无 WHERE 的 Delete，在测试数据库中观察风险，理解生产保护为何必要。
