@@ -13,14 +13,14 @@ keywords:
 - 反射
 - 服务
 image: post/geerpc/geerpc.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day3 服务注册
 ---
 
 ![golang RPC framework](geerpc/geerpc.jpg)
 
-本文是[7天用Go从零实现RPC框架GeeRPC](https://geektutu.com/post/geerpc.html)的第三篇。
+本文是[7天用Go从零实现RPC框架GeeRPC](https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.md)的第三篇。
 
 - 通过反射实现服务注册功能
 - 在服务端实现服务调用，代码约 150 行
@@ -108,7 +108,7 @@ func (w *WaitGroup) Wait()
 
 前面两天我们完成了客户端和服务端，客户端相对来说功能是比较完整的，但是服务端的功能并不完整，仅仅将请求的 header 打印了出来，并没有真正地处理。那今天的主要目的是补全这部分功能。首先通过反射实现结构体与服务的映射关系，代码独立放置在 `service.go` 中。
 
-[day3-service/service.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service)
+[day3-service/service.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service)
 
 第一步，定义结构体 methodType：
 
@@ -236,7 +236,7 @@ func (s *service) call(m *methodType, argv, replyv reflect.Value) error {
 
 为了保证 service 实现的正确性，我们为 service.go 写了几个测试用例。
 
-[day3-service/service_test.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service)
+[day3-service/service_test.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service)
 
 定义结构体 Foo，实现 2 个方法，导出方法 Sum 和 非导出方法 sum。
 
@@ -295,7 +295,7 @@ func TestMethodType_Call(t *testing.T) {
 
 在这之前，我们还需要为 Server 实现一个方法 `Register`。
 
-[day3-service/server.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service)
+[day3-service/server.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service)
 
 ```go
 // Server represents an RPC Server.
@@ -404,7 +404,7 @@ func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.
 
 最后，还是需要写一个可执行程序(main)验证今天的成果。
 
-[day3-service/main/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service)
+[day3-service/main/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service)
 
 第一步，定义结构体 Foo 和方法 Sum
 

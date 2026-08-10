@@ -41,7 +41,7 @@
           <h1>动手写ORM框架 - GeeORM第六天 支持事务(Transaction)</h1>
           <p>7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。介绍数据库中的事务(transactio…</p>
         </header>
-        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第六篇。</p>
+        <div class="prose"><p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第六篇。</p>
 <ul>
 <li>介绍数据库中的事务(transaction)。</li>
 <li>封装事务，用户自定义回调函数实现原子操作。<strong>代码约100行</strong></li>
@@ -100,7 +100,7 @@ func main() {
 <p>Go 语言中实现事务和 SQL 原生语句其实是非常接近的。调用 <code>db.Begin()</code> 得到 <code>*sql.Tx</code> 对象，使用 <code>tx.Exec()</code> 执行一系列操作，如果发生错误，通过 <code>tx.Rollback()</code> 回滚，如果没有发生错误，则通过 <code>tx.Commit()</code> 提交。</p>
 <h2 id="3-geeorm-">3 GeeORM 支持事务</h2>
 <p>GeeORM 之前的操作均是执行完即自动提交的，每个操作是相互独立的。之前直接使用 <code>sql.DB</code> 对象执行 SQL 语句，如果要支持事务，需要更改为 <code>sql.Tx</code> 执行。在 Session 结构体中新增成员变量 <code>tx *sql.Tx</code>，当 <code>tx</code> 不为空时，则使用 <code>tx</code> 执行 SQL 语句，否则使用 <code>db</code> 执行 SQL 语句。这样既兼容了原有的执行方式，又提供了对事务的支持。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day6-transaction/session">day6-transaction/session/raw.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day6-transaction/session">day6-transaction/session/raw.go</a></p>
 <pre><code class="language-go">type Session struct {
 	db       *sql.DB
 	dialect  dialect.Dialect
@@ -130,7 +130,7 @@ func (s *Session) DB() CommonDB {
 }
 </code></pre>
 <p>新建文件 <code>session/transaction.go</code> 封装事务的 Begin、Commit 和 Rollback 三个接口。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day6-transaction/session">day6-transaction/session/transaction.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day6-transaction/session">day6-transaction/session/transaction.go</a></p>
 <pre><code class="language-go">package session
 
 import &quot;geeorm/log&quot;
@@ -165,7 +165,7 @@ func (s *Session) Rollback() (err error) {
 <li>封装的另一个目的是统一打印日志，方便定位问题。</li>
 </ul>
 <p>最后一步，在 <code>geeorm.go</code> 中为用户提供傻瓜式/一键式使用的接口。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day6-transaction">day6-transaction/geeorm.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day6-transaction">day6-transaction/geeorm.go</a></p>
 <pre><code class="language-go">type TxFunc func(*session.Session) (any, error)
 
 func (engine *Engine) Transaction(f TxFunc) (result any, err error) {

@@ -14,14 +14,14 @@ keywords:
 - 序列化
 - 反序列化
 image: post/geerpc/geerpc.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day1 服务端与消息编码
 ---
 
 ![golang RPC framework](geerpc/geerpc.jpg)
 
-本文是[7天用Go从零实现RPC框架GeeRPC](https://geektutu.com/post/geerpc.html)的第一篇。
+本文是[7天用Go从零实现RPC框架GeeRPC](https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.md)的第一篇。
 
 - 使用 `encoding/gob` 实现消息的编解码(序列化与反序列化)
 - 实现一个简易的服务端，仅接受消息，不处理，代码约 200 行
@@ -37,7 +37,7 @@ err = client.Call("Arith.Multiply", args, &reply)
 
 客户端发送的请求包括服务名 `Arith`，方法名 `Multiply`，参数 `args` 三个，服务端的响应包括错误 `error`，返回值 `reply` 2 个。我们将请求和响应中的参数和返回值抽象为 body，剩余的信息放在 header 中，那么就可以抽象出数据结构 Header：
 
-[day1-codec/codec/codec.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec)
+[day1-codec/codec/codec.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec)
 
 ```go
 package codec
@@ -93,7 +93,7 @@ func init() {
 
 首先定义 `GobCodec` 结构体，这个结构体由四部分构成，`conn` 是由构建函数传入，通常是通过 TCP 或者 Unix 建立 socket 时得到的链接实例，dec 和 enc 对应 gob 的 Decoder 和 Encoder，buf 是为了防止阻塞而创建的带缓冲的 `Writer`，一般这么做能提升性能。
 
-[day1-codec/codec/gob.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec)
+[day1-codec/codec/gob.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec)
 
 ```go
 package codec
@@ -165,7 +165,7 @@ func (c *GobCodec) Close() error {
 
 对于 GeeRPC 来说，目前需要协商的唯一一项内容是消息的编解码方式。我们将这部分信息，放到结构体 `Option` 中承载。目前，已经进入到服务端的实现阶段了。
 
-[day1-codec/server.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec)
+[day1-codec/server.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec)
 
 ```go
 package geerpc
@@ -200,7 +200,7 @@ var DefaultOption = &Option{
 
 通信过程已经定义清楚了，那么服务端的实现就比较直接了。
 
-[day1-codec/server.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec)
+[day1-codec/server.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec)
 
 ```go
 // Server represents an RPC Server.
@@ -383,7 +383,7 @@ day1 的内容就到此为止了，在这里我们已经实现了一个消息的
 
 接下来，我们就在 main 函数中看看如何使用刚实现的 GeeRPC 吧。
 
-[day1-codec/main/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec)
+[day1-codec/main/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec)
 
 ```go
 package main

@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了如何使用标准库 http 搭建 HTTP Server，为 GeeCa…</p>
         </header>
         <div class="prose"><p><img src="geecache-day3/http.jpg" alt="geecache http server"></p>
-<p>本文是<a href="https://geektutu.com/post/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第三篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第三篇。</p>
 <ul>
 <li>介绍如何使用 Go 语言标准库 <code>http</code> 搭建 HTTP Server</li>
 <li>并实现 main 函数启动 HTTP Server 测试 API，<strong>代码约60行</strong></li>
@@ -104,7 +104,7 @@ type Handler interface {
 	|--http.go     // 提供被其他节点访问的能力(基于http)
 </code></pre>
 <p>首先我们创建一个结构体 <code>HTTPPool</code>，作为承载节点间 HTTP 通信的核心数据结构（包括服务端和客户端，今天只实现服务端）。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day3-http-server/geecache">day3-http-server/geecache/http.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day3-http-server/geecache">day3-http-server/geecache/http.go - github</a></p>
 <pre><code class="language-go">package geecache
 
 import (
@@ -181,7 +181,7 @@ func (p *HTTPPool) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 <p>到这里，HTTP 服务端已经完整地实现了。接下来，我们将在单机上启动 HTTP 服务，使用 curl 进行测试。</p>
 <h2 id="3-">3 测试</h2>
 <p>实现 main 函数，实例化 group，并启动 HTTP 服务。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day3-http-server">day3-http-server/main.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day3-http-server">day3-http-server/main.go - github</a></p>
 <pre><code class="language-go">package main
 
 import (
@@ -242,7 +242,7 @@ kkk not exist
 <ul>
 <li><a href="https://geektutu.com/post/quick-golang.html">Go 语言简明教程</a></li>
 <li><a href="https://geektutu.com/post/quick-go-test.html">Go Test 单元测试简明教程</a></li>
-<li><a href="https://geektutu.com/post/gee-day1.html">Go http.Handler 基础</a></li>
+<li><a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day1.html">Go http.Handler 基础</a></li>
 <li><a href="https://golang.org/pkg/http">http 官方文档 - golang.org</a></li>
 </ul>
 <h2 id="httppool-">白话复盘：HTTPPool 让别的节点也能读这份缓存</h2>

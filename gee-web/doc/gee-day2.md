@@ -13,12 +13,12 @@ keywords:
 - 动手写Web框架
 - Context
 image: post/gee/gee.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day2 上下文
 ---
 
-本文是 [7天用Go从零实现Web框架Gee教程系列](https://geektutu.com/post/gee.html)的第二篇。
+本文是 [7天用Go从零实现Web框架Gee教程系列](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.md)的第二篇。
 
 - 将`路由(router)`独立出来，方便之后增强。
 - 设计`上下文(Context)`，封装 Request 和 Response ，提供对 JSON、HTML 等返回类型的支持。
@@ -28,7 +28,7 @@ book_title: Day2 上下文
 
 为了展示第二天的成果，我们看一看在使用时的效果。
 
-[day2-context/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day2-context)
+[day2-context/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day2-context)
 
 
 ```go
@@ -93,7 +93,7 @@ c.JSON(http.StatusOK, gee.H{
 
 ### 具体实现
 
-[day2-context/gee/context.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day2-context)
+[day2-context/gee/context.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day2-context)
 
 ```go
 type H map[string]any
@@ -171,7 +171,7 @@ func (c *Context) HTML(code int, html string) {
 
 我们将和路由相关的方法和结构提取了出来，放到了一个新的文件中`router.go`，方便我们下一次对 router 的功能进行增强，例如提供动态路由的支持。 router 的 handle 方法作了一个细微的调整，即 handler 的参数，变成了 Context。
 
-[day2-context/gee/router.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day2-context)
+[day2-context/gee/router.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day2-context)
 
 ```go
 type router struct {
@@ -200,7 +200,7 @@ func (r *router) handle(c *Context) {
 
 ## 框架入口
 
-[day2-context/gee/gee.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day2-context)
+[day2-context/gee/gee.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day2-context)
 
 ```go
 // HandlerFunc defines the request handler used by gee

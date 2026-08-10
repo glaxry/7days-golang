@@ -13,12 +13,12 @@ keywords:
 - 动手写Web框架
 - net/http
 image: post/gee/gee.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day1 HTTP 基础
 ---
 
-本文是 [7天用Go从零实现Web框架Gee教程系列](https://geektutu.com/post/gee.html)的第一篇。
+本文是 [7天用Go从零实现Web框架Gee教程系列](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.md)的第一篇。
 
 - 简单介绍`net/http`库以及`http.Handler`接口。
 - 搭建`Gee`框架的雏形，**代码约50行**。
@@ -27,7 +27,7 @@ book_title: Day1 HTTP 基础
 
 Go语言内置了 `net/http`库，封装了HTTP网络编程的基础的接口，我们实现的`Gee` Web 框架便是基于`net/http`的。我们接下来通过一个例子，简单介绍下这个库的使用。
 
-**[day1-http-base/base1/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base1)**
+**[day1-http-base/base1/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base1)**
 
 ```go
 package main
@@ -85,7 +85,7 @@ func ListenAndServe(address string, h Handler) error
 
 第二个参数的类型是什么呢？通过查看`net/http`的源码可以发现，`Handler`是一个接口，需要实现方法 _ServeHTTP_ ，也就是说，只要传入任何实现了 _ServerHTTP_ 接口的实例，所有的HTTP请求，就都交给了该实例处理了。马上来试一试吧。
 
-**[day1-http-base/base2/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base2)**
+**[day1-http-base/base2/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base2)**
 
 ```go
 package main
@@ -140,7 +140,7 @@ go.mod
 
 ### go.mod
 
-**[day1-http-base/base3/go.mod](https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3)**
+**[day1-http-base/base3/go.mod](https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base3)**
 
 ```bash
 module example
@@ -158,7 +158,7 @@ replace gee => ./gee
 
 ### main.go
 
-**[day1-http-base/base3/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3)**
+**[day1-http-base/base3/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base3)**
 
 ```go
 package main
@@ -190,7 +190,7 @@ func main() {
 
 ### gee.go
 
-**[day1-http-base/base3/gee/gee.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3)**
+**[day1-http-base/base3/gee/gee.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base3)**
 
 ```go
 package gee

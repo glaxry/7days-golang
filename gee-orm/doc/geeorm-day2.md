@@ -15,12 +15,12 @@ keywords:
 - reflect
 - table mapping
 image: post/geeorm/geeorm_sm.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day2 对象表结构映射
 ---
 
-本文是[7天用Go从零实现ORM框架GeeORM](https://geektutu.com/post/geeorm.html)的第二篇。
+本文是[7天用Go从零实现ORM框架GeeORM](https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.md)的第二篇。
 
 - 使用 dialect 隔离不同数据库之间的差异，便于扩展。
 - 使用反射(reflect)获取任意 struct 对象的名称和字段，映射为数据中的表。
@@ -34,7 +34,7 @@ SQL 语句中的类型和 Go 语言中的类型是不同的，例如Go 语言中
 
 在根目录下新建文件夹 dialect，并在 dialect 文件夹下新建文件 `dialect.go`，抽象出各个数据库差异的部分。
 
-[day2-reflect-schema/dialect/dialect.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/dialect)
+[day2-reflect-schema/dialect/dialect.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema/dialect)
 
 ```go
 package dialect
@@ -69,7 +69,7 @@ func GetDialect(name string) (dialect Dialect, ok bool) {
 
 接下来，在`dialect` 目录下新建文件 `sqlite3.go` 增加对 SQLite 的支持。
 
-[day2-reflect-schema/dialect/sqlite3.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/dialect)
+[day2-reflect-schema/dialect/sqlite3.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema/dialect)
 
 ```go
 package dialect
@@ -147,7 +147,7 @@ CREATE TABLE `User` (`Name` text PRIMARY KEY, `Age` integer);
 
 我们将这部分代码的实现放置在一个子包 `schema/schema.go` 中。
 
-[day2-reflect-schema/schema/schema.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/schema)
+[day2-reflect-schema/schema/schema.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema/schema)
 
 ```go
 package schema
@@ -265,7 +265,7 @@ func New(db *sql.DB, dialect dialect.Dialect) *Session {
 
 在文件夹 `session` 下新建 `table.go` 用于放置操作数据库表相关的代码。
 
-[day2-reflect-schema/session/table.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/session)
+[day2-reflect-schema/session/table.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema/session)
 
 ```go
 func (s *Session) Model(value any) *Session {
@@ -337,7 +337,7 @@ func TestSession_CreateTable(t *testing.T) {
 
 因为 Session 构造函数增加了对 dialect 的依赖，Engine 需要作一些细微的调整。
 
-[day2-reflect-schema/geeorm.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema)
+[day2-reflect-schema/geeorm.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema)
 
 ```go
 type Engine struct {

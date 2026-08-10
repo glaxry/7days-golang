@@ -29,14 +29,15 @@ import (
 var assets embed.FS
 
 var (
-	markdownLinkRE = regexp.MustCompile(`href="([^"]+)\.md(#[^"]*)?"`)
-	firstH1RE      = regexp.MustCompile(`(?s)^\s*<h1[^>]*>.*?</h1>\s*`)
-	headingRE      = regexp.MustCompile(`(?s)<h([23]) id="([^"]+)">(.*?)</h[23]>`)
-	tagRE          = regexp.MustCompile(`<[^>]+>`)
-	markdownH1RE   = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
-	dayFileRE      = regexp.MustCompile(`day(\d+)`)
-	outputRefRE    = regexp.MustCompile(`(?:href|src)="([^"]+)"`)
-	outputIDRE     = regexp.MustCompile(`\sid="([^"]+)"`)
+	markdownLinkRE      = regexp.MustCompile(`href="([^"]+)\.md(#[^"]*)?"`)
+	firstH1RE           = regexp.MustCompile(`(?s)^\s*<h1[^>]*>.*?</h1>\s*`)
+	headingRE           = regexp.MustCompile(`(?s)<h([23]) id="([^"]+)">(.*?)</h[23]>`)
+	tagRE               = regexp.MustCompile(`<[^>]+>`)
+	markdownH1RE        = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
+	dayFileRE           = regexp.MustCompile(`day(\d+)`)
+	outputRefRE         = regexp.MustCompile(`(?:href|src)="([^"]+)"`)
+	outputIDRE          = regexp.MustCompile(`\sid="([^"]+)"`)
+	legacyProjectLinkRE = regexp.MustCompile(`https://github\.com/geektutu/7days-golang|https://github\.com/glaxry/7days-golang/(tree|blob)/master|https://geektutu\.com/post/(gee(-day[1-7])?|geecache(-day[1-7])?|geeorm(-day[1-7])?|geerpc(-day[1-7])?|7days-golang-q1|quick-go-wasm)\.html|ghttps://github\.com/`)
 )
 
 type document struct {
@@ -216,6 +217,9 @@ func loadDocuments(root string) ([]document, error) {
 		if err != nil {
 			return nil, err
 		}
+		if err := validateSourceLinks(path, string(data)); err != nil {
+			return nil, err
+		}
 		body, meta := splitFrontMatter(string(data))
 		title := documentTitle(path, body, meta)
 		docs = append(docs, document{
@@ -233,6 +237,13 @@ func loadDocuments(root string) ([]document, error) {
 		return documentOrder(docs[i].SourcePath) < documentOrder(docs[j].SourcePath)
 	})
 	return docs, nil
+}
+
+func validateSourceLinks(path, source string) error {
+	if legacy := legacyProjectLinkRE.FindString(source); legacy != "" {
+		return fmt.Errorf("%s: legacy or malformed project link %q", path, legacy)
+	}
+	return nil
 }
 
 func splitFrontMatter(source string) (string, map[string]string) {

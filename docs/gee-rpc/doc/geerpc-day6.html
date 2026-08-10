@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
         </header>
         <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
-<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第六篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第六篇。</p>
 <ul>
 <li>通过随机选择和 Round Robin 轮询调度算法实现服务端负载均衡，代码约 250 行</li>
 </ul>
@@ -52,7 +52,7 @@
 <li>随机选择策略 - 从服务列表中随机选择一个。</li>
 <li>轮询算法(Round Robin) - 依次调度不同的服务器，每次调度执行 i = (i + 1) mode n。</li>
 <li>加权轮询(Weight Round Robin) - 在轮询算法的基础上，为每个服务实例设置一个权重，高性能的机器赋予更高的权重，也可以根据服务实例的当前的负载情况做动态的调整，例如考虑最近5分钟部署服务器的 CPU、内存消耗情况。</li>
-<li>哈希/一致性哈希策略 - 依据请求的某些特征，计算一个 hash 值，根据 hash 值将请求发送到对应的机器。一致性 hash 还可以解决服务实例动态添加情况下，调度抖动的问题。一致性哈希的一个典型应用场景是分布式缓存服务。感兴趣可以阅读<a href="https://geektutu.com/post/geecache-day4.html">动手写分布式缓存 - GeeCache第四天 一致性哈希(hash)</a></li>
+<li>哈希/一致性哈希策略 - 依据请求的某些特征，计算一个 hash 值，根据 hash 值将请求发送到对应的机器。一致性 hash 还可以解决服务实例动态添加情况下，调度抖动的问题。一致性哈希的一个典型应用场景是分布式缓存服务。感兴趣可以阅读<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day4.html">动手写分布式缓存 - GeeCache第四天 一致性哈希(hash)</a></li>
 <li>...</li>
 </ul>
 <h2 id="heading-1">服务发现</h2>
@@ -69,7 +69,7 @@
 </ul>
 </li>
 </ul>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day6-load-balance">day6-load-balance/xclient/discovery.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day6-load-balance">day6-load-balance/xclient/discovery.go</a></p>
 <pre><code class="language-go">package xclient
 
 import (
@@ -166,7 +166,7 @@ func (d *MultiServersDiscovery) GetAll() ([]string, error) {
 </code></pre>
 <h2 id="heading-2">支持负载均衡的客户端</h2>
 <p>接下来，我们向用户暴露一个支持负载均衡的客户端 XClient。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day6-load-balance">day6-load-balance/xclient/xclient.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day6-load-balance">day6-load-balance/xclient/xclient.go</a></p>
 <pre><code class="language-go">package xclient
 
 import (
@@ -294,7 +294,7 @@ func (xc *XClient) Broadcast(ctx context.Context, serviceMethod string, args, re
 <h2 id="demo">Demo</h2>
 <p>又到了 Demo 环节，我们还是借助一个简单的 Demo 验证今天的成果吧。</p>
 <p>首先，启动 RPC 服务的代码还是类似的，Sum 是正常的方法，Sleep 用于验证 XClient 的超时机制能否正常运作。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day6-load-balance">day6-load-balance/main/main.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day6-load-balance">day6-load-balance/main/main.go</a></p>
 <pre><code class="language-go">package main
 
 import (

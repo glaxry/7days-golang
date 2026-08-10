@@ -13,21 +13,21 @@ keywords:
 - HTTP客户端
 - 分布式节点
 image: post/geecache-day6/singleflight_logo.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day6 防止缓存击穿
 ---
 
 ![geecache single flight](geecache-day6/singleflight.jpg)
 
-本文是[7天用Go从零实现分布式缓存GeeCache](https://geektutu.com/post/geecache.html)的第六篇。
+本文是[7天用Go从零实现分布式缓存GeeCache](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.md)的第六篇。
 
 - 缓存雪崩、缓存击穿与缓存穿透的概念简介。
 - 使用 singleflight 防止缓存击穿，实现与测试。**代码约70行**
 
 ## 1 缓存雪崩、缓存击穿与缓存穿透
 
-[GeeCache 第五天](https://geektutu.com/post/geecache-day5.html) 提到了缓存雪崩和缓存击穿，在这里做下总结：
+[GeeCache 第五天](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day5.md) 提到了缓存雪崩和缓存击穿，在这里做下总结：
 
 > **缓存雪崩**：缓存在同一时刻全部失效，造成瞬时DB请求量大、压力骤增，引起雪崩。缓存雪崩通常因为缓存服务器宕机、缓存的 key 设置了相同的过期时间等引起。
 
@@ -37,7 +37,7 @@ book_title: Day6 防止缓存击穿
 
 ## 2 singleflight 的实现
 
-还记得 [GeeCache 第五天](https://geektutu.com/post/geecache-day5.html) 最后的测试结果吗？
+还记得 [GeeCache 第五天](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day5.md) 最后的测试结果吗？
 
 ```bash
 2020/02/16 21:17:45 [Server http://localhost:8003] Pick peer http://localhost:8001
@@ -49,7 +49,7 @@ book_title: Day6 防止缓存击穿
 
 geecache 实现了一个名为 singleflight 的 package 来解决这个问题。
 
-[day6-single-flight/geecache/singleflight/singleflight.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day6-single-flight/geecache/singleflight)
+[day6-single-flight/geecache/singleflight/singleflight.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day6-single-flight/geecache/singleflight)
 
 首先创建 `call` 和 `Group` 类型。
 
@@ -135,7 +135,7 @@ func (g *Group) Do(key string, fn func() (any, error)) (any, error) {
 
 ## 3 singleflight 的使用
 
-[day6-single-flight/geecache/geecache.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day6-single-flight/geecache)
+[day6-single-flight/geecache/geecache.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day6-single-flight/geecache)
 
 ```go
 type Group struct {

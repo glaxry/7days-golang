@@ -41,7 +41,7 @@
           <h1>动手写ORM框架 - GeeORM第一天 database/sql 基础</h1>
           <p>7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。介绍了 SQLite 的基础操作（连接数…</p>
         </header>
-        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第一篇。介绍了</p>
+        <div class="prose"><p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第一篇。介绍了</p>
 <ul>
 <li>SQLite 的基础操作（连接数据库，创建表、增删记录等）。</li>
 <li>使用 Go 语言标准库 database/sql 连接并操作 SQLite 数据库，并简单封装。<strong>代码约150行</strong></li>
@@ -151,7 +151,7 @@ func main() {
     |--go.mod
 </code></pre>
 <p>第一步，创建 2 个日志实例分别用于打印 Info 和 Error 日志。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day1-database-sql/log">day1-database-sql/log/log.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql/log">day1-database-sql/log/log.go</a></p>
 <pre><code class="language-go">package log
 
 import (
@@ -213,7 +213,7 @@ func SetLevel(level int) {
 <p>至此呢，一个简单的支持分级的 log 库就实现完成了。</p>
 <h2 id="4--session">4 核心结构 Session</h2>
 <p>我们在根目录下新建一个文件夹 session，用于实现与数据库的交互。今天我们只实现直接调用 SQL 语句进行原生交互的部分，这部分代码实现在 <code>session/raw.go</code> 中。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day1-database-sql/session">day1-database-sql/session/raw.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql/session">day1-database-sql/session/raw.go</a></p>
 <pre><code class="language-go">package session
 
 import (
@@ -286,7 +286,7 @@ func (s *Session) QueryRows() (rows *sql.Rows, err error) {
 </ul>
 <h2 id="5--engine">5 核心结构 Engine</h2>
 <p>Session 负责与数据库的交互，那交互前的准备工作（比如连接/测试数据库），交互后的收尾工作（关闭连接）等就交给 Engine 来负责了。Engine 是 GeeORM 与用户交互的入口。代码位于根目录的 <code>geeorm.go</code>。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day1-database-sql">day1-database-sql/geeorm.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql">day1-database-sql/geeorm.go</a></p>
 <pre><code class="language-go">package geeorm
 
 import (
@@ -344,7 +344,7 @@ func (engine *Engine) NewSession() *session.Session {
 <h2 id="6-">6 测试</h2>
 <p>GeeORM 的单元测试是比较完备的，可以参考 <code>log_test.go</code>、<code>raw_test.go</code> 和 <code>geeorm_test.go</code> 等几个测试文件，在这里呢，就不一一讲解了。接下来呢，我们将 geeorm 视为第三方库来使用。</p>
 <p>在根目录下新建 cmd_test 目录放置测试代码，新建文件 main.go。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day1-database-sql/cmd_test">day1-database-sql/cmd_test/main.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql/cmd_test">day1-database-sql/cmd_test/main.go</a></p>
 <pre><code class="language-go">package main
 
 import (

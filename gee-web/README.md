@@ -10,13 +10,13 @@
 
 ### Content
 
-- [第一天：前置知识(http.Handler接口)](https://geektutu.com/post/gee-day1.html)
-- [第二天：上下文设计(Context)](https://geektutu.com/post/gee-day2.html)
-- [第三天：Trie树路由(Router)](https://geektutu.com/post/gee-day3.html)
-- [第四天：分组控制(Group)](https://geektutu.com/post/gee-day4.html)
-- [第五天：中间件(Middleware)](https://geektutu.com/post/gee-day5.html)
-- [第六天：HTML模板(Template)](https://geektutu.com/post/gee-day6.html)
-- [第七天：错误恢复(Panic Recover)](https://geektutu.com/post/gee-day7.html)
+- [第一天：前置知识(http.Handler接口)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day1.md)
+- [第二天：上下文设计(Context)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day2.md)
+- [第三天：Trie树路由(Router)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day3.md)
+- [第四天：分组控制(Group)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day4.md)
+- [第五天：中间件(Middleware)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day5.md)
+- [第六天：HTML模板(Template)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day6.md)
+- [第七天：错误恢复(Panic Recover)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day7.md)
 
 </div>
 </details>

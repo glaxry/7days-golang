@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
         </header>
         <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
-<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第四篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第四篇。</p>
 <ul>
 <li>增加连接超时的处理机制</li>
 <li>增加服务端处理超时的处理机制，代码约 100 行</li>
@@ -82,7 +82,7 @@ var DefaultOption = &amp;Option{
 }
 </code></pre>
 <p>客户端连接超时，只需要为 Dial 添加一层超时处理的外壳即可。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day4-timeout">day4-timeout/client.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day4-timeout">day4-timeout/client.go</a></p>
 <pre><code class="language-go">type clientResult struct {
 	client *Client
 	err    error
@@ -157,7 +157,7 @@ err := client.Call(ctx, &quot;Foo.Sum&quot;, &amp;Args{1, 2}, &amp;reply)
 </code></pre>
 <h2 id="heading-2">服务端处理超时</h2>
 <p>这一部分的实现与客户端很接近，使用可停止的 <code>time.Timer</code> 结合 <code>select</code> 和带缓冲 channel 完成。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day4-timeout">day4-timeout/server.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day4-timeout">day4-timeout/server.go</a></p>
 <pre><code class="language-go">func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.Mutex, wg *sync.WaitGroup, timeout time.Duration) {
 	defer wg.Done()
 	send := func(err error) {
@@ -196,7 +196,7 @@ err := client.Call(ctx, &quot;Foo.Sum&quot;, &amp;Args{1, 2}, &amp;reply)
 <p><code>time.NewTimer</code> 配合 <code>Stop</code> 明确了定时器生命周期；<code>timeout == 0</code> 时直接同步调用，避免创建无意义的 goroutine。</p>
 <h2 id="heading-3">测试用例</h2>
 <p>第一个测试用例，用于测试连接超时。NewClient 函数耗时 2s，ConnectionTimeout 分别设置为 1s 和 0 两种场景。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day4-timeout">day4-timeout/client_test.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day4-timeout">day4-timeout/client_test.go</a></p>
 <pre><code class="language-go">func TestClient_dialTimeout(t *testing.T) {
 	l, _ := net.Listen(&quot;tcp&quot;, &quot;:0&quot;)
 

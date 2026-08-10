@@ -13,14 +13,14 @@ keywords:
 - 分布式缓存
 - HTTP Server
 image: post/geecache-day3/http_logo.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day3 HTTP 服务端
 ---
 
 ![geecache http server](geecache-day3/http.jpg)
 
-本文是[7天用Go从零实现分布式缓存GeeCache](https://geektutu.com/post/geecache.html)的第三篇。
+本文是[7天用Go从零实现分布式缓存GeeCache](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.md)的第三篇。
 
 - 介绍如何使用 Go 语言标准库 `http` 搭建 HTTP Server
 - 并实现 main 函数启动 HTTP Server 测试 API，**代码约60行**
@@ -99,7 +99,7 @@ geecache/
 
 首先我们创建一个结构体 `HTTPPool`，作为承载节点间 HTTP 通信的核心数据结构（包括服务端和客户端，今天只实现服务端）。
 
-[day3-http-server/geecache/http.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day3-http-server/geecache)
+[day3-http-server/geecache/http.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day3-http-server/geecache)
 
 ```go
 package geecache
@@ -183,7 +183,7 @@ func (p *HTTPPool) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 实现 main 函数，实例化 group，并启动 HTTP 服务。
 
-[day3-http-server/main.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day3-http-server)
+[day3-http-server/main.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day3-http-server)
 
 ```go
 package main
@@ -252,7 +252,7 @@ GeeCache 的日志输出如下：
 
 - [Go 语言简明教程](https://geektutu.com/post/quick-golang.html)
 - [Go Test 单元测试简明教程](https://geektutu.com/post/quick-go-test.html)
-- [Go http.Handler 基础](https://geektutu.com/post/gee-day1.html)
+- [Go http.Handler 基础](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day1.md)
 - [http 官方文档 - golang.org](https://golang.org/pkg/http)
 
 ## 白话复盘：HTTPPool 让别的节点也能读这份缓存

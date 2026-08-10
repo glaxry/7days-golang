@@ -13,12 +13,12 @@ keywords:
 - 动手写Web框架
 - Route
 image: post/gee-day3/trie_router.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day3 前缀树路由
 ---
 
-本文是 [7天用Go从零实现Web框架Gee教程系列](https://geektutu.com/post/gee.html)的第三篇。
+本文是 [7天用Go从零实现Web框架Gee教程系列](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.md)的第三篇。
 
 - 使用 Trie 树实现动态路由(dynamic route)解析。
 - 支持两种模式`:name`和`*filepath`，**代码约150行**。
@@ -55,7 +55,7 @@ HTTP请求的路径恰好是由`/`分隔的多段构成的，因此，每一段�
 
 首先我们需要设计树节点上应该存储那些信息。
 
-**[day3-router/gee/trie.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day3-router)**
+**[day3-router/gee/trie.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day3-router)**
 
 ```go
 type node struct {

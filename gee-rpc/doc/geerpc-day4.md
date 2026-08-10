@@ -12,14 +12,14 @@ keywords:
 - 从零实现RPC框架
 - 连接超时
 image: post/geerpc/geerpc.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day4 超时处理
 ---
 
 ![golang RPC framework](geerpc/geerpc.jpg)
 
-本文是[7天用Go从零实现RPC框架GeeRPC](https://geektutu.com/post/geerpc.html)的第四篇。
+本文是[7天用Go从零实现RPC框架GeeRPC](https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.md)的第四篇。
 
 - 增加连接超时的处理机制
 - 增加服务端处理超时的处理机制，代码约 100 行
@@ -69,7 +69,7 @@ var DefaultOption = &Option{
 
 客户端连接超时，只需要为 Dial 添加一层超时处理的外壳即可。
 
-[day4-timeout/client.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day4-timeout)
+[day4-timeout/client.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day4-timeout)
 
 ```go
 type clientResult struct {
@@ -156,7 +156,7 @@ err := client.Call(ctx, "Foo.Sum", &Args{1, 2}, &reply)
 
 这一部分的实现与客户端很接近，使用可停止的 `time.Timer` 结合 `select` 和带缓冲 channel 完成。
 
-[day4-timeout/server.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day4-timeout)
+[day4-timeout/server.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day4-timeout)
 
 ```go
 func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.Mutex, wg *sync.WaitGroup, timeout time.Duration) {
@@ -201,7 +201,7 @@ func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.
 
 第一个测试用例，用于测试连接超时。NewClient 函数耗时 2s，ConnectionTimeout 分别设置为 1s 和 0 两种场景。
 
-[day4-timeout/client_test.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day4-timeout)
+[day4-timeout/client_test.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day4-timeout)
 
 ```go
 func TestClient_dialTimeout(t *testing.T) {

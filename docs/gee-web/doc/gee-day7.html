@@ -41,7 +41,7 @@
           <h1>Go语言动手写Web框架 - Gee第七天 错误恢复(Panic Recover)</h1>
           <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何为Web框架增加错误处理机制。</p>
         </header>
-        <div class="prose"><p>本文是<a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第七篇。</p>
+        <div class="prose"><p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第七篇。</p>
 <ul>
 <li>实现错误处理机制。</li>
 </ul>
@@ -122,7 +122,7 @@ after recover
 <p>我们可以看到，recover 捕获了 panic，程序正常结束。<em>test_recover()</em> 中的 <em>after panic</em> 没有打印，这是正确的，当 panic 被触发时，控制权就被交给了 defer 。就像在 java 中，<code>try</code>代码块中发生了异常，控制权交给了 <code>catch</code>，接下来执行 catch 代码块中的代码。而在 <em>main()</em> 中打印了 <em>after recover</em>，说明程序已经恢复正常，继续往下执行直到结束。</p>
 <h2 id="gee-">Gee 的错误处理机制</h2>
 <p>对一个 Web 框架而言，错误处理机制是非常必要的。可能是框架本身没有完备的测试，导致在某些情况下出现空指针异常等情况。也有可能用户不正确的参数，触发了某些异常，例如数组越界，空指针等。如果因为这些原因导致系统宕机，必然是不可接受的。</p>
-<p>我们在<a href="https://geektutu.com/post/gee-day6.html">第六天</a>实现的框架并没有加入异常处理机制，如果代码中存在会触发 panic 的 BUG，很容易宕掉。</p>
+<p>我们在<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day6.html">第六天</a>实现的框架并没有加入异常处理机制，如果代码中存在会触发 panic 的 BUG，很容易宕掉。</p>
 <p>例如下面的代码：</p>
 <pre><code class="language-go">func main() {
 	r := gee.New()
@@ -153,7 +153,7 @@ after recover
 </code></pre>
 <p><code>Recovery</code> 的实现非常简单，使用 defer 挂载上错误恢复的函数，在这个函数中调用 <em>recover()</em>，捕获 panic，并且将堆栈信息打印在日志中，向用户返回 <em>Internal Server Error</em>。</p>
 <p>你可能注意到，这里有一个 <em>trace()</em> 函数，这个函数是用来获取触发 panic 的堆栈信息，完整代码如下：</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day7-panic-recover">day7-panic-recover/gee/recovery.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day7-panic-recover">day7-panic-recover/gee/recovery.go</a></p>
 <pre><code class="language-go">package gee
 
 import (
@@ -197,7 +197,7 @@ func Recovery() HandlerFunc {
 <p>接下来，通过 <code>runtime.FuncForPC(pc)</code> 获取对应的函数，在通过 <code>fn.FileLine(pc)</code> 获取到调用该函数的文件名和行号，打印在日志中。</p>
 <p>至此，gee 框架的错误处理机制就完成了。</p>
 <h2 id="-demo">使用 Demo</h2>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day7-panic-recover">day7-panic-recover/main.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day7-panic-recover">day7-panic-recover/main.go</a></p>
 <pre><code class="language-go">package main
 
 import (

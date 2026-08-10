@@ -14,14 +14,14 @@ keywords:
 - 异步
 - 并发
 image: post/geerpc/geerpc.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day2 高性能客户端
 ---
 
 ![golang RPC framework](geerpc/geerpc.jpg)
 
-本文是[7天用Go从零实现RPC框架GeeRPC](https://geektutu.com/post/geerpc.html)的第二篇。
+本文是[7天用Go从零实现RPC框架GeeRPC](https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.md)的第二篇。
 
 - 实现一个支持异步和并发的高性能客户端，代码约 250 行
 
@@ -44,7 +44,7 @@ func (t *T) MethodName(argType T1, replyType *T2) error
 
 根据上述要求，首先我们封装了结构体 Call 来承载一次 RPC 调用所需要的信息。
 
-[day2-client/client.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day2-client)
+[day2-client/client.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day2-client)
 
 ```go
 // Call represents an active RPC.
@@ -333,7 +333,7 @@ func (client *Client) Call(serviceMethod string, args, reply any) error {
 
 第一天 GeeRPC 只实现了服务端，因此我们在 main 函数中手动模拟了整个通信过程，今天我们就将 main 函数中通信部分替换为今天的客户端吧。
 
-[day2-client/main/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day2-client)
+[day2-client/main/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day2-client)
 
 startServer 没有发生变化。
 

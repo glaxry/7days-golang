@@ -15,12 +15,12 @@ keywords:
 - chain operation
 - delete from
 image: post/geeorm/geeorm_sm.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day4 链式操作与更新删除
 ---
 
-本文是[7天用Go从零实现ORM框架GeeORM](https://geektutu.com/post/geeorm.html)的第四篇。
+本文是[7天用Go从零实现ORM框架GeeORM](https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.md)的第四篇。
 
 - 通过链式(chain)操作，支持查询条件(where, order by, limit 等)的叠加。
 - 实现记录的更新(update)、删除(delete)和统计(count)功能。**代码约100行**
@@ -33,7 +33,7 @@ clause 负责构造 SQL 语句，如果需要增加对更新(update)、删除(de
 
 第一步：在原来的基础上，新增 UPDATE、DELETE、COUNT 三个 `Type` 类型的枚举值。
 
-[day4-chain-operation/clause/clause.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day4-chain-operation/clause)
+[day4-chain-operation/clause/clause.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day4-chain-operation/clause)
 
 ```go
 // Support types for Clause
@@ -52,7 +52,7 @@ const (
 
 第二步：实现对应字句的 generator，并注册到全局变量 `generators` 中
 
-[day4-chain-operation/clause/generator.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day4-chain-operation/clause)
+[day4-chain-operation/clause/generator.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day4-chain-operation/clause)
 
 ```go
 func init() {
@@ -98,7 +98,7 @@ func _count(values ...any) (string, []any) {
 
 子句的 generator 已经准备好了，接下来和 Insert、Find 等方法一样，在 `session/record.go` 中按照一定顺序拼接 SQL 语句并调用就可以了。
 
-[day4-chain-operation/session/record.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day4-chain-operation/session)
+[day4-chain-operation/session/record.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day4-chain-operation/session)
 
 ```go
 // support map[string]any
@@ -169,7 +169,7 @@ s.Where("Age > 18").Limit(3).Find(&users)
 
 从上面的示例中，可以看出，`WHERE`、`LIMIT`、`ORDER BY` 等查询条件语句非常适合链式调用。这几个子句的 generator 在之前就已经实现了，那我们接下来在 `session/record.go` 中添加对应的方法即可。
 
-[day4-chain-operation/session/record.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day4-chain-operation/session)
+[day4-chain-operation/session/record.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day4-chain-operation/session)
 
 ```go
 // Limit adds limit condition to clause

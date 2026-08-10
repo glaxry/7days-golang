@@ -42,13 +42,13 @@
           <p>7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了缓存雪崩、缓存击穿与缓存穿透的概念，使用 singleflight 防…</p>
         </header>
         <div class="prose"><p><img src="geecache-day6/singleflight.jpg" alt="geecache single flight"></p>
-<p>本文是<a href="https://geektutu.com/post/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第六篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第六篇。</p>
 <ul>
 <li>缓存雪崩、缓存击穿与缓存穿透的概念简介。</li>
 <li>使用 singleflight 防止缓存击穿，实现与测试。<strong>代码约70行</strong></li>
 </ul>
 <h2 id="1-">1 缓存雪崩、缓存击穿与缓存穿透</h2>
-<p><a href="https://geektutu.com/post/geecache-day5.html">GeeCache 第五天</a> 提到了缓存雪崩和缓存击穿，在这里做下总结：</p>
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day5.html">GeeCache 第五天</a> 提到了缓存雪崩和缓存击穿，在这里做下总结：</p>
 <blockquote>
 <p><strong>缓存雪崩</strong>：缓存在同一时刻全部失效，造成瞬时DB请求量大、压力骤增，引起雪崩。缓存雪崩通常因为缓存服务器宕机、缓存的 key 设置了相同的过期时间等引起。</p>
 </blockquote>
@@ -59,14 +59,14 @@
 <p><strong>缓存穿透</strong>：查询一个不存在的数据，因为不存在则不会写到缓存中，所以每次都会去请求 DB，如果瞬间流量过大，穿透到 DB，导致宕机。</p>
 </blockquote>
 <h2 id="2-singleflight-">2 singleflight 的实现</h2>
-<p>还记得 <a href="https://geektutu.com/post/geecache-day5.html">GeeCache 第五天</a> 最后的测试结果吗？</p>
+<p>还记得 <a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day5.html">GeeCache 第五天</a> 最后的测试结果吗？</p>
 <pre><code class="language-bash">2020/02/16 21:17:45 [Server http://localhost:8003] Pick peer http://localhost:8001
 2020/02/16 21:17:45 [Server http://localhost:8003] Pick peer http://localhost:8001
 2020/02/16 21:17:45 [Server http://localhost:8003] Pick peer http://localhost:8001
 </code></pre>
 <p>我们并发了 N 个请求 <code>?key=Tom</code>，8003 节点向 8001 同时发起了 N 次请求。假设对数据库的访问没有做任何限制的，很可能向数据库也发起 N 次请求，容易导致缓存击穿和穿透。即使对数据库做了防护，HTTP 请求是非常耗费资源的操作，针对相同的 key，8003 节点向 8001 发起三次请求也是没有必要的。那这种情况下，我们如何做到只向远端节点发起一次请求呢？</p>
 <p>geecache 实现了一个名为 singleflight 的 package 来解决这个问题。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day6-single-flight/geecache/singleflight">day6-single-flight/geecache/singleflight/singleflight.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day6-single-flight/geecache/singleflight">day6-single-flight/geecache/singleflight/singleflight.go - github</a></p>
 <p>首先创建 <code>call</code> 和 <code>Group</code> 类型。</p>
 <pre><code class="language-go">package singleflight
 
@@ -142,7 +142,7 @@ type Group struct {
 <li>wg.Done() 锁减1。</li>
 </ul>
 <h2 id="3-singleflight-">3 singleflight 的使用</h2>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day6-single-flight/geecache">day6-single-flight/geecache/geecache.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day6-single-flight/geecache">day6-single-flight/geecache/geecache.go - github</a></p>
 <pre><code class="language-go">type Group struct {
 	name      string
 	getter    Getter

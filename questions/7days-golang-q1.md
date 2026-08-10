@@ -12,7 +12,7 @@ keywords:
 - 接口型函数
 - net/http
 image: post/7days-golang-q1/7days-golang-qa.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: 接口型函数
 ---
@@ -21,7 +21,7 @@ book_title: 接口型函数
 
 ## 问题
 
-在 [动手写分布式缓存 - GeeCache第二天 单机并发缓存](https://geektutu.com/post/geecache-day2.html) 这篇文章中，有一个接口型函数的实现：
+在 [动手写分布式缓存 - GeeCache第二天 单机并发缓存](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day2.md) 这篇文章中，有一个接口型函数的实现：
 
 ```go
 // A Getter loads data for a key.
@@ -174,7 +174,7 @@ func (mux *ServeMux) HandleFunc(pattern string, handler func(ResponseWriter, *Re
 }
 ```
 
-如果你仔细观察，会发现 `http.ListenAndServe` 的第二个参数也是接口类型 `Handler`，我们使用了标准库 `net/http` 内置的路由，因此呢，传入的值是 nil。那如果这个地方我们传入的是一个实现了 `Handler` 接口的结构体呢？就可以完全托管所有的 HTTP 请求，后续怎么路由，怎么处理，请求前后增加什么功能，都可以自定义了。慢慢地，就变成了一个功能丰富的 Web 框架了。如果你感兴趣呢，可以阅读 [7天用Go从零实现Web框架Gee教程](https://geektutu.com/post/gee.html)。
+如果你仔细观察，会发现 `http.ListenAndServe` 的第二个参数也是接口类型 `Handler`，我们使用了标准库 `net/http` 内置的路由，因此呢，传入的值是 nil。那如果这个地方我们传入的是一个实现了 `Handler` 接口的结构体呢？就可以完全托管所有的 HTTP 请求，后续怎么路由，怎么处理，请求前后增加什么功能，都可以自定义了。慢慢地，就变成了一个功能丰富的 Web 框架了。如果你感兴趣呢，可以阅读 [7天用Go从零实现Web框架Gee教程](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.md)。
 
 ## 其他语言类似特性
 
@@ -199,5 +199,5 @@ Collections.sort(list, (Integer o1, Integer o2) -> o2 - o1 );
 
 ## 附 参考
 
-- [7days-golang 有价值的问题讨论汇总贴](https://github.com/geektutu/7days-golang/issues/24)
+- [新版仓库问题讨论区](https://github.com/glaxry/7days-golang/issues)
 - [GeeCache第二天 单机并发缓存 - Github 评论区](https://github.com/geektutu/blog/issues/64)

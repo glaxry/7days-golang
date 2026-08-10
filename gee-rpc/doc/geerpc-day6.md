@@ -13,14 +13,14 @@ keywords:
 - 负载均衡
 - 轮询调度
 image: post/geerpc/geerpc.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day6 负载均衡
 ---
 
 ![golang RPC framework](geerpc/geerpc.jpg)
 
-本文是[7天用Go从零实现RPC框架GeeRPC](https://geektutu.com/post/geerpc.html)的第六篇。
+本文是[7天用Go从零实现RPC框架GeeRPC](https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.md)的第六篇。
 
 - 通过随机选择和 Round Robin 轮询调度算法实现服务端负载均衡，代码约 250 行
 
@@ -31,7 +31,7 @@ book_title: Day6 负载均衡
 - 随机选择策略 - 从服务列表中随机选择一个。
 - 轮询算法(Round Robin) - 依次调度不同的服务器，每次调度执行 i = (i + 1) mode n。
 - 加权轮询(Weight Round Robin) - 在轮询算法的基础上，为每个服务实例设置一个权重，高性能的机器赋予更高的权重，也可以根据服务实例的当前的负载情况做动态的调整，例如考虑最近5分钟部署服务器的 CPU、内存消耗情况。
-- 哈希/一致性哈希策略 - 依据请求的某些特征，计算一个 hash 值，根据 hash 值将请求发送到对应的机器。一致性 hash 还可以解决服务实例动态添加情况下，调度抖动的问题。一致性哈希的一个典型应用场景是分布式缓存服务。感兴趣可以阅读[动手写分布式缓存 - GeeCache第四天 一致性哈希(hash)](https://geektutu.com/post/geecache-day4.html)
+- 哈希/一致性哈希策略 - 依据请求的某些特征，计算一个 hash 值，根据 hash 值将请求发送到对应的机器。一致性 hash 还可以解决服务实例动态添加情况下，调度抖动的问题。一致性哈希的一个典型应用场景是分布式缓存服务。感兴趣可以阅读[动手写分布式缓存 - GeeCache第四天 一致性哈希(hash)](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day4.md)
 - ...
 
 ## 服务发现
@@ -47,7 +47,7 @@ book_title: Day6 负载均衡
     - Get(mode SelectMode) 根据负载均衡策略，选择一个服务实例
     - GetAll() 返回所有的服务实例
 
-[day6-load-balance/xclient/discovery.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day6-load-balance)
+[day6-load-balance/xclient/discovery.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day6-load-balance)
 
 ```go
 package xclient
@@ -154,7 +154,7 @@ func (d *MultiServersDiscovery) GetAll() ([]string, error) {
 
 接下来，我们向用户暴露一个支持负载均衡的客户端 XClient。
 
-[day6-load-balance/xclient/xclient.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day6-load-balance)
+[day6-load-balance/xclient/xclient.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day6-load-balance)
 
 ```go
 package xclient
@@ -295,7 +295,7 @@ Broadcast 将请求广播到所有的服务实例，如果任意一个实例发�
 
 首先，启动 RPC 服务的代码还是类似的，Sum 是正常的方法，Sleep 用于验证 XClient 的超时机制能否正常运作。
 
-[day6-load-balance/main/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day6-load-balance)
+[day6-load-balance/main/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day6-load-balance)
 
 ```go
 package main

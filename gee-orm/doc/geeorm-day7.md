@@ -14,12 +14,12 @@ keywords:
 - sqlite
 - migrate
 image: post/geeorm/geeorm_sm.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day7 数据库迁移
 ---
 
-本文是[7天用Go从零实现ORM框架GeeORM](https://geektutu.com/post/geeorm.html)的第七篇。
+本文是[7天用Go从零实现ORM框架GeeORM](https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.md)的第七篇。
 
 - 结构体(struct)变更时，数据库表的字段(field)自动迁移(migrate)。
 - 仅支持字段新增与删除，不支持字段类型变更。**代码约70行**

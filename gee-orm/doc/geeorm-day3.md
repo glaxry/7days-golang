@@ -15,12 +15,12 @@ keywords:
 - insert into
 - select from
 image: post/geeorm/geeorm_sm.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day3 记录新增和查询
 ---
 
-本文是[7天用Go从零实现ORM框架GeeORM](https://geektutu.com/post/geeorm.html)的第三篇。
+本文是[7天用Go从零实现ORM框架GeeORM](https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.md)的第三篇。
 
 - 实现新增(insert)记录的功能。
 - 使用反射(reflect)将数据库的记录转换为对应的结构体实例，实现查询(select)功能。**代码约150行**
@@ -41,7 +41,7 @@ SELECT col1, col2, ...
 
 首先在 `clause/generator.go` 中实现各个子句的生成规则。
 
-[day3-save-query/clause/generator.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/clause)
+[day3-save-query/clause/generator.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/clause)
 
 
 ```go
@@ -127,7 +127,7 @@ func _orderBy(values ...any) (string, []any) {
 
 然后在 `clause/clause.go` 中实现结构体 `Clause` 拼接各个独立的子句。
 
-[day3-save-query/clause/clause.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/clause)
+[day3-save-query/clause/clause.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/clause)
 
 ```go
 package clause
@@ -247,7 +247,7 @@ s.Insert(u1, u2, ...)
 
 因此在实现 Insert 功能之前，还需要给 `Schema` 新增一个函数 `RecordValues` 完成上述的转换。
 
-[day3-save-query/schema/schema.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/schema)
+[day3-save-query/schema/schema.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/schema)
 
 ```go
 func (schema *Schema) RecordValues(dest any) []any {
@@ -262,7 +262,7 @@ func (schema *Schema) RecordValues(dest any) []any {
 
 在 session 文件夹下新建 record.go，用于实现记录增删查改相关的代码。
 
-[day3-save-query/session/record.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/session)
+[day3-save-query/session/record.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/session)
 
 ```go
 package session
@@ -352,7 +352,7 @@ Find 的代码实现比较复杂，主要分为以下几步：
 
 > `User` 和 `NewSession()` 的定义位于 raw_test.go 中。
 
-[day3-save-query/session/record_test.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/session)
+[day3-save-query/session/record_test.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/session)
 
 ```go
 package session

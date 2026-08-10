@@ -41,7 +41,7 @@
           <h1>动手写ORM框架 - GeeORM第二天 对象表结构映射</h1>
           <p>7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。使用反射(reflect)获取任意 st…</p>
         </header>
-        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第二篇。</p>
+        <div class="prose"><p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第二篇。</p>
 <ul>
 <li>使用 dialect 隔离不同数据库之间的差异，便于扩展。</li>
 <li>使用反射(reflect)获取任意 struct 对象的名称和字段，映射为数据中的表。</li>
@@ -51,7 +51,7 @@
 <p>SQL 语句中的类型和 Go 语言中的类型是不同的，例如Go 语言中的 <code>int</code>、<code>int8</code>、<code>int16</code> 等类型均对应 SQLite 中的 <code>integer</code> 类型。因此实现 ORM 映射的第一步，需要思考如何将 Go 语言的类型映射为数据库中的类型。</p>
 <p>同时，不同数据库支持的数据类型也是有差异的，即使功能相同，在 SQL 语句的表达上也可能有差异。ORM 框架往往需要兼容多种数据库，因此我们需要将差异的这一部分提取出来，每一种数据库分别实现，实现最大程度的复用和解耦。这部分代码称之为 <code>dialect</code>。</p>
 <p>在根目录下新建文件夹 dialect，并在 dialect 文件夹下新建文件 <code>dialect.go</code>，抽象出各个数据库差异的部分。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/dialect">day2-reflect-schema/dialect/dialect.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema/dialect">day2-reflect-schema/dialect/dialect.go</a></p>
 <pre><code class="language-go">package dialect
 
 import &quot;reflect&quot;
@@ -80,7 +80,7 @@ func GetDialect(name string) (dialect Dialect, ok bool) {
 <p>当然，不同数据库之间的差异远远不止这两个地方，随着 ORM 框架功能的增多，dialect 的实现也会逐渐丰富起来，同时框架的其他部分不会受到影响。</p>
 <p>同时，声明了 <code>RegisterDialect</code> 和 <code>GetDialect</code> 两个方法用于注册和获取 dialect 实例。如果新增加对某个数据库的支持，那么调用 <code>RegisterDialect</code> 即可注册到全局。</p>
 <p>接下来，在<code>dialect</code> 目录下新建文件 <code>sqlite3.go</code> 增加对 SQLite 的支持。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/dialect">day2-reflect-schema/dialect/sqlite3.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema/dialect">day2-reflect-schema/dialect/sqlite3.go</a></p>
 <pre><code class="language-go">package dialect
 
 import (
@@ -147,7 +147,7 @@ func (s *sqlite3) TableExistSQL(tableName string) (string, []any) {
 <pre><code class="language-sql">CREATE TABLE `User` (`Name` text PRIMARY KEY, `Age` integer);
 </code></pre>
 <p>我们将这部分代码的实现放置在一个子包 <code>schema/schema.go</code> 中。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/schema">day2-reflect-schema/schema/schema.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema/schema">day2-reflect-schema/schema/schema.go</a></p>
 <pre><code class="language-go">package schema
 
 import (
@@ -254,7 +254,7 @@ func New(db *sql.DB, dialect dialect.Dialect) *Session {
 <li>构造函数 <code>New</code> 的参数改为 2 个，db 和 dialect。</li>
 </ul>
 <p>在文件夹 <code>session</code> 下新建 <code>table.go</code> 用于放置操作数据库表相关的代码。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema/session">day2-reflect-schema/session/table.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema/session">day2-reflect-schema/session/table.go</a></p>
 <pre><code class="language-go">func (s *Session) Model(value any) *Session {
 	// nil or different model, update refTable
 	if s.refTable == nil || reflect.TypeOf(value) != reflect.TypeOf(s.refTable.Model) {
@@ -316,7 +316,7 @@ func TestSession_CreateTable(t *testing.T) {
 </code></pre>
 <h2 id="4-engine">4 Engine</h2>
 <p>因为 Session 构造函数增加了对 dialect 的依赖，Engine 需要作一些细微的调整。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day2-reflect-schema">day2-reflect-schema/geeorm.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema">day2-reflect-schema/geeorm.go</a></p>
 <pre><code class="language-go">type Engine struct {
 	db      *sql.DB
 	dialect dialect.Dialect

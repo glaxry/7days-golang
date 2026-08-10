@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了一致性哈希(consistent hashing)的原理、实现以及相关…</p>
         </header>
         <div class="prose"><p><img src="geecache-day4/hash.jpg" alt="一致性哈希 consistent hashing"></p>
-<p>本文是<a href="https://geektutu.com/post/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第四篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第四篇。</p>
 <ul>
 <li>一致性哈希(consistent hashing)的原理以及为什么要使用一致性哈希。</li>
 <li>实现一致性哈希代码，添加相应的测试用例，<strong>代码约60行</strong></li>
@@ -85,7 +85,7 @@
 <p>虚拟节点扩充了节点的数量，解决了节点较少的情况下数据容易倾斜的问题。而且代价非常小，只需要增加一个字典(map)维护真实节点与虚拟节点的映射关系即可。</p>
 <h2 id="3-go">3 Go语言实现</h2>
 <p>我们在 geecache 目录下新建 package <code>consistenthash</code>，用来实现一致性哈希算法。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day4-consistent-hash/geecache/consistenthash">day4-consistent-hash/geecache/consistenthash/consistenthash.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day4-consistent-hash/geecache/consistenthash">day4-consistent-hash/geecache/consistenthash/consistenthash.go</a></p>
 <pre><code class="language-go">package consistenthash
 
 import (
@@ -167,7 +167,7 @@ func (m *Map) Get(key string) string {
 <p>至此，整个一致性哈希算法就实现完成了。</p>
 <h2 id="4-">4 测试</h2>
 <p>最后呢，需要测试用例来验证我们的实现是否有问题。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day4-consistent-hash/geecache/consistenthash">day4-consistent-hash/geecache/consistenthash/consistenthash_test.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day4-consistent-hash/geecache/consistenthash">day4-consistent-hash/geecache/consistenthash/consistenthash_test.go</a></p>
 <pre><code class="language-go">package consistenthash
 
 import (

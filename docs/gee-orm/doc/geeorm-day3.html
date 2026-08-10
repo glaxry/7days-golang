@@ -41,7 +41,7 @@
           <h1>动手写ORM框架 - GeeORM第三天 记录新增和查询</h1>
           <p>7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。实现新增(insert)记录的功能；使用…</p>
         </header>
-        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第三篇。</p>
+        <div class="prose"><p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第三篇。</p>
 <ul>
 <li>实现新增(insert)记录的功能。</li>
 <li>使用反射(reflect)将数据库的记录转换为对应的结构体实例，实现查询(select)功能。<strong>代码约150行</strong></li>
@@ -56,7 +56,7 @@
 </code></pre>
 <p>也就是说，如果想一次构造出完整的 SQL 语句是比较困难的，因此我们将构造 SQL 语句这一部分独立出来，放在子package clause 中实现。</p>
 <p>首先在 <code>clause/generator.go</code> 中实现各个子句的生成规则。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/clause">day3-save-query/clause/generator.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/clause">day3-save-query/clause/generator.go</a></p>
 <pre><code class="language-go">package clause
 
 import (
@@ -137,7 +137,7 @@ func _orderBy(values ...any) (string, []any) {
 }
 </code></pre>
 <p>然后在 <code>clause/clause.go</code> 中实现结构体 <code>Clause</code> 拼接各个独立的子句。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/clause">day3-save-query/clause/clause.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/clause">day3-save-query/clause/clause.go</a></p>
 <pre><code class="language-go">package clause
 
 import &quot;strings&quot;
@@ -239,7 +239,7 @@ s.Insert(u1, u2, ...)
 </code></pre>
 <p>也就是说，我们还需要一个步骤，根据数据库中列的顺序，从对象中找到对应的值，按顺序平铺。即 <code>u1</code>、<code>u2</code> 转换为 <code>(&quot;Tom&quot;, 18), (&quot;Same&quot;, 25)</code> 这样的格式。</p>
 <p>因此在实现 Insert 功能之前，还需要给 <code>Schema</code> 新增一个函数 <code>RecordValues</code> 完成上述的转换。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/schema">day3-save-query/schema/schema.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/schema">day3-save-query/schema/schema.go</a></p>
 <pre><code class="language-go">func (schema *Schema) RecordValues(dest any) []any {
 	destValue := reflect.Indirect(reflect.ValueOf(dest))
 	var fieldValues []any
@@ -250,7 +250,7 @@ s.Insert(u1, u2, ...)
 }
 </code></pre>
 <p>在 session 文件夹下新建 record.go，用于实现记录增删查改相关的代码。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/session">day3-save-query/session/record.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/session">day3-save-query/session/record.go</a></p>
 <pre><code class="language-go">package session
 
 import (
@@ -332,7 +332,7 @@ s.Find(&amp;users);
 <blockquote>
 <p><code>User</code> 和 <code>NewSession()</code> 的定义位于 raw_test.go 中。</p>
 </blockquote>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day3-save-query/session">day3-save-query/session/record_test.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query/session">day3-save-query/session/record_test.go</a></p>
 <pre><code class="language-go">package session
 
 import &quot;testing&quot;

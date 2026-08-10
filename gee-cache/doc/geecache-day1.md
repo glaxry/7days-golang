@@ -14,13 +14,13 @@ keywords:
 - LRU
 - 缓存失效
 image: post/geecache-day1/lru_logo.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day1 LRU 缓存淘汰策略
 ---
 
 
-本文是[7天用Go从零实现分布式缓存GeeCache教程系列](https://geektutu.com/post/geecache.html)的第一篇。
+本文是[7天用Go从零实现分布式缓存GeeCache教程系列](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.md)的第一篇。
 
 - 介绍常用的三种缓存淘汰(失效)算法：FIFO，LFU 和 LRU
 - 实现 LRU 缓存淘汰算法，**代码约80行**
@@ -54,7 +54,7 @@ GeeCache 的缓存全部存储在内存中，内存是有限的，因此不可�
 
 接下来我们创建一个包含字典和双向链表的结构体类型 Cache，方便实现后续的增删查改操作。
 
-[day1-lru/geecache/lru/lru.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day1-lru/geecache/lru)
+[day1-lru/geecache/lru/lru.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day1-lru/geecache/lru)
 
 ```go
 package lru
@@ -185,7 +185,7 @@ func (c *Cache) Len() int {
 
 例如，我们可以尝试添加几条数据，测试 `Get` 方法
 
-[day1-lru/geecache/lru/lru_test.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day1-lru/geecache/lru)
+[day1-lru/geecache/lru/lru_test.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day1-lru/geecache/lru)
 
 ```go
 type String string

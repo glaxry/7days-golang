@@ -14,12 +14,12 @@ keywords:
 - Panic
 - Recover
 image: post/gee-day7/go-panic.png
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day7 错误恢复
 ---
 
-本文是[7天用Go从零实现Web框架Gee教程系列](https://geektutu.com/post/gee.html)的第七篇。
+本文是[7天用Go从零实现Web框架Gee教程系列](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.md)的第七篇。
 
 - 实现错误处理机制。
 
@@ -129,7 +129,7 @@ after recover
 
 对一个 Web 框架而言，错误处理机制是非常必要的。可能是框架本身没有完备的测试，导致在某些情况下出现空指针异常等情况。也有可能用户不正确的参数，触发了某些异常，例如数组越界，空指针等。如果因为这些原因导致系统宕机，必然是不可接受的。
 
-我们在[第六天](https://geektutu.com/post/gee-day6.html)实现的框架并没有加入异常处理机制，如果代码中存在会触发 panic 的 BUG，很容易宕掉。
+我们在[第六天](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day6.md)实现的框架并没有加入异常处理机制，如果代码中存在会触发 panic 的 BUG，很容易宕掉。
 
 例如下面的代码：
 
@@ -171,7 +171,7 @@ func Recovery() HandlerFunc {
 
 你可能注意到，这里有一个 *trace()* 函数，这个函数是用来获取触发 panic 的堆栈信息，完整代码如下：
 
-[day7-panic-recover/gee/recovery.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day7-panic-recover)
+[day7-panic-recover/gee/recovery.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day7-panic-recover)
 
 ```go
 package gee
@@ -222,7 +222,7 @@ func Recovery() HandlerFunc {
 
 ## 使用 Demo
 
-[day7-panic-recover/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day7-panic-recover)
+[day7-panic-recover/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day7-panic-recover)
 
 ```go
 package main

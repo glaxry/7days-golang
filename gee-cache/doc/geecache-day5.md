@@ -13,14 +13,14 @@ keywords:
 - HTTP客户端
 - 分布式节点
 image: post/geecache-day5/dist_nodes_logo.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day5 分布式节点
 ---
 
 ![分布式缓存节点](geecache-day5/dist_nodes.jpg)
 
-本文是[7天用Go从零实现分布式缓存GeeCache](https://geektutu.com/post/geecache.html)的第五篇。
+本文是[7天用Go从零实现分布式缓存GeeCache](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.md)的第五篇。
 
 - 注册节点(Register Peers)，借助一致性哈希算法选择节点。
 - 实现 HTTP 客户端，与远程节点的服务端通信，**代码约90行**
@@ -36,7 +36,7 @@ book_title: Day5 分布式节点
                             |-----> 调用`回调函数`，获取值并添加到缓存 --> 返回缓存值 ⑶
 ```
 
-我们在[GeeCache 第二天](https://geektutu.com/post/geecache-day2.html) 中描述了 geecache 的流程。在这之前已经实现了流程 ⑴ 和 ⑶，今天实现流程 ⑵，从远程节点获取缓存值。
+我们在[GeeCache 第二天](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day2.md) 中描述了 geecache 的流程。在这之前已经实现了流程 ⑴ 和 ⑶，今天实现流程 ⑵，从远程节点获取缓存值。
 
 我们进一步细化流程 ⑵：
 
@@ -49,7 +49,7 @@ book_title: Day5 分布式节点
 
 ## 2 抽象 PeerPicker
 
-[day5-multi-nodes/geecache/peers.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day5-multi-nodes/geecache)
+[day5-multi-nodes/geecache/peers.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day5-multi-nodes/geecache)
 
 
 ```go
@@ -73,11 +73,11 @@ type PeerGetter interface {
 ## 3 节点选择与 HTTP 客户端
 
 
-在 [GeeCache 第三天](https://geektutu.com/post/geecache-day3.html) 中我们为 `HTTPPool` 实现了服务端功能，通信不仅需要服务端还需要客户端，因此，我们接下来要为 `HTTPPool` 实现客户端的功能。
+在 [GeeCache 第三天](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day3.md) 中我们为 `HTTPPool` 实现了服务端功能，通信不仅需要服务端还需要客户端，因此，我们接下来要为 `HTTPPool` 实现客户端的功能。
 
 首先创建具体的 HTTP 客户端类 `httpGetter`，实现 PeerGetter 接口。
 
-[day5-multi-nodes/geecache/http.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day5-multi-nodes/geecache)
+[day5-multi-nodes/geecache/http.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day5-multi-nodes/geecache)
 
 ```go
 type httpGetter struct {
@@ -175,7 +175,7 @@ var _ PeerPicker = (*HTTPPool)(nil)
 
 最后，我们需要将上述新增的功能集成在主流程(geecache.go)中。
 
-[day5-multi-nodes/geecache/geecache.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day5-multi-nodes/geecache)
+[day5-multi-nodes/geecache/geecache.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day5-multi-nodes/geecache)
 
 ```go
 // A Group is a cache namespace and associated data loaded spread over
@@ -222,7 +222,7 @@ func (g *Group) getFromPeer(peer PeerGetter, key string) (ByteView, error) {
 
 ## 5 main 函数测试。
 
-[day5-multi-nodes/main.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day5-multi-nodes)
+[day5-multi-nodes/main.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day5-multi-nodes)
 
 ```go
 var db = map[string]string{

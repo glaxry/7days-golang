@@ -41,7 +41,7 @@
           <h1>动手写分布式缓存 - GeeCache第一天 LRU 缓存淘汰策略</h1>
           <p>7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了常用的三种缓存淘汰(失效)算法：先进先出(FIFO)，最少使用(LFU…</p>
         </header>
-        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geecache.html">7天用Go从零实现分布式缓存GeeCache教程系列</a>的第一篇。</p>
+        <div class="prose"><p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.html">7天用Go从零实现分布式缓存GeeCache教程系列</a>的第一篇。</p>
 <ul>
 <li>介绍常用的三种缓存淘汰(失效)算法：FIFO，LFU 和 LRU</li>
 <li>实现 LRU 缓存淘汰算法，<strong>代码约80行</strong></li>
@@ -63,7 +63,7 @@
 <li>红色的是双向链表(double linked list)实现的队列。将所有的值放到双向链表中，这样，当访问到某个值时，将其移动到队尾的复杂度是<code>O(1)</code>，在队尾新增一条记录以及删除一条记录的复杂度均为<code>O(1)</code>。</li>
 </ul>
 <p>接下来我们创建一个包含字典和双向链表的结构体类型 Cache，方便实现后续的增删查改操作。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day1-lru/geecache/lru">day1-lru/geecache/lru/lru.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day1-lru/geecache/lru">day1-lru/geecache/lru/lru.go - github</a></p>
 <pre><code class="language-go">package lru
 
 import &quot;container/list&quot;
@@ -175,7 +175,7 @@ func (c *Cache) Len() int {
 </code></pre>
 <h2 id="3-">3 测试</h2>
 <p>例如，我们可以尝试添加几条数据，测试 <code>Get</code> 方法</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day1-lru/geecache/lru">day1-lru/geecache/lru/lru_test.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day1-lru/geecache/lru">day1-lru/geecache/lru/lru_test.go - github</a></p>
 <pre><code class="language-go">type String string
 
 func (d String) Len() int {

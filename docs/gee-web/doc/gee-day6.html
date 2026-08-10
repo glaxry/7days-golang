@@ -41,7 +41,7 @@
           <h1>Go语言动手写Web框架 - Gee第六天 模板(HTML Template)</h1>
           <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何为Web框架添加HTML模板(HTML Templ…</p>
         </header>
-        <div class="prose"><p>本文是 <a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第六篇。</p>
+        <div class="prose"><p>本文是 <a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第六篇。</p>
 <ul>
 <li>实现静态资源服务(Static Resource)。</li>
 <li>支持HTML模板渲染。</li>
@@ -54,7 +54,7 @@
 <p>网页的三剑客，JavaScript、CSS 和 HTML。要做到服务端渲染，第一步便是要支持 JS、CSS 等静态文件。还记得我们之前设计动态路由的时候，支持通配符<code>*</code>匹配多级子路径。比如路由规则<code>/assets/*filepath</code>，可以匹配<code>/assets/</code>开头的所有的地址。例如<code>/assets/js/geektutu.js</code>，匹配后，参数<code>filepath</code>就赋值为<code>js/geektutu.js</code>。</p>
 <p>那如果我么将所有的静态文件放在<code>/usr/web</code>目录下，那么<code>filepath</code>的值即是该目录下文件的相对地址。映射到真实的文件后，将文件返回，静态服务器就实现了。</p>
 <p>找到文件后，如何返回这一步，<code>net/http</code>库已经实现了。因此，gee 框架要做的，仅仅是解析请求的地址，映射到服务器上文件的真实地址，交给<code>http.FileServer</code>处理就好了。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">day6-template/gee/gee.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template">day6-template/gee/gee.go</a></p>
 <pre><code class="language-go">// create static handler
 func (group *RouterGroup) createStaticHandler(relativePath string, fs http.FileSystem) HandlerFunc {
 	absolutePath := path.Join(group.prefix, relativePath)
@@ -107,7 +107,7 @@ func (engine *Engine) LoadHTMLGlob(pattern string) {
 <p>首先为 Engine 示例添加了 <code>*template.Template</code> 和 <code>template.FuncMap</code>对象，前者将所有的模板加载进内存，后者是所有的自定义模板渲染函数。</p>
 <p>另外，给用户分别提供了设置自定义渲染函数<code>funcMap</code>和加载模板的方法。</p>
 <p>接下来，对原来的 <code>(*Context).HTML()</code>方法做了些小修改，使之支持根据模板文件名选择模板进行渲染。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">day6-template/gee/context.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template">day6-template/gee/context.go</a></p>
 <pre><code class="language-go">type Context struct {
     // ...
 	// engine pointer
@@ -123,7 +123,7 @@ func (c *Context) HTML(code int, name string, data any) {
 }
 </code></pre>
 <p>我们在 <code>Context</code> 中添加了成员变量 <code>engine *Engine</code>，这样就能够通过 Context 访问 Engine 中的 HTML 模板。实例化 Context 时，还需要给 <code>c.engine</code> 赋值。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">day6-template/gee/gee.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template">day6-template/gee/gee.go</a></p>
 <pre><code class="language-go">func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// ...
 	c := newContext(w, req)
@@ -151,7 +151,7 @@ func (c *Context) HTML(code int, name string, data any) {
     &lt;p&gt;geektutu.css is loaded&lt;/p&gt;
 &lt;/html&gt;
 </code></pre>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template">day6-template/main.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template">day6-template/main.go</a></p>
 <pre><code class="language-go">type student struct {
 	Name string
 	Age  int8

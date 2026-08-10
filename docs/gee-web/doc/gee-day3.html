@@ -41,7 +41,7 @@
           <h1>Go语言动手写Web框架 - Gee第三天 前缀树路由Router</h1>
           <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了如何用 Trie 前缀树实现路由 Route。支持简单…</p>
         </header>
-        <div class="prose"><p>本文是 <a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第三篇。</p>
+        <div class="prose"><p>本文是 <a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第三篇。</p>
 <ul>
 <li>使用 Trie 树实现动态路由(dynamic route)解析。</li>
 <li>支持两种模式<code>:name</code>和<code>*filepath</code>，<strong>代码约150行</strong>。</li>
@@ -69,7 +69,7 @@
 </ul>
 <h2 id="trie--1">Trie 树实现</h2>
 <p>首先我们需要设计树节点上应该存储那些信息。</p>
-<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day3-router">day3-router/gee/trie.go</a></strong></p>
+<p><strong><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day3-router">day3-router/gee/trie.go</a></strong></p>
 <pre><code class="language-go">type node struct {
 	pattern  string // 待匹配路由，例如 /p/:lang
 	part     string // 路由中的一部分，例如 :lang

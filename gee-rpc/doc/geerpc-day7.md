@@ -13,14 +13,14 @@ keywords:
 - 注册中心
 - 服务发现
 image: post/geerpc/geerpc.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day7 服务发现与注册中心
 ---
 
 ![golang RPC framework](geerpc/geerpc.jpg)
 
-本文是[7天用Go从零实现RPC框架GeeRPC](https://geektutu.com/post/geerpc.html)的第七篇。
+本文是[7天用Go从零实现RPC框架GeeRPC](https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.md)的第七篇。
 
 - 实现一个简单的注册中心，支持服务注册、接收心跳等功能
 - 客户端实现基于注册中心的服务发现机制，代码约 250 行
@@ -46,7 +46,7 @@ GeeRegistry 的代码独立放置在子目录 registry 中。
 
 首先定义 GeeRegistry 结构体，默认超时时间设置为 5 min，也就是说，任何注册的服务超过 5 min，即视为不可用状态。
 
-[day7-registry/registry/registry.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry)
+[day7-registry/registry/registry.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day7-registry)
 
 ```go
 // GeeRegistry is a simple register center, provide following functions.
@@ -187,7 +187,7 @@ func sendHeartbeat(registry, addr string) error {
 
 在 xclient 中对应实现 Discovery。
 
-[day7-registry/xclient/discovery_gee.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry)
+[day7-registry/xclient/discovery_gee.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day7-registry)
 
 ```go
 package xclient
@@ -278,7 +278,7 @@ func (d *GeeRegistryDiscovery) GetAll() ([]string, error) {
 
 添加函数 startRegistry，稍微修改 startServer，添加调用注册中心的 `Heartbeat` 方法的逻辑，定期向注册中心发送心跳保活。
 
-[day7-registry/main/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry)
+[day7-registry/main/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day7-registry)
 
 ```go
 func startRegistry(wg *sync.WaitGroup) {

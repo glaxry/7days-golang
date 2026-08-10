@@ -13,12 +13,12 @@ keywords:
 - database/sql
 - sqlite
 image: post/geeorm/geeorm_sm.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day1 database/sql 基础
 ---
 
-本文是[7天用Go从零实现ORM框架GeeORM](https://geektutu.com/post/geeorm.html)的第一篇。介绍了
+本文是[7天用Go从零实现ORM框架GeeORM](https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.md)的第一篇。介绍了
 
 - SQLite 的基础操作（连接数据库，创建表、增删记录等）。
 - 使用 Go 语言标准库 database/sql 连接并操作 SQLite 数据库，并简单封装。**代码约150行**
@@ -163,7 +163,7 @@ day1-database-sql/
 
 第一步，创建 2 个日志实例分别用于打印 Info 和 Error 日志。
 
-[day1-database-sql/log/log.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day1-database-sql/log)
+[day1-database-sql/log/log.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql/log)
 
 ```go
 package log
@@ -232,7 +232,7 @@ func SetLevel(level int) {
 
 我们在根目录下新建一个文件夹 session，用于实现与数据库的交互。今天我们只实现直接调用 SQL 语句进行原生交互的部分，这部分代码实现在 `session/raw.go` 中。
 
-[day1-database-sql/session/raw.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day1-database-sql/session)
+[day1-database-sql/session/raw.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql/session)
 
 ```go
 package session
@@ -311,7 +311,7 @@ func (s *Session) QueryRows() (rows *sql.Rows, err error) {
 
 Session 负责与数据库的交互，那交互前的准备工作（比如连接/测试数据库），交互后的收尾工作（关闭连接）等就交给 Engine 来负责了。Engine 是 GeeORM 与用户交互的入口。代码位于根目录的 `geeorm.go`。
 
-[day1-database-sql/geeorm.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day1-database-sql)
+[day1-database-sql/geeorm.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql)
 
 ```go
 package geeorm
@@ -378,7 +378,7 @@ GeeORM 的单元测试是比较完备的，可以参考 `log_test.go`、`raw_tes
 
 在根目录下新建 cmd_test 目录放置测试代码，新建文件 main.go。
 
-[day1-database-sql/cmd_test/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day1-database-sql/cmd_test)
+[day1-database-sql/cmd_test/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql/cmd_test)
 
 ```go
 package main

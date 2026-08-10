@@ -58,7 +58,7 @@
           <h1>7天用 Go 从零实现系列</h1>
           <p>7天用 Go 从零实现系列，基于 Go 1.26 更新的七天从零实现教程。</p>
         </header>
-        <div class="prose"><p><a href="https://github.com/geektutu/7days-golang"><img src="https://img.shields.io/github/languages/code-size/geektutu/7days-golang" alt="CodeSize"></a>
+        <div class="prose"><p><a href="https://github.com/glaxry/7days-golang"><img src="https://img.shields.io/github/languages/code-size/glaxry/7days-golang" alt="CodeSize"></a>
 <a href="https://mit-license.org/"><img src="https://img.shields.io/badge/license-MIT-green" alt="LICENSE"></a></p>
 <h2 id="2026-">2026 现代化版本说明</h2>
 <p>本分支以 <strong>Go 1.26</strong> 为语言基线（当前稳定补丁版为 Go 1.26.5），保留“每天一个可独立运行快照”的教学结构，并同步更新了所有 Day 的代码与文中代码片段。</p>
@@ -93,114 +93,114 @@
 <p>推荐 <strong><a href="https://geektutu.com/post/high-performance-go.html">Go 语言高性能编程</a></strong>(<a href="https://github.com/geektutu/high-performance-go">项目地址</a>)，写出高性能的 Go 代码。</p>
 <p>期待关注我的「<a href="https://zhuanlan.zhihu.com/geekgo">知乎专栏</a>」和「<a href="http://weibo.com/geektutu">微博</a>」，查看最近的文章和动态。</p>
 <h3 id="7goweb---gee">7天用Go从零实现Web框架 - Gee</h3>
-<p><a href="https://geektutu.com/post/gee.html">Gee</a> 是一个模仿 <a href="https://github.com/gin-gonic/gin">gin</a> 实现的 Web 框架，<a href="https://geektutu.com/post/quick-go-gin.html">Go Gin简明教程</a>可以快速入门。</p>
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.html">Gee</a> 是一个模仿 <a href="https://github.com/gin-gonic/gin">gin</a> 实现的 Web 框架，<a href="https://geektutu.com/post/quick-go-gin.html">Go Gin简明教程</a>可以快速入门。</p>
 <ul>
-<li>第一天：<a href="https://geektutu.com/post/gee-day1.html">前置知识(http.Handler接口)</a> | <a href="gee-web/day1-http-base">Code</a></li>
-<li>第二天：<a href="https://geektutu.com/post/gee-day2.html">上下文设计(Context)</a> | <a href="gee-web/day2-context">Code</a></li>
-<li>第三天：<a href="https://geektutu.com/post/gee-day3.html">Trie树路由(Router)</a> | <a href="gee-web/day3-router">Code</a></li>
-<li>第四天：<a href="https://geektutu.com/post/gee-day4.html">分组控制(Group)</a> | <a href="gee-web/day4-group">Code</a></li>
-<li>第五天：<a href="https://geektutu.com/post/gee-day5.html">中间件(Middleware)</a> | <a href="gee-web/day5-middleware">Code</a></li>
-<li>第六天：<a href="https://geektutu.com/post/gee-day6.html">HTML模板(Template)</a> | <a href="gee-web/day6-template">Code</a></li>
-<li>第七天：<a href="https://geektutu.com/post/gee-day7.html">错误恢复(Panic Recover)</a> | <a href="gee-web/day7-panic-recover">Code</a></li>
+<li>第一天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day1.html">前置知识(http.Handler接口)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base">Code</a></li>
+<li>第二天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day2.html">上下文设计(Context)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day2-context">Code</a></li>
+<li>第三天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day3.html">Trie树路由(Router)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day3-router">Code</a></li>
+<li>第四天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day4.html">分组控制(Group)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day4-group">Code</a></li>
+<li>第五天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day5.html">中间件(Middleware)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day5-middleware">Code</a></li>
+<li>第六天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day6.html">HTML模板(Template)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template">Code</a></li>
+<li>第七天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day7.html">错误恢复(Panic Recover)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day7-panic-recover">Code</a></li>
 </ul>
 <h3 id="7go-geecache">7天用Go从零实现分布式缓存 GeeCache</h3>
-<p><a href="https://geektutu.com/post/geecache.html">GeeCache</a> 是一个模仿 <a href="https://github.com/golang/groupcache">groupcache</a> 实现的分布式缓存系统</p>
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.html">GeeCache</a> 是一个模仿 <a href="https://github.com/golang/groupcache">groupcache</a> 实现的分布式缓存系统</p>
 <ul>
-<li>第一天：<a href="https://geektutu.com/post/geecache-day1.html">LRU 缓存淘汰策略</a> | <a href="gee-cache/day1-lru">Code</a></li>
-<li>第二天：<a href="https://geektutu.com/post/geecache-day2.html">单机并发缓存</a> | <a href="gee-cache/day2-single-node">Code</a></li>
-<li>第三天：<a href="https://geektutu.com/post/geecache-day3.html">HTTP 服务端</a> | <a href="gee-cache/day3-http-server">Code</a></li>
-<li>第四天：<a href="https://geektutu.com/post/geecache-day4.html">一致性哈希(Hash)</a> | <a href="gee-cache/day4-consistent-hash">Code</a></li>
-<li>第五天：<a href="https://geektutu.com/post/geecache-day5.html">分布式节点</a> | <a href="gee-cache/day5-multi-nodes">Code</a></li>
-<li>第六天：<a href="https://geektutu.com/post/geecache-day6.html">防止缓存击穿</a> | <a href="gee-cache/day6-single-flight">Code</a></li>
-<li>第七天：<a href="https://geektutu.com/post/geecache-day7.html">使用 Protobuf 通信</a> | <a href="gee-cache/day7-proto-buf">Code</a></li>
+<li>第一天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day1.html">LRU 缓存淘汰策略</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day1-lru">Code</a></li>
+<li>第二天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day2.html">单机并发缓存</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day2-single-node">Code</a></li>
+<li>第三天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day3.html">HTTP 服务端</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day3-http-server">Code</a></li>
+<li>第四天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day4.html">一致性哈希(Hash)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day4-consistent-hash">Code</a></li>
+<li>第五天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day5.html">分布式节点</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day5-multi-nodes">Code</a></li>
+<li>第六天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day6.html">防止缓存击穿</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day6-single-flight">Code</a></li>
+<li>第七天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day7.html">使用 Protobuf 通信</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf">Code</a></li>
 </ul>
 <h3 id="7goorm-geeorm">7天用Go从零实现ORM框架 GeeORM</h3>
-<p><a href="https://geektutu.com/post/geeorm.html">GeeORM</a> 是一个参考 <a href="https://github.com/go-gorm/gorm">GORM</a> 和 <a href="https://gitea.com/xorm/xorm">XORM</a> 设计的教学型 ORM 框架。</p>
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.html">GeeORM</a> 是一个参考 <a href="https://github.com/go-gorm/gorm">GORM</a> 和 <a href="https://gitea.com/xorm/xorm">XORM</a> 设计的教学型 ORM 框架。</p>
 <p>原教程写作时 GORM v2 尚在开发；现在 GORM v2 已是主版本。本教程仍保留更适合从零讲解的简化接口，不以复刻任何框架的当前完整 API 为目标。</p>
 <ul>
-<li>第一天：<a href="https://geektutu.com/post/geeorm-day1.html">database/sql 基础</a> | <a href="gee-orm/day1-database-sql">Code</a></li>
-<li>第二天：<a href="https://geektutu.com/post/geeorm-day2.html">对象表结构映射</a> | <a href="gee-orm/day2-reflect-schema">Code</a></li>
-<li>第三天：<a href="https://geektutu.com/post/geeorm-day3.html">记录新增和查询</a> | <a href="gee-orm/day3-save-query">Code</a></li>
-<li>第四天：<a href="https://geektutu.com/post/geeorm-day4.html">链式操作与更新删除</a> | <a href="gee-orm/day4-chain-operation">Code</a></li>
-<li>第五天：<a href="https://geektutu.com/post/geeorm-day5.html">实现钩子(Hooks)</a> | <a href="gee-orm/day5-hooks">Code</a></li>
-<li>第六天：<a href="https://geektutu.com/post/geeorm-day6.html">支持事务(Transaction)</a> | <a href="gee-orm/day6-transaction">Code</a></li>
-<li>第七天：<a href="https://geektutu.com/post/geeorm-day7.html">数据库迁移(Migrate)</a> | <a href="gee-orm/day7-migrate">Code</a></li>
+<li>第一天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm-day1.html">database/sql 基础</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql">Code</a></li>
+<li>第二天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm-day2.html">对象表结构映射</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema">Code</a></li>
+<li>第三天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm-day3.html">记录新增和查询</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query">Code</a></li>
+<li>第四天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm-day4.html">链式操作与更新删除</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day4-chain-operation">Code</a></li>
+<li>第五天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm-day5.html">实现钩子(Hooks)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day5-hooks">Code</a></li>
+<li>第六天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm-day6.html">支持事务(Transaction)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day6-transaction">Code</a></li>
+<li>第七天：<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm-day7.html">数据库迁移(Migrate)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day7-migrate">Code</a></li>
 </ul>
 <h3 id="7gorpc-geerpc">7天用Go从零实现RPC框架 GeeRPC</h3>
-<p><a href="https://geektutu.com/post/geerpc.html">GeeRPC</a> 是一个基于 <a href="https://github.com/golang/go/tree/master/src/net/rpc">net/rpc</a> 开发的 RPC 框架
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.html">GeeRPC</a> 是一个基于 <a href="https://github.com/golang/go/tree/master/src/net/rpc">net/rpc</a> 开发的 RPC 框架
 GeeRPC 是基于 Go 语言标准库 <code>net/rpc</code> 实现的，添加了协议交换、服务注册与发现、负载均衡等功能，代码约 1k。</p>
 <ul>
-<li>第一天 - <a href="https://geektutu.com/post/geerpc-day1.html">服务端与消息编码</a> | <a href="gee-rpc/day1-codec">Code</a></li>
-<li>第二天 - <a href="https://geektutu.com/post/geerpc-day2.html">支持并发与异步的客户端</a> | <a href="gee-rpc/day2-client">Code</a></li>
-<li>第三天 - <a href="https://geektutu.com/post/geerpc-day3.html">服务注册(service register)</a> | <a href="gee-rpc/day3-service">Code</a></li>
-<li>第四天 - <a href="https://geektutu.com/post/geerpc-day4.html">超时处理(timeout)</a> | <a href="gee-rpc/day4-timeout">Code</a></li>
-<li>第五天 - <a href="https://geektutu.com/post/geerpc-day5.html">支持HTTP协议</a> | <a href="gee-rpc/day5-http-debug">Code</a></li>
-<li>第六天 - <a href="https://geektutu.com/post/geerpc-day6.html">负载均衡(load balance)</a> | <a href="gee-rpc/day6-load-balance">Code</a></li>
-<li>第七天 - <a href="https://geektutu.com/post/geerpc-day7.html">服务发现与注册中心(registry)</a> | <a href="gee-rpc/day7-registry">Code</a></li>
+<li>第一天 - <a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc-day1.html">服务端与消息编码</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec">Code</a></li>
+<li>第二天 - <a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc-day2.html">支持并发与异步的客户端</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day2-client">Code</a></li>
+<li>第三天 - <a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc-day3.html">服务注册(service register)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service">Code</a></li>
+<li>第四天 - <a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc-day4.html">超时处理(timeout)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day4-timeout">Code</a></li>
+<li>第五天 - <a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc-day5.html">支持HTTP协议</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day5-http-debug">Code</a></li>
+<li>第六天 - <a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc-day6.html">负载均衡(load balance)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day6-load-balance">Code</a></li>
+<li>第七天 - <a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc-day7.html">服务发现与注册中心(registry)</a> | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day7-registry">Code</a></li>
 </ul>
 <h3 id="webassembly-">WebAssembly 使用示例</h3>
-<p>具体的实践过程记录在 <a href="https://geektutu.com/post/quick-go-wasm.html">Go WebAssembly 简明教程</a>。</p>
+<p>具体的实践过程记录在 <a href="https://github.com/glaxry/7days-golang/blob/main/demo-wasm/README.html">Go WebAssembly 简明教程</a>。</p>
 <ul>
-<li>示例一：Hello World | <a href="demo-wasm/hello-world">Code</a></li>
-<li>示例二：注册函数 | <a href="demo-wasm/register-functions">Code</a></li>
-<li>示例三：操作 DOM | <a href="demo-wasm/manipulate-dom">Code</a></li>
-<li>示例四：回调函数 | <a href="demo-wasm/callback">Code</a></li>
+<li>示例一：Hello World | <a href="https://github.com/glaxry/7days-golang/tree/main/demo-wasm/hello-world">Code</a></li>
+<li>示例二：注册函数 | <a href="https://github.com/glaxry/7days-golang/tree/main/demo-wasm/register-functions">Code</a></li>
+<li>示例三：操作 DOM | <a href="https://github.com/glaxry/7days-golang/tree/main/demo-wasm/manipulate-dom">Code</a></li>
+<li>示例四：回调函数 | <a href="https://github.com/glaxry/7days-golang/tree/main/demo-wasm/callback">Code</a></li>
 </ul>
 </div>
 </details>
 <p>What can be accomplished in 7 days? A gin-like web framework? A distributed cache like groupcache? Or a simple Python interpreter? Hope this repo can give you the answer.</p>
 <h2 id="web-framework---gee">Web Framework - Gee</h2>
-<p><a href="https://geektutu.com/post/gee.html">Gee</a> is a <a href="https://github.com/gin-gonic/gin">gin</a>-like framework</p>
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.html">Gee</a> is a <a href="https://github.com/gin-gonic/gin">gin</a>-like framework</p>
 <ul>
-<li>Day 1 - http.Handler Interface Basic <a href="gee-web/day1-http-base">Code</a></li>
-<li>Day 2 - Design a Flexiable Context <a href="gee-web/day2-context">Code</a></li>
-<li>Day 3 - Router with Trie-Tree Algorithm <a href="gee-web/day3-router">Code</a></li>
-<li>Day 4 - Group Control <a href="gee-web/day4-group">Code</a></li>
-<li>Day 5 - Middleware Mechanism <a href="gee-web/day5-middleware">Code</a></li>
-<li>Day 6 - Embeded Template Support <a href="gee-web/day6-template">Code</a></li>
-<li>Day 7 - Panic Recover &amp; Make it Robust <a href="gee-web/day7-panic-recover">Code</a></li>
+<li>Day 1 - http.Handler Interface Basic <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base">Code</a></li>
+<li>Day 2 - Design a Flexiable Context <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day2-context">Code</a></li>
+<li>Day 3 - Router with Trie-Tree Algorithm <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day3-router">Code</a></li>
+<li>Day 4 - Group Control <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day4-group">Code</a></li>
+<li>Day 5 - Middleware Mechanism <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day5-middleware">Code</a></li>
+<li>Day 6 - Embeded Template Support <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template">Code</a></li>
+<li>Day 7 - Panic Recover &amp; Make it Robust <a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day7-panic-recover">Code</a></li>
 </ul>
 <h2 id="distributed-cache---geecache">Distributed Cache - GeeCache</h2>
-<p><a href="https://geektutu.com/post/geecache.html">GeeCache</a> is a <a href="https://github.com/golang/groupcache">groupcache</a>-like distributed cache</p>
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.html">GeeCache</a> is a <a href="https://github.com/golang/groupcache">groupcache</a>-like distributed cache</p>
 <ul>
-<li>Day 1 - LRU (Least Recently Used) Caching Strategy <a href="gee-cache/day1-lru">Code</a></li>
-<li>Day 2 - Single Machine Concurrent Cache <a href="gee-cache/day2-single-node">Code</a></li>
-<li>Day 3 - Launch a HTTP Server <a href="gee-cache/day3-http-server">Code</a></li>
-<li>Day 4 - Consistent Hash Algorithm <a href="gee-cache/day4-consistent-hash">Code</a></li>
-<li>Day 5 - Communication between Distributed Nodes <a href="gee-cache/day5-multi-nodes">Code</a></li>
-<li>Day 6 - Cache Breakdown &amp; Single Flight  | <a href="gee-cache/day6-single-flight">Code</a></li>
-<li>Day 7 - Use Protobuf as RPC Data Exchange Type | <a href="gee-cache/day7-proto-buf">Code</a></li>
+<li>Day 1 - LRU (Least Recently Used) Caching Strategy <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day1-lru">Code</a></li>
+<li>Day 2 - Single Machine Concurrent Cache <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day2-single-node">Code</a></li>
+<li>Day 3 - Launch a HTTP Server <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day3-http-server">Code</a></li>
+<li>Day 4 - Consistent Hash Algorithm <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day4-consistent-hash">Code</a></li>
+<li>Day 5 - Communication between Distributed Nodes <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day5-multi-nodes">Code</a></li>
+<li>Day 6 - Cache Breakdown &amp; Single Flight  | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day6-single-flight">Code</a></li>
+<li>Day 7 - Use Protobuf as RPC Data Exchange Type | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf">Code</a></li>
 </ul>
 <h2 id="object-relational-mapping---geeorm">Object Relational Mapping - GeeORM</h2>
-<p><a href="https://geektutu.com/post/geeorm.html">GeeORM</a> is an educational ORM inspired by <a href="https://github.com/go-gorm/gorm">GORM</a> and <a href="https://gitea.com/xorm/xorm">XORM</a>.</p>
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.html">GeeORM</a> is an educational ORM inspired by <a href="https://github.com/go-gorm/gorm">GORM</a> and <a href="https://gitea.com/xorm/xorm">XORM</a>.</p>
 <p>Xorm's desgin is easier to understand than gorm-v1, so the main designs references xorm and some detailed implementions references gorm-v1.</p>
 <ul>
-<li>Day 1 - database/sql Basic | <a href="gee-orm/day1-database-sql">Code</a></li>
-<li>Day 2 - Object Schame Mapping | <a href="gee-orm/day2-reflect-schema">Code</a></li>
-<li>Day 3 - Insert and Query | <a href="gee-orm/day3-save-query">Code</a></li>
-<li>Day 4 - Chain, Delete and Update | <a href="gee-orm/day4-chain-operation">Code</a></li>
-<li>Day 5 - Support Hooks | <a href="gee-orm/day5-hooks">Code</a></li>
-<li>Day 6 - Support Transaction | <a href="gee-orm/day6-transaction">Code</a></li>
-<li>Day 7 - Migrate Database | <a href="gee-orm/day7-migrate">Code</a></li>
+<li>Day 1 - database/sql Basic | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day1-database-sql">Code</a></li>
+<li>Day 2 - Object Schame Mapping | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day2-reflect-schema">Code</a></li>
+<li>Day 3 - Insert and Query | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day3-save-query">Code</a></li>
+<li>Day 4 - Chain, Delete and Update | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day4-chain-operation">Code</a></li>
+<li>Day 5 - Support Hooks | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day5-hooks">Code</a></li>
+<li>Day 6 - Support Transaction | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day6-transaction">Code</a></li>
+<li>Day 7 - Migrate Database | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day7-migrate">Code</a></li>
 </ul>
 <h2 id="rpc-framework---geerpc">RPC Framework - GeeRPC</h2>
-<p><a href="https://geektutu.com/post/geerpc.html">GeeRPC</a> is a <a href="https://github.com/golang/go/tree/master/src/net/rpc">net/rpc</a>-like RPC framework</p>
+<p><a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.html">GeeRPC</a> is a <a href="https://github.com/golang/go/tree/master/src/net/rpc">net/rpc</a>-like RPC framework</p>
 <p>Based on golang standard library <code>net/rpc</code>, GeeRPC implements more features. eg, protocol exchange, service registration and discovery, load balance, etc.</p>
 <ul>
-<li>Day 1 - Server Message Codec | <a href="gee-rpc/day1-codec">Code</a></li>
-<li>Day 2 - Concurrent Client | <a href="gee-rpc/day2-client">Code</a></li>
-<li>Day 3 - Service Register | <a href="gee-rpc/day3-service">Code</a></li>
-<li>Day 4 - Timeout Processing | <a href="gee-rpc/day4-timeout">Code</a></li>
-<li>Day 5 - Support HTTP Protocol | <a href="gee-rpc/day5-http-debug">Code</a></li>
-<li>Day 6 - Load Balance | <a href="gee-rpc/day6-load-balance">Code</a></li>
-<li>Day 7 - Discovery and Registry | <a href="gee-rpc/day7-registry">Code</a></li>
+<li>Day 1 - Server Message Codec | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec">Code</a></li>
+<li>Day 2 - Concurrent Client | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day2-client">Code</a></li>
+<li>Day 3 - Service Register | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service">Code</a></li>
+<li>Day 4 - Timeout Processing | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day4-timeout">Code</a></li>
+<li>Day 5 - Support HTTP Protocol | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day5-http-debug">Code</a></li>
+<li>Day 6 - Load Balance | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day6-load-balance">Code</a></li>
+<li>Day 7 - Discovery and Registry | <a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day7-registry">Code</a></li>
 </ul>
 <h2 id="golang-webassembly-demo">Golang WebAssembly Demo</h2>
 <ul>
-<li>Demo 1 - Hello World <a href="demo-wasm/hello-world">Code</a></li>
-<li>Demo 2 - Register Functions <a href="demo-wasm/register-functions">Code</a></li>
-<li>Demo 3 - Manipulate DOM <a href="demo-wasm/manipulate-dom">Code</a></li>
-<li>Demo 4 - Callback <a href="demo-wasm/callback">Code</a></li>
+<li>Demo 1 - Hello World <a href="https://github.com/glaxry/7days-golang/tree/main/demo-wasm/hello-world">Code</a></li>
+<li>Demo 2 - Register Functions <a href="https://github.com/glaxry/7days-golang/tree/main/demo-wasm/register-functions">Code</a></li>
+<li>Demo 3 - Manipulate DOM <a href="https://github.com/glaxry/7days-golang/tree/main/demo-wasm/manipulate-dom">Code</a></li>
+<li>Demo 4 - Callback <a href="https://github.com/glaxry/7days-golang/tree/main/demo-wasm/callback">Code</a></li>
 </ul>
 </div>
         <nav class="page-nav" aria-label="上一篇和下一篇">

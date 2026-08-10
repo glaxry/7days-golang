@@ -13,14 +13,14 @@ keywords:
 - HTTP客户端
 - 分布式节点
 image: post/geecache-day7/protobuf_logo.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day7 使用 Protobuf 通信
 ---
 
 ![geecache protobuf](geecache-day7/protobuf.jpg)
 
-本文是[7天用Go从零实现分布式缓存GeeCache](https://geektutu.com/post/geecache.html)的第七篇。
+本文是[7天用Go从零实现分布式缓存GeeCache](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.md)的第七篇。
 
 - 为什么要使用 protobuf？
 - 使用 protobuf 进行节点间通信，编码报文，提高效率。**代码约50行**
@@ -40,7 +40,7 @@ protobuf 的安装和使用教程请移步 [Go Protobuf 简明教程](https://ge
 
 新建 package `geecachepb`，定义 `geecachepb.proto`
 
-[day7-proto-buf/geecache/geecachepb/geecachepb.proto - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day7-proto-buf/geecache/geecachepb)
+[day7-proto-buf/geecache/geecachepb/geecachepb.proto - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf/geecache/geecachepb)
 
 ```go
 syntax = "proto3";
@@ -92,7 +92,7 @@ type Response struct {
 
 接下来，修改 `peers.go` 中的 `PeerGetter` 接口，参数使用 `geecachepb.pb.go` 中的数据类型。
 
-[day7-proto-buf/geecache/peers.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day7-proto-buf/geecache)
+[day7-proto-buf/geecache/peers.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf/geecache)
 
 ```go
 import pb "geecache/geecachepb"
@@ -104,7 +104,7 @@ type PeerGetter interface {
 
 最后，修改 `geecache.go` 和 `http.go` 中使用了 `PeerGetter` 接口的地方。
 
-[day7-proto-buf/geecache/geecache.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day7-proto-buf/geecache)
+[day7-proto-buf/geecache/geecache.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf/geecache)
 
 ```go
 import (
@@ -126,7 +126,7 @@ func (g *Group) getFromPeer(peer PeerGetter, key string) (ByteView, error) {
 }
 ```
 
-[day7-proto-buf/geecache/http.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day7-proto-buf/geecache)
+[day7-proto-buf/geecache/http.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf/geecache)
 
 ```go
 import (

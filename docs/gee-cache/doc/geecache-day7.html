@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现分布式缓存 GeeCache 教程(7 days implement golang distributed cache from scratch tutorial)，动手写分布式缓存，参照 groupcache 的实现。本文介绍了使用 protobuf(protocol buffer) 进行节点间通…</p>
         </header>
         <div class="prose"><p><img src="geecache-day7/protobuf.jpg" alt="geecache protobuf"></p>
-<p>本文是<a href="https://geektutu.com/post/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第七篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.html">7天用Go从零实现分布式缓存GeeCache</a>的第七篇。</p>
 <ul>
 <li>为什么要使用 protobuf？</li>
 <li>使用 protobuf 进行节点间通信，编码报文，提高效率。<strong>代码约50行</strong></li>
@@ -59,7 +59,7 @@
 </ul>
 <h2 id="2--protobuf-">2 使用 protobuf 通信</h2>
 <p>新建 package <code>geecachepb</code>，定义 <code>geecachepb.proto</code></p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day7-proto-buf/geecache/geecachepb">day7-proto-buf/geecache/geecachepb/geecachepb.proto - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf/geecache/geecachepb">day7-proto-buf/geecache/geecachepb/geecachepb.proto - github</a></p>
 <pre><code class="language-go">syntax = &quot;proto3&quot;;
 
 package geecachepb;
@@ -101,7 +101,7 @@ type Response struct {
 </code></pre>
 <p>生成文件由工具维护，不要手工编辑；需要调整消息时应修改 <code>.proto</code> 后重新生成。</p>
 <p>接下来，修改 <code>peers.go</code> 中的 <code>PeerGetter</code> 接口，参数使用 <code>geecachepb.pb.go</code> 中的数据类型。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day7-proto-buf/geecache">day7-proto-buf/geecache/peers.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf/geecache">day7-proto-buf/geecache/peers.go - github</a></p>
 <pre><code class="language-go">import pb &quot;geecache/geecachepb&quot;
 
 type PeerGetter interface {
@@ -109,7 +109,7 @@ type PeerGetter interface {
 }
 </code></pre>
 <p>最后，修改 <code>geecache.go</code> 和 <code>http.go</code> 中使用了 <code>PeerGetter</code> 接口的地方。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day7-proto-buf/geecache">day7-proto-buf/geecache/geecache.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf/geecache">day7-proto-buf/geecache/geecache.go - github</a></p>
 <pre><code class="language-go">import (
     // ...
     pb &quot;geecache/geecachepb&quot;
@@ -128,7 +128,7 @@ func (g *Group) getFromPeer(peer PeerGetter, key string) (ByteView, error) {
 	return ByteView{b: res.Value}, nil
 }
 </code></pre>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-cache/day7-proto-buf/geecache">day7-proto-buf/geecache/http.go - github</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf/geecache">day7-proto-buf/geecache/http.go - github</a></p>
 <pre><code class="language-go">import (
     // ...
 	pb &quot;geecache/geecachepb&quot;

@@ -12,7 +12,7 @@ keywords:
 - 从零实现分布式缓存
 - 动手写分布式缓存
 image: post/geecache/geecache_sm.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day0 序言
 ---
@@ -60,13 +60,13 @@ book_title: Day0 序言
 
 ## 3 目录
 
-- 第一天：[LRU 缓存淘汰策略](https://geektutu.com/post/geecache-day1.html) | [Code - Github](https://github.com/geektutu/7days-golang/blob/master/gee-cache/day1-lru)
-- 第二天：[单机并发缓存](https://geektutu.com/post/geecache-day2.html) | [Code - Github](https://github.com/geektutu/7days-golang/blob/master/gee-cache/day2-single-node)
-- 第三天：[HTTP 服务端](https://geektutu.com/post/geecache-day3.html) | [Code - Github](https://github.com/geektutu/7days-golang/blob/master/gee-cache/day3-http-server)
-- 第四天：[一致性哈希(Hash)](https://geektutu.com/post/geecache-day4.html) | [Code - Github](https://github.com/geektutu/7days-golang/blob/master/gee-cache/day4-consistent-hash)
-- 第五天：[分布式节点](https://geektutu.com/post/geecache-day5.html) | [Code - Github](https://github.com/geektutu/7days-golang/blob/master/gee-cache/day5-multi-nodes)
-- 第六天：[防止缓存击穿](https://geektutu.com/post/geecache-day6.html) | [Code - Github](https://github.com/geektutu/7days-golang/blob/master/gee-cache/day6-single-flight)
-- 第七天：[使用 Protobuf 通信](https://geektutu.com/post/geecache-day7.html) | [Code - Github](https://github.com/geektutu/7days-golang/blob/master/gee-cache/day7-proto-buf)
+- 第一天：[LRU 缓存淘汰策略](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day1.md) | [Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day1-lru)
+- 第二天：[单机并发缓存](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day2.md) | [Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day2-single-node)
+- 第三天：[HTTP 服务端](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day3.md) | [Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day3-http-server)
+- 第四天：[一致性哈希(Hash)](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day4.md) | [Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day4-consistent-hash)
+- 第五天：[分布式节点](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day5.md) | [Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day5-multi-nodes)
+- 第六天：[防止缓存击穿](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day6.md) | [Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day6-single-flight)
+- 第七天：[使用 Protobuf 通信](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day7.md) | [Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day7-proto-buf)
 
 ## 附 推荐阅读
 

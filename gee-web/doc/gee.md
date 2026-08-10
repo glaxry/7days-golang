@@ -13,7 +13,7 @@ keywords:
 - 动手写
 - from scratch
 image: post/gee/gee.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day0 序言
 ---
@@ -61,17 +61,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 时间关系，同时为了尽可能地简洁明了，这个框架中的很多部分实现的功能都很简单，但是尽可能地体现一个框架核心的设计原则。例如`Router`的设计，虽然支持的动态路由规则有限，但为了性能考虑匹配算法是用`Trie树`实现的，`Router`最重要的指标之一便是性能。
 
-希望这个教程能够对你有所启发，如果对 Gee 有任何好的建议，欢迎提[issues - Github](https://github.com/geektutu/7days-golang/issues) 和 PR。教程中的任何问题，可以直接在文章末尾评论。
+希望这个教程能够对你有所启发，如果对 Gee 有任何好的建议，欢迎提[issues - Github](https://github.com/glaxry/7days-golang/issues) 和 PR。教程中的任何问题，可以直接在文章末尾评论。
 
 ## 目录
 
-- 第一天：[前置知识(http.Handler接口)](https://geektutu.com/post/gee-day1.html)，[Code - Github](https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base)
-- 第二天：[上下文设计(Context)](https://geektutu.com/post/gee-day2.html)，[Code - Github](https://github.com/geektutu/7days-golang/tree/master/gee-web/day2-context)
-- 第三天：[Trie树路由(Router)](https://geektutu.com/post/gee-day3.html)，[Code - Github](https://github.com/geektutu/7days-golang/tree/master/gee-web/day3-router)
-- 第四天：[分组控制(Group)](https://geektutu.com/post/gee-day4.html)，[Code - Github](https://github.com/geektutu/7days-golang/tree/master/gee-web/day4-group)
-- 第五天：[中间件(Middleware)](https://geektutu.com/post/gee-day5.html)，[Code - Github](https://github.com/geektutu/7days-golang/tree/master/gee-web/day5-middleware)
-- 第六天：[HTML模板(Template)](https://geektutu.com/post/gee-day6.html)，[Code - Github](https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template)
-- 第七天：[错误恢复(Panic Recover)](https://geektutu.com/post/gee-day7.html)，[Code - Github](https://github.com/geektutu/7days-golang/tree/master/gee-web/day7-panic-recover)
+- 第一天：[前置知识(http.Handler接口)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day1.md)，[Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base)
+- 第二天：[上下文设计(Context)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day2.md)，[Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-web/day2-context)
+- 第三天：[Trie树路由(Router)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day3.md)，[Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-web/day3-router)
+- 第四天：[分组控制(Group)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day4.md)，[Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-web/day4-group)
+- 第五天：[中间件(Middleware)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day5.md)，[Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-web/day5-middleware)
+- 第六天：[HTML模板(Template)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day6.md)，[Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template)
+- 第七天：[错误恢复(Panic Recover)](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day7.md)，[Code - Github](https://github.com/glaxry/7days-golang/tree/main/gee-web/day7-panic-recover)
 
 ## 推荐阅读
 

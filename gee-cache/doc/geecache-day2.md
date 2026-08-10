@@ -14,14 +14,14 @@ keywords:
 - 互斥锁
 - sync.Mutex
 image: post/geecache-day2/concurrent_cache_logo.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day2 单机并发缓存
 ---
 
 ![geecache concurrent cache](geecache-day2/concurrent_cache.jpg)
 
-本文是[7天用Go从零实现分布式缓存GeeCache](https://geektutu.com/post/geecache.html)的第二篇。
+本文是[7天用Go从零实现分布式缓存GeeCache](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.md)的第二篇。
 
 - 介绍 sync.Mutex 互斥锁的使用，并实现 LRU 缓存的并发控制。
 - 实现 GeeCache 核心数据结构 Group，缓存不存在时，调用回调函数获取源数据，**代码约150行**
@@ -107,9 +107,9 @@ func printOnce(num int) {
 
 ## 2 支持并发读写
 
-上一篇文章 [GeeCache 第一天](https://geektutu.com/post/geecache-day1.html) 实现了 LRU 缓存淘汰策略。接下来我们使用 `sync.Mutex` 封装 LRU 的几个方法，使之支持并发的读写。在这之前，我们抽象了一个只读数据结构 `ByteView` 用来表示缓存值，是 GeeCache 主要的数据结构之一。
+上一篇文章 [GeeCache 第一天](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache-day1.md) 实现了 LRU 缓存淘汰策略。接下来我们使用 `sync.Mutex` 封装 LRU 的几个方法，使之支持并发的读写。在这之前，我们抽象了一个只读数据结构 `ByteView` 用来表示缓存值，是 GeeCache 主要的数据结构之一。
 
-[day2-single-node/geecache/byteview.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day2-single-node/geecache)
+[day2-single-node/geecache/byteview.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day2-single-node/geecache)
 
 ```go
 package geecache
@@ -147,7 +147,7 @@ func cloneBytes(b []byte) []byte {
 
 接下来就可以为 lru.Cache 添加并发特性了。
 
-[day2-single-node/geecache/cache.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day2-single-node/geecache)
+[day2-single-node/geecache/cache.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day2-single-node/geecache)
 
 ```go
 package geecache
@@ -221,7 +221,7 @@ geecache/
 
 我们思考一下，如果缓存不存在，应从数据源（文件，数据库等）获取数据并添加到缓存中。GeeCache 是否应该支持多种数据源的配置呢？不应该，一是数据源的种类太多，没办法一一实现；二是扩展性不好。如何从源头获取数据，应该是用户决定的事情，我们就把这件事交给用户好了。因此，我们设计了一个回调函数(callback)，在缓存不存在时，调用这个函数，得到源数据。
 
-[day2-single-node/geecache/geecache.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day2-single-node/geecache)
+[day2-single-node/geecache/geecache.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day2-single-node/geecache)
 
 ```go
 // A Getter loads data for a key.
@@ -242,7 +242,7 @@ func (f GetterFunc) Get(key string) ([]byte, error) {
 - 定义函数类型 GetterFunc，并实现 Getter 接口的 `Get` 方法。
 - 函数类型实现某一个接口，称之为接口型函数，方便使用者在调用时既能够传入函数作为参数，也能够传入实现了该接口的结构体作为参数。
 
-> 了解接口型函数的使用场景，可以参考 [Go 接口型函数的使用场景 - 7days-golang Q & A](https://geektutu.com/post/7days-golang-q1.html)
+> 了解接口型函数的使用场景，可以参考 [Go 接口型函数的使用场景 - 7days-golang Q & A](https://github.com/glaxry/7days-golang/blob/main/questions/7days-golang-q1.md)
 
 我们可以写一个测试用例来保证回调函数能够正常工作。
 
@@ -268,7 +268,7 @@ func TestGetter(t *testing.T) {
 
 接下来是最核心数据结构 Group 的定义：
 
-[day2-single-node/geecache/geecache.go - github](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day2-single-node/geecache)
+[day2-single-node/geecache/geecache.go - github](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day2-single-node/geecache)
 
 ```go
 // A Group is a cache namespace and associated data loaded spread over

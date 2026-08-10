@@ -13,14 +13,14 @@ keywords:
 - 一致性hash
 - consistent hash
 image: post/geecache-day4/hash_logo.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day4 一致性哈希
 ---
 
 ![一致性哈希 consistent hashing](geecache-day4/hash.jpg)
 
-本文是[7天用Go从零实现分布式缓存GeeCache](https://geektutu.com/post/geecache.html)的第四篇。
+本文是[7天用Go从零实现分布式缓存GeeCache](https://github.com/glaxry/7days-golang/blob/main/gee-cache/doc/geecache.md)的第四篇。
 
 - 一致性哈希(consistent hashing)的原理以及为什么要使用一致性哈希。
 - 实现一致性哈希代码，添加相应的测试用例，**代码约60行**
@@ -83,7 +83,7 @@ book_title: Day4 一致性哈希
 
 我们在 geecache 目录下新建 package `consistenthash`，用来实现一致性哈希算法。
 
-[day4-consistent-hash/geecache/consistenthash/consistenthash.go](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day4-consistent-hash/geecache/consistenthash)
+[day4-consistent-hash/geecache/consistenthash/consistenthash.go](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day4-consistent-hash/geecache/consistenthash)
 
 ```go
 package consistenthash
@@ -174,7 +174,7 @@ func (m *Map) Get(key string) string {
 
 最后呢，需要测试用例来验证我们的实现是否有问题。
 
-[day4-consistent-hash/geecache/consistenthash/consistenthash_test.go](https://github.com/geektutu/7days-golang/tree/master/gee-cache/day4-consistent-hash/geecache/consistenthash)
+[day4-consistent-hash/geecache/consistenthash/consistenthash_test.go](https://github.com/glaxry/7days-golang/tree/main/gee-cache/day4-consistent-hash/geecache/consistenthash)
 
 ```go
 package consistenthash

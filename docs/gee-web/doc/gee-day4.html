@@ -41,7 +41,7 @@
           <h1>Go语言动手写Web框架 - Gee第四天 分组控制Group</h1>
           <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了分组控制(Group Control)的意义，以及嵌套…</p>
         </header>
-        <div class="prose"><p>本文是 <a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第四篇。</p>
+        <div class="prose"><p>本文是 <a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第四篇。</p>
 <ul>
 <li>实现路由分组控制(Route Group Control)，<strong>代码约50行</strong></li>
 </ul>
@@ -65,7 +65,7 @@ v1.GET(&quot;/&quot;, func(c *gee.Context) {
 </code></pre>
 <p>那么Group对象，还需要有访问<code>Router</code>的能力，为了方便，我们可以在Group中，保存一个指针，指向<code>Engine</code>，整个框架的所有资源都是由<code>Engine</code>统一协调的，那么就可以通过<code>Engine</code>间接地访问各种接口了。</p>
 <p>所以，最后的 Group 的定义是这样的：</p>
-<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day4-group">day4-group/gee/gee.go</a></strong></p>
+<p><strong><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day4-group">day4-group/gee/gee.go</a></strong></p>
 <pre><code class="language-go">RouterGroup struct {
 	prefix      string
 	middlewares []HandlerFunc // support middleware

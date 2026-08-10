@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
         </header>
         <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
-<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第七篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第七篇。</p>
 <ul>
 <li>实现一个简单的注册中心，支持服务注册、接收心跳等功能</li>
 <li>客户端实现基于注册中心的服务发现机制，代码约 250 行</li>
@@ -60,7 +60,7 @@
 <p>主流的注册中心 etcd、zookeeper 等功能强大，与这类注册中心的对接代码量是比较大的，需要实现的接口很多。GeeRPC 选择自己实现一个简单的支持心跳保活的注册中心。</p>
 <p>GeeRegistry 的代码独立放置在子目录 registry 中。</p>
 <p>首先定义 GeeRegistry 结构体，默认超时时间设置为 5 min，也就是说，任何注册的服务超过 5 min，即视为不可用状态。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry">day7-registry/registry/registry.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day7-registry">day7-registry/registry/registry.go</a></p>
 <pre><code class="language-go">// GeeRegistry is a simple register center, provide following functions.
 // add a server and receive heartbeat to keep it alive.
 // returns all alive servers and delete dead servers sync simultaneously.
@@ -189,7 +189,7 @@ func sendHeartbeat(registry, addr string) error {
 </code></pre>
 <h2 id="geeregistrydiscovery">GeeRegistryDiscovery</h2>
 <p>在 xclient 中对应实现 Discovery。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry">day7-registry/xclient/discovery_gee.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day7-registry">day7-registry/xclient/discovery_gee.go</a></p>
 <pre><code class="language-go">package xclient
 
 type GeeRegistryDiscovery struct {
@@ -269,7 +269,7 @@ func (d *GeeRegistryDiscovery) GetAll() ([]string, error) {
 <h2 id="demo">Demo</h2>
 <p>最后，依旧通过简单的 Demo 验证今天的成果。</p>
 <p>添加函数 startRegistry，稍微修改 startServer，添加调用注册中心的 <code>Heartbeat</code> 方法的逻辑，定期向注册中心发送心跳保活。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day7-registry">day7-registry/main/main.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day7-registry">day7-registry/main/main.go</a></p>
 <pre><code class="language-go">func startRegistry(wg *sync.WaitGroup) {
 	l, _ := net.Listen(&quot;tcp&quot;, &quot;:9999&quot;)
 	registry.HandleHTTP()

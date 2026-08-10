@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
         </header>
         <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
-<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第一篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第一篇。</p>
 <ul>
 <li>使用 <code>encoding/gob</code> 实现消息的编解码(序列化与反序列化)</li>
 <li>实现一个简易的服务端，仅接受消息，不处理，代码约 200 行</li>
@@ -52,7 +52,7 @@
 <pre><code class="language-go">err = client.Call(&quot;Arith.Multiply&quot;, args, &amp;reply)
 </code></pre>
 <p>客户端发送的请求包括服务名 <code>Arith</code>，方法名 <code>Multiply</code>，参数 <code>args</code> 三个，服务端的响应包括错误 <code>error</code>，返回值 <code>reply</code> 2 个。我们将请求和响应中的参数和返回值抽象为 body，剩余的信息放在 header 中，那么就可以抽象出数据结构 Header：</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/codec/codec.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec">day1-codec/codec/codec.go</a></p>
 <pre><code class="language-go">package codec
 
 import &quot;io&quot;
@@ -96,7 +96,7 @@ func init() {
 </code></pre>
 <p>我们定义了 2 种 Codec，<code>Gob</code> 和 <code>Json</code>，但是实际代码中只实现了 <code>Gob</code> 一种，事实上，2 者的实现非常接近，甚至只需要把 <code>gob</code> 换成 <code>json</code> 即可。</p>
 <p>首先定义 <code>GobCodec</code> 结构体，这个结构体由四部分构成，<code>conn</code> 是由构建函数传入，通常是通过 TCP 或者 Unix 建立 socket 时得到的链接实例，dec 和 enc 对应 gob 的 Decoder 和 Encoder，buf 是为了防止阻塞而创建的带缓冲的 <code>Writer</code>，一般这么做能提升性能。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/codec/gob.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec">day1-codec/codec/gob.go</a></p>
 <pre><code class="language-go">package codec
 
 import (
@@ -159,7 +159,7 @@ func (c *GobCodec) Close() error {
 <h2 id="heading-1">通信过程</h2>
 <p>客户端与服务端的通信需要协商一些内容，例如 HTTP 报文，分为 header 和 body 2 部分，body 的格式和长度通过 header 中的 <code>Content-Type</code> 和 <code>Content-Length</code> 指定，服务端通过解析 header 就能够知道如何从 body 中读取需要的信息。对于 RPC 协议来说，这部分协商是需要自主设计的。为了提升性能，一般在报文的最开始会规划固定的字节，来协商相关的信息。比如第1个字节用来表示序列化方式，第2个字节表示压缩方式，第3-6字节表示 header 的长度，7-10 字节表示 body 的长度。</p>
 <p>对于 GeeRPC 来说，目前需要协商的唯一一项内容是消息的编解码方式。我们将这部分信息，放到结构体 <code>Option</code> 中承载。目前，已经进入到服务端的实现阶段了。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/server.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec">day1-codec/server.go</a></p>
 <pre><code class="language-go">package geerpc
 
 const MagicNumber = 0x3bef5c
@@ -183,7 +183,7 @@ var DefaultOption = &amp;Option{
 </code></pre>
 <h2 id="heading-2">服务端的实现</h2>
 <p>通信过程已经定义清楚了，那么服务端的实现就比较直接了。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/server.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec">day1-codec/server.go</a></p>
 <pre><code class="language-go">// Server represents an RPC Server.
 type Server struct{}
 
@@ -349,7 +349,7 @@ func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.
 <h2 id="main-">main 函数(一个简易的客户端)</h2>
 <p>day1 的内容就到此为止了，在这里我们已经实现了一个消息的编解码器 <code>GobCodec</code>，并且客户端与服务端实现了简单的协议交换(protocol exchange)，即允许客户端使用不同的编码方式。同时实现了服务端的雏形，建立连接，读取、处理并回复客户端的请求。</p>
 <p>接下来，我们就在 main 函数中看看如何使用刚实现的 GeeRPC 吧。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day1-codec">day1-codec/main/main.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day1-codec">day1-codec/main/main.go</a></p>
 <pre><code class="language-go">package main
 
 import (

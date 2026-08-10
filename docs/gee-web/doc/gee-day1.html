@@ -41,14 +41,14 @@
           <h1>Go语言动手写Web框架 - Gee第一天 http.Handler</h1>
           <p>7天用 Go语言 从零实现Web框架教程(7 days implement golang web framework from scratch tutorial)，用 Go语言/golang 动手写Web框架，从零实现一个Web框架，以 Gin 为原型从零设计一个Web框架。本文介绍了Go标准库 net/http 和 http.Handl…</p>
         </header>
-        <div class="prose"><p>本文是 <a href="https://geektutu.com/post/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第一篇。</p>
+        <div class="prose"><p>本文是 <a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.html">7天用Go从零实现Web框架Gee教程系列</a>的第一篇。</p>
 <ul>
 <li>简单介绍<code>net/http</code>库以及<code>http.Handler</code>接口。</li>
 <li>搭建<code>Gee</code>框架的雏形，<strong>代码约50行</strong>。</li>
 </ul>
 <h2 id="web">标准库启动Web服务</h2>
 <p>Go语言内置了 <code>net/http</code>库，封装了HTTP网络编程的基础的接口，我们实现的<code>Gee</code> Web 框架便是基于<code>net/http</code>的。我们接下来通过一个例子，简单介绍下这个库的使用。</p>
-<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base1">day1-http-base/base1/main.go</a></strong></p>
+<p><strong><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base1">day1-http-base/base1/main.go</a></strong></p>
 <pre><code class="language-go">package main
 
 import (
@@ -94,7 +94,7 @@ type Handler interface {
 func ListenAndServe(address string, h Handler) error
 </code></pre>
 <p>第二个参数的类型是什么呢？通过查看<code>net/http</code>的源码可以发现，<code>Handler</code>是一个接口，需要实现方法 <em>ServeHTTP</em> ，也就是说，只要传入任何实现了 <em>ServerHTTP</em> 接口的实例，所有的HTTP请求，就都交给了该实例处理了。马上来试一试吧。</p>
-<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base2">day1-http-base/base2/main.go</a></strong></p>
+<p><strong><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base2">day1-http-base/base2/main.go</a></strong></p>
 <pre><code class="language-go">package main
 
 import (
@@ -145,7 +145,7 @@ main.go
 go.mod
 </code></pre>
 <h3 id="gomod">go.mod</h3>
-<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3">day1-http-base/base3/go.mod</a></strong></p>
+<p><strong><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base3">day1-http-base/base3/go.mod</a></strong></p>
 <pre><code class="language-bash">module example
 
 go 1.26.0
@@ -161,7 +161,7 @@ replace gee =&gt; ./gee
 <p>从 go 1.11 版本开始，引用相对路径的 package 需要使用上述方式。</p>
 </blockquote>
 <h3 id="maingo">main.go</h3>
-<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3">day1-http-base/base3/main.go</a></strong></p>
+<p><strong><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base3">day1-http-base/base3/main.go</a></strong></p>
 <pre><code class="language-go">package main
 
 import (
@@ -188,7 +188,7 @@ func main() {
 </code></pre>
 <p>看到这里，如果你使用过<code>gin</code>框架的话，肯定会觉得无比的亲切。<code>gee</code>框架的设计以及API均参考了<code>gin</code>。使用<code>New()</code>创建 gee 的实例，使用 <code>GET()</code>方法添加路由，最后使用<code>Run()</code>启动Web服务。这里的路由，只是静态路由，不支持<code>/hello/:name</code>这样的动态路由，动态路由我们将在下一次实现。</p>
 <h3 id="geego">gee.go</h3>
-<p><strong><a href="https://github.com/geektutu/7days-golang/tree/master/gee-web/day1-http-base/base3">day1-http-base/base3/gee/gee.go</a></strong></p>
+<p><strong><a href="https://github.com/glaxry/7days-golang/tree/main/gee-web/day1-http-base/base3">day1-http-base/base3/gee/gee.go</a></strong></p>
 <pre><code class="language-go">package gee
 
 import (

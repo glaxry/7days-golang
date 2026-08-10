@@ -41,7 +41,7 @@
           <h1>动手写ORM框架 - GeeORM第五天 实现钩子(Hooks)</h1>
           <p>7天用 Go语言/golang 从零实现 ORM 框架 GeeORM 教程(7 days implement golang object relational mapping framework from scratch tutorial)，动手写 ORM 框架，参照 gorm, xorm 的实现。通过反射(reflect)获取结构体绑定…</p>
         </header>
-        <div class="prose"><p>本文是<a href="https://geektutu.com/post/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第五篇。</p>
+        <div class="prose"><p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.html">7天用Go从零实现ORM框架GeeORM</a>的第五篇。</p>
 <ul>
 <li>通过反射(reflect)获取结构体绑定的钩子(hooks)，并调用。</li>
 <li>支持增删查改(CRUD)前后调用钩子。<strong>代码约50行</strong></li>
@@ -53,7 +53,7 @@
 <p>比如，我们设计一个 <code>Account</code> 类，<code>Account</code> 包含有一个隐私字段 <code>Password</code>，那么每次查询后都需要做脱敏处理，才能继续使用。如果提供了 <code>AfterQuery</code> 的钩子，查询后，自动地将 <code>Password</code> 字段的值脱敏，是不是能省去很多冗余的代码呢？</p>
 <h2 id="2-">2 实现钩子</h2>
 <p>GeeORM 的钩子与结构体绑定，即每个结构体需要实现各自的钩子。hook 相关的代码实现在 <code>session/hooks.go</code> 中。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-orm/day5-hooks/session">day5-hooks/session/hooks.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-orm/day5-hooks/session">day5-hooks/session/hooks.go</a></p>
 <pre><code class="language-go">package session
 
 import (

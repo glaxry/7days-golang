@@ -13,12 +13,12 @@ keywords:
 - 动手写Web框架
 - Template
 image: post/gee-day6/html.png
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day6 模板 Template
 ---
 
-本文是 [7天用Go从零实现Web框架Gee教程系列](https://geektutu.com/post/gee.html)的第六篇。
+本文是 [7天用Go从零实现Web框架Gee教程系列](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.md)的第六篇。
 
 - 实现静态资源服务(Static Resource)。
 - 支持HTML模板渲染。
@@ -39,7 +39,7 @@ book_title: Day6 模板 Template
 
 找到文件后，如何返回这一步，`net/http`库已经实现了。因此，gee 框架要做的，仅仅是解析请求的地址，映射到服务器上文件的真实地址，交给`http.FileServer`处理就好了。
 
-[day6-template/gee/gee.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template)
+[day6-template/gee/gee.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template)
 
 ```go
 // create static handler
@@ -106,7 +106,7 @@ func (engine *Engine) LoadHTMLGlob(pattern string) {
 
 接下来，对原来的 `(*Context).HTML()`方法做了些小修改，使之支持根据模板文件名选择模板进行渲染。
 
-[day6-template/gee/context.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template)
+[day6-template/gee/context.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template)
 
 ```go
 type Context struct {
@@ -126,7 +126,7 @@ func (c *Context) HTML(code int, name string, data any) {
 
 我们在 `Context` 中添加了成员变量 `engine *Engine`，这样就能够通过 Context 访问 Engine 中的 HTML 模板。实例化 Context 时，还需要给 `c.engine` 赋值。
 
-[day6-template/gee/gee.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template)
+[day6-template/gee/gee.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template)
 
 ```go
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -163,7 +163,7 @@ func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 </html>
 ```
 
-[day6-template/main.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day6-template)
+[day6-template/main.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day6-template)
 
 ```go
 type student struct {

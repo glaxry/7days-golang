@@ -15,12 +15,12 @@ keywords:
 - hooks
 - BeforeUpdate
 image: post/geeorm/geeorm_sm.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day5 实现钩子
 ---
 
-本文是[7天用Go从零实现ORM框架GeeORM](https://geektutu.com/post/geeorm.html)的第五篇。
+本文是[7天用Go从零实现ORM框架GeeORM](https://github.com/glaxry/7days-golang/blob/main/gee-orm/doc/geeorm.md)的第五篇。
 
 - 通过反射(reflect)获取结构体绑定的钩子(hooks)，并调用。
 - 支持增删查改(CRUD)前后调用钩子。**代码约50行**
@@ -39,7 +39,7 @@ Hook，翻译为钩子，其主要思想是提前在可能增加功能的地方�
 
 GeeORM 的钩子与结构体绑定，即每个结构体需要实现各自的钩子。hook 相关的代码实现在 `session/hooks.go` 中。
 
-[day5-hooks/session/hooks.go](https://github.com/geektutu/7days-golang/tree/master/gee-orm/day5-hooks/session)
+[day5-hooks/session/hooks.go](https://github.com/glaxry/7days-golang/tree/main/gee-orm/day5-hooks/session)
 
 ```go
 package session

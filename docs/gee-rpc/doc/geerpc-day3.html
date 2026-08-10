@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
         </header>
         <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
-<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第三篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第三篇。</p>
 <ul>
 <li>通过反射实现服务注册功能</li>
 <li>在服务端实现服务调用，代码约 150 行</li>
@@ -110,7 +110,7 @@ func (w *WaitGroup) Wait()
 </code></pre>
 <h2 id="-service">通过反射实现 service</h2>
 <p>前面两天我们完成了客户端和服务端，客户端相对来说功能是比较完整的，但是服务端的功能并不完整，仅仅将请求的 header 打印了出来，并没有真正地处理。那今天的主要目的是补全这部分功能。首先通过反射实现结构体与服务的映射关系，代码独立放置在 <code>service.go</code> 中。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service">day3-service/service.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service">day3-service/service.go</a></p>
 <p>第一步，定义结构体 methodType：</p>
 <pre><code class="language-go">type methodType struct {
 	method    reflect.Method
@@ -221,7 +221,7 @@ func isExportedOrBuiltinType(t reflect.Type) bool {
 </code></pre>
 <h2 id="service-">service 的测试用例</h2>
 <p>为了保证 service 实现的正确性，我们为 service.go 写了几个测试用例。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service">day3-service/service_test.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service">day3-service/service_test.go</a></p>
 <p>定义结构体 Foo，实现 2 个方法，导出方法 Sum 和 非导出方法 sum。</p>
 <pre><code class="language-go">type Foo int
 
@@ -269,7 +269,7 @@ func TestMethodType_Call(t *testing.T) {
 <p>通过反射结构体已经映射为服务，但请求的处理过程还没有完成。从接收到请求到回复还差以下几个步骤：第一步，根据入参类型，将请求的 body 反序列化；第二步，调用 <code>service.call</code>，完成方法调用；第三步，将 reply 序列化为字节流，构造响应报文，返回。</p>
 <p>回到代码本身，补全之前在 <code>server.go</code> 中遗留的 2 个 TODO 任务 <code>readRequest</code> 和 <code>handleRequest</code> 即可。</p>
 <p>在这之前，我们还需要为 Server 实现一个方法 <code>Register</code>。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service">day3-service/server.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service">day3-service/server.go</a></p>
 <pre><code class="language-go">// Server represents an RPC Server.
 type Server struct {
 	serviceMap sync.Map
@@ -360,7 +360,7 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 <p>到这里，今天的所有内容已经实现完成，成功在服务端实现了服务注册与调用。</p>
 <h2 id="demo">Demo</h2>
 <p>最后，还是需要写一个可执行程序(main)验证今天的成果。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day3-service">day3-service/main/main.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day3-service">day3-service/main/main.go</a></p>
 <p>第一步，定义结构体 Foo 和方法 Sum</p>
 <pre><code class="language-go">package main
 

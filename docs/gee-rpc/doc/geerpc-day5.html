@@ -42,7 +42,7 @@
           <p>7天用 Go语言/golang 从零实现 RPC 框架 GeeRPC 教程(7 days implement golang remote procedure call framework from scratch tutorial)，动手写 RPC 框架，参照 golang 标准库 net/rpc 的实现，实现了服务端(server)、支…</p>
         </header>
         <div class="prose"><p><img src="geerpc/geerpc.jpg" alt="golang RPC framework"></p>
-<p>本文是<a href="https://geektutu.com/post/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第五篇。</p>
+<p>本文是<a href="https://github.com/glaxry/7days-golang/blob/main/gee-rpc/doc/geerpc.html">7天用Go从零实现RPC框架GeeRPC</a>的第五篇。</p>
 <ul>
 <li>支持 HTTP 协议</li>
 <li>基于 HTTP 实现一个简单的 Debug 页面，代码约 150 行。</li>
@@ -81,7 +81,7 @@
 <li>客户端使用创建好的连接发送 RPC 报文，先发送 Option，再发送 N 个请求报文，服务端处理 RPC 请求并响应。</li>
 </ol>
 <p>在 <code>server.go</code> 中新增如下的方法：</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day5-http-debug">day5-http-debug/server.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day5-http-debug">day5-http-debug/server.go</a></p>
 <pre><code class="language-go">const (
 	connected        = &quot;200 Connected to Gee RPC&quot;
 	defaultRPCPath   = &quot;/_geeprc_&quot;
@@ -131,11 +131,11 @@ func Handle(pattern string, handler Handler) { DefaultServeMux.Handle(pattern, h
 </code></pre>
 <p>也就是说，只需要实现接口 Handler 即可作为一个 HTTP Handler 处理 HTTP 请求。接口 Handler 只定义了一个方法 <code>ServeHTTP</code>，实现该方法即可。</p>
 <blockquote>
-<p>关于 http.Handler 的更多信息，推荐阅读 <a href="https://geektutu.com/post/gee-day1.html">Go语言动手写Web框架 - Gee第一天 http.Handler</a></p>
+<p>关于 http.Handler 的更多信息，推荐阅读 <a href="https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee-day1.html">Go语言动手写Web框架 - Gee第一天 http.Handler</a></p>
 </blockquote>
 <h2 id="-http--2">客户端支持 HTTP 协议</h2>
 <p>服务端已经能够接受 CONNECT 请求，并返回了 200 状态码 <code>HTTP/1.0 200 Connected to Gee RPC</code>，客户端要做的，发起 CONNECT 请求，检查返回状态码即可成功建立连接。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day5-http-debug">day5-http-debug/client.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day5-http-debug">day5-http-debug/client.go</a></p>
 <pre><code class="language-go">// NewHTTPClient new a Client instance via HTTP as transport protocol
 func NewHTTPClient(conn net.Conn, opt *Option) (*Client, error) {
 	_, _ = io.WriteString(conn, fmt.Sprintf(&quot;CONNECT %s HTTP/1.0\n\n&quot;, defaultRPCPath))
@@ -180,7 +180,7 @@ func XDial(rpcAddr string, opts ...*Option) (*Client, error) {
 }
 </code></pre>
 <p>添加一个测试用例试一试，这个测试用例使用了 unix 协议创建 socket 连接，适用于本机内部的通信，使用上与 TCP 协议并无区别。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day5-http-debug">day5-http-debug/client_test.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day5-http-debug">day5-http-debug/client_test.go</a></p>
 <pre><code class="language-go">func TestXDial(t *testing.T) {
 	if runtime.GOOS == &quot;linux&quot; {
 		ch := make(chan struct{})
@@ -202,7 +202,7 @@ func XDial(rpcAddr string, opts ...*Option) (*Client, error) {
 </code></pre>
 <h2 id="-debug-">实现简单的 DEBUG 页面</h2>
 <p>支持 HTTP 协议的好处在于，RPC 服务仅仅使用了监听端口的 <code>/_geerpc</code> 路径，在其他路径上我们可以提供诸如日志、统计等更为丰富的功能。接下来我们在 <code>/debug/geerpc</code> 上展示服务的调用统计视图。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day5-http-debug">day5-http-debug/debug.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day5-http-debug">day5-http-debug/debug.go</a></p>
 <pre><code class="language-go">package geerpc
 
 import (
@@ -270,7 +270,7 @@ func (server debugHTTP) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 </code></pre>
 <h2 id="demo">Demo</h2>
 <p>OK，我们已经迫不及待地想看看最终的效果了。</p>
-<p><a href="https://github.com/geektutu/7days-golang/tree/master/gee-rpc/day5-http-debug">day5-http-debug/main/main.go</a></p>
+<p><a href="https://github.com/glaxry/7days-golang/tree/main/gee-rpc/day5-http-debug">day5-http-debug/main/main.go</a></p>
 <p>和之前的例子相比较，将 startServer 中的 <code>geerpc.Accept()</code> 替换为了 <code>geerpc.HandleHTTP()</code>，端口固定为 9999。</p>
 <pre><code class="language-go">type Foo int
 

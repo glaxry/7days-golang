@@ -26,3 +26,26 @@ func TestEnsureOutputIsSafe(t *testing.T) {
 		t.Fatal("outside path must not be accepted as output")
 	}
 }
+
+func TestValidateSourceLinks(t *testing.T) {
+	tests := []struct {
+		name    string
+		link    string
+		wantErr bool
+	}{
+		{name: "current repository", link: "https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.md"},
+		{name: "external reference", link: "https://geektutu.com/post/quick-golang.html"},
+		{name: "old repository", link: "https://github.com/geektutu/7days-golang", wantErr: true},
+		{name: "old tutorial", link: "https://geektutu.com/post/geecache-day2.html", wantErr: true},
+		{name: "old branch", link: "https://github.com/glaxry/7days-golang/tree/master/gee-rpc", wantErr: true},
+		{name: "malformed URL", link: "ghttps://github.com/glaxry/7days-golang/tree/main/gee-rpc", wantErr: true},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := validateSourceLinks("test.md", test.link)
+			if (err != nil) != test.wantErr {
+				t.Fatalf("validateSourceLinks() error = %v, wantErr %v", err, test.wantErr)
+			}
+		})
+	}
+}

@@ -13,12 +13,12 @@ keywords:
 - 动手写Web框架
 - Group Control
 image: post/gee-day4/group.jpg
-github: https://github.com/geektutu/7days-golang
+github: https://github.com/glaxry/7days-golang
 book: 七天用Go从零实现系列
 book_title: Day4 分组控制
 ---
 
-本文是 [7天用Go从零实现Web框架Gee教程系列](https://geektutu.com/post/gee.html)的第四篇。
+本文是 [7天用Go从零实现Web框架Gee教程系列](https://github.com/glaxry/7days-golang/blob/main/gee-web/doc/gee.md)的第四篇。
 
 - 实现路由分组控制(Route Group Control)，**代码约50行**
 
@@ -52,7 +52,7 @@ v1.GET("/", func(c *gee.Context) {
 
 所以，最后的 Group 的定义是这样的：
 
-**[day4-group/gee/gee.go](https://github.com/geektutu/7days-golang/tree/master/gee-web/day4-group)**
+**[day4-group/gee/gee.go](https://github.com/glaxry/7days-golang/tree/main/gee-web/day4-group)**
 
 ```go
 RouterGroup struct {
